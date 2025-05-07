@@ -1,7 +1,8 @@
 const express = require('express');
 const path = require('path');
 const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users'); // Make sure this line is present
+const usersRouter = require('./routes/users'); 
+const registerRouter = require('./routes/register'); // Corrected path
 
 const app = express();
 
@@ -11,9 +12,11 @@ app.set('view engine', 'ejs');
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Correct way to mount routers:
+
 app.use('/', indexRouter);
-app.use('/users', usersRouter); // Mount the usersRouter
+app.use('/', registerRouter);
+app.use('/users', usersRouter);
+
 
 app.listen(3000, () => {
   console.log('Server listening on port 3000');
