@@ -40,3 +40,53 @@ h1 {
 .button:hover {
     background-color: var(--secondary);
 }
+
+.navbar {
+    display: flex;
+}
+
+#desktop-header {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    width: 100vw !important;
+    height: 85px;
+}
+
+#desktop-header .logo {
+    width: 80px;
+}
+
+#desktop-header #nav-buttons {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 20px;
+}
+
+#desktop-header .nav-button {
+    background-color: var(--text);
+    display: flex !important;
+    flex-direction: row;
+    align-items: center;
+    padding: 10px 20px;
+    gap: 10px;
+}
+
+#desktop-header .nav-button a {
+    color: var(--background);
+}
+
+#desktop-header .nav-icon {
+    display: inline-block;
+    width: 22px;
+}
+
+#desktop-header .nav-links {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    list-style-type: none;
+}
