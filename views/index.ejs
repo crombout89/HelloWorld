@@ -3,9 +3,15 @@
 <head>
   <title><%= title %></title>
   <link rel='stylesheet' href='/styles.css' />
+  <link rel="stylesheet" href="https://use.typekit.net/yrl0zql.css">
 </head>
 <body>
-  <h1><%= title %></h1>
-  <p>Welcome to Express</p>
+    <div class="container">
+        <h1><%= title %></h1>
+        <p>Register or log in to continue.</p>
+
+        <a href="/register" class="button">Register</a>
+        <a href="/login" class="button">Login</a>
+    </div>
 </body>
 </html>
