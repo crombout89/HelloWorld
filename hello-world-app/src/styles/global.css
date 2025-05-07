@@ -1,0 +1,33 @@
+/* global.css */
+/* Define your color palette variables */
+:root {
+  --primary-color: #87C159;
+  --secondary-color: #ADCACB;
+  --accent-color: #F3C301;
+  --accent-color-2: #FEE3A2;
+  --text-color: #058240;
+  --background-color: #f0f0f0;
+}
+
+
+/* Apply styles globally (you can be more specific if needed) */
+body {
+  font-family: brevia, sans-serif;
+  background-color: var(--background-color);
+  color: var(--text-color);
+}
+
+h1, h2, h3 {
+  font-family: sirenia, sans-serif; 
+  color: var(--primary-color);
+}
+
+/* Example usage of color variables */
+button {
+  background-color: var(--secondary-color);
+  color: var(--text-color);
+}
+
+a {
+  color: var(--accent-color);
+}
