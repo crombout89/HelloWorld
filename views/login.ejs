@@ -1,0 +1,28 @@
+<!-- views/login.ejs -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <link rel='stylesheet' href='/styles.css' />
+  <link rel="stylesheet" href="https://use.typekit.net/yrl0zql.css">
+</head>
+<body>
+  <div class="container">
+    <h1><%= title %></h1>
+
+    <% if (error) { %>
+      <p style="color: red;"><%= error %></p>
+    <% } %>
+
+    <form action="/login" method="post">
+      <label for="username">Username:</label><br>
+      <input type="text" id="username" name="username"><br><br>
+
+      <label for="password">Password:</label><br>
+      <input type="password" id="password" name="password"><br><br>
+
+      <input type="submit" value="Login">
+    </form>
+  </div>
+</body>
+</html>
