@@ -1,0 +1,24 @@
+{
+  "name": "hello-world-app",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^4.21.2"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/crombout89/2800-202510-DTC04.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/crombout89/2800-202510-DTC04/issues"
+  },
+  "homepage": "https://github.com/crombout89/2800-202510-DTC04#readme"
+}

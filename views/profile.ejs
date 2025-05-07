@@ -1,0 +1,32 @@
+<!-- views/profile.ejs -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <link rel='stylesheet' href='/styles.css' />
+  <link rel="stylesheet" href="https://use.typekit.net/yrl0zql.css">
+</head>
+<body>
+  <div class="container">
+    <h1><%= title %></h1>
+
+    <% if (user) { %>
+      <p>Welcome, <%= user.username %>!</p>
+
+      <% if (location) { %>
+        <% if (location.error) { %>
+          <p style="color: red;"><%= location.error %></p>
+        <% } else { %>
+          <p>Your location:</p>
+          <p>Latitude: <%= location.latitude %></p>
+          <p>Longitude: <%= location.longitude %></p>
+          <p>City: <%= location.city %></p>
+        <% } %>
+      <% } %>
+
+    <% } else { %>
+      <p>You are not logged in. <a href="/login">Login</a></p>
+    <% } %>
+  </div>
+</body>
+</html>
