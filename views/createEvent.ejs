@@ -1,0 +1,31 @@
+<!-- views/createEvent.ejs -->
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+  <link rel='stylesheet' href='/styles.css' />
+  <link rel="stylesheet" href="https://use.typekit.net/yrl0zql.css">
+</head>
+<body>
+  <div class="container">
+    <h1><%= title %></h1>
+
+    <% if (error) { %>
+      <p style="color: red;"><%= error %></p>
+    <% } %>
+
+    <form action="/create-event" method="post">
+      <label for="eventName">Event Name:</label><br>
+      <input type="text" id="eventName" name="eventName"><br><br>
+
+      <label for="eventDate">Date:</label><br>
+      <input type="date" id="eventDate" name="eventDate"><br><br>
+
+      <label for="eventTime">Time:</label><br>
+      <input type="time" id="eventTime" name="eventTime"><br><br>
+
+      <input type="submit" value="Create Event">
+    </form>
+  </div>
+</body>
+</html>
