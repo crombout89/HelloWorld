@@ -5,7 +5,6 @@ const usersRouter = require('./routes/users');
 const registerRouter = require('./routes/register');
 const loginRouter = require('./routes/login');
 const profileRouter = require('./routes/profile');
-const createEventRouter = require('./routes/createEvent');
 
 const app = express();
 
@@ -24,7 +23,6 @@ app.use('/', indexRouter);
 app.use('/', loginRouter);
 app.use('/', registerRouter);
 app.use('/', profileRouter);
-app.use('/', createEventRouter);
 app.use('/users', usersRouter);
 
 
