@@ -55,8 +55,30 @@ h1 {
     height: 85px;
 }
 
-#desktop-header .logo {
-    width: 80px;
+#desktop-header a {
+    text-decoration: none !important;
+    font-weight: 600;
+}
+
+#desktop-header #logo a {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+#desktop-header #logo h1 {
+    background: #058240;
+    background: linear-gradient(to bottom, #058240 0%, #ADCACB 80%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-size: 36px;
+}
+
+#desktop-header #logo img {
+    width: 64px;
 }
 
 #desktop-header #nav-buttons {
@@ -72,16 +94,15 @@ h1 {
     flex-direction: row;
     align-items: center;
     padding: 10px 20px;
-    gap: 10px;
-}
-
-#desktop-header .nav-button a {
-    color: var(--background);
+    gap: 8px;
+    color: var(--background) !important;
+    text-transform: uppercase;
+    border-radius: 5px;
 }
 
 #desktop-header .nav-icon {
     display: inline-block;
-    width: 22px;
+    width: 20px;
 }
 
 #desktop-header .nav-links {
