@@ -1,86 +1,103 @@
+// routes/location.js
+const express = require('express');
+const router = express.Router();
+const User = require('../models/user');
 const axios = require('axios');
-require('dotenv').config();
 
-class LocationService {
-  constructor() {
-    this.apiKey = process.env.LOCATIONIQ_API_KEY;
-    this.baseUrl = 'https://us1.locationiq.com/v1';
-  }
+// Geocode an address
+router.post('/geocode', async (req, res) => {
+  try {
+    const { address } = req.body;
+    
+    // Use LocationIQ directly as a fallback/example
+    const apiKey = process.env.LOCATIONIQ_API_KEY;
+    const response = await axios.get('https://us1.locationiq.com/v1/search', {
+      params: {
+        key: apiKey,
+        q: address,
+        format: 'json',
+        limit: 1
+      }
+    });
 
-  async reverseGeocode(latitude, longitude) {
-    try {
-      const response = await axios.get(`${this.baseUrl}/reverse.php`, {
-        params: {
-          key: this.apiKey,
-          lat: latitude,
-          lon: longitude,
-          format: 'json',
-          normalizer: 1
-        }
-      });
-
-      const locationData = response.data.address;
+    if (response.data && response.data.length > 0) {
+      const location = response.data[0];
       
-      return {
-        fullAddress: response.data.display_name,
-        city: locationData.city || locationData.town || locationData.village,
-        state: locationData.state,
-        country: locationData.country,
-        postalCode: locationData.postcode,
-        neighborhood: locationData.neighbourhood,
+      res.json({
+        address: address,
         coordinates: {
-          latitude: parseFloat(latitude),
-          longitude: parseFloat(longitude)
-        }
-      };
-    } catch (error) {
-      console.error('Reverse Geocoding Error:', error.response ? error.response.data : error.message);
-      throw new Error('Could not retrieve location details');
-    }
-  }
-
-  async forwardGeocode(address) {
-    try {
-      const response = await axios.get(`${this.baseUrl}/search.php`, {
-        params: {
-          key: this.apiKey,
-          q: address,
-          format: 'json',
-          limit: 5
-        }
+          latitude: parseFloat(location.lat),
+          longitude: parseFloat(location.lon)
+        },
+        city: location.address.city || location.address.town || '',
+        country: location.address.country || ''
       });
-
-      return response.data.map(location => ({
-        displayName: location.display_name,
-        latitude: parseFloat(location.lat),
-        longitude: parseFloat(location.lon)
-      }));
-    } catch (error) {
-      console.error('Forward Geocoding Error:', error.response ? error.response.data : error.message);
-      throw new Error('Could not search for location');
+    } else {
+      res.status(404).json({ message: 'Location not found' });
     }
+  } catch (error) {
+    console.error('Geocoding Error:', error);
+    res.status(500).json({ 
+      message: 'Error geocoding address', 
+      error: error.message 
+    });
   }
+});
 
-  // Haversine formula for distance calculation
-  calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Radius of the Earth in kilometers
-    const dLat = this.deg2rad(lat2 - lat1);
-    const dLon = this.deg2rad(lon2 - lon1);
+// Find nearby users
+router.get('/nearby', async (req, res) => {
+  try {
+    const { latitude, longitude, maxDistance = 10 } = req.query;
     
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) * 
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    const distance = R * c;
-    
-    return distance;
+    const nearbyUsers = await User.find({
+      geolocation: {
+        $near: {
+          $geometry: {
+            type: 'Point',
+            coordinates: [parseFloat(longitude), parseFloat(latitude)]
+          },
+          $maxDistance: maxDistance * 1000 // Convert km to meters
+        }
+      }
+    }).select('username profile.location'); // Limit returned fields
+
+    res.json(nearbyUsers);
+  } catch (error) {
+    console.error('Nearby Users Error:', error);
+    res.status(500).json({ 
+      message: 'Error finding nearby users', 
+      error: error.message 
+    });
   }
+});
 
-  deg2rad(deg) {
-    return deg * (Math.PI/180);
+// Update user's location
+router.post('/update', async (req, res) => {
+  try {
+    const { userId, address } = req.body;
+    
+    // Find user by ID
+    const user = await User.findById(userId);
+    
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Geocode and update location
+    await user.geocodeAddress(address);
+    await user.save();
+
+    res.json({
+      message: 'Location updated successfully',
+      location: user.profile.location
+    });
+  } catch (error) {
+    console.error('Location Update Error:', error);
+    res.status(500).json({ 
+      message: 'Error updating location', 
+      error: error.message 
+    });
   }
-}
+});
 
-module.exports = new LocationService();
+module.exports = router;

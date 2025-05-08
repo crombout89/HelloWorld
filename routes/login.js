@@ -1,101 +1,47 @@
-// routes/location.js
 const express = require('express');
 const router = express.Router();
-const User = require('../middleware/auth'); // Adjust path as needed
-const axios = require('axios');
+const User = require('../models/user');
 
-// Geocode an address
-router.post('/geocode', async (req, res) => {
-  try {
-    const { address } = req.body;
-    
-    // Use LocationIQ directly as a fallback/example
-    const apiKey = process.env.LOCATIONIQ_API_KEY;
-    const response = await axios.get('https://us1.locationiq.com/v1/search', {
-      params: {
-        key: apiKey,
-        q: address,
-        format: 'json',
-        limit: 1
-      }
-    });
-
-    if (response.data && response.data.length > 0) {
-      const location = response.data[0];
-      
-      res.json({
-        address: address,
-        coordinates: {
-          latitude: parseFloat(location.lat),
-          longitude: parseFloat(location.lon)
-        },
-        city: location.address.city || location.address.town || '',
-        country: location.address.country || ''
-      });
-    } else {
-      res.status(404).json({ message: 'Location not found' });
-    }
-  } catch (error) {
-    console.error('Geocoding Error:', error);
-    res.status(500).json({ 
-      message: 'Error geocoding address', 
-      error: error.message 
-    });
-  }
+// GET Login Page
+router.get('/', (req, res) => {
+  res.render('login', { 
+    title: 'Login', 
+    error: null 
+  });
 });
 
-// Find nearby users
-router.get('/nearby', async (req, res) => {
+// POST Login Route
+router.post('/', async (req, res) => {
   try {
-    const { latitude, longitude, maxDistance = 10 } = req.query;
+    const { username, password } = req.body;
     
-    const nearbyUsers = await User.find({
-      geolocation: {
-        $near: {
-          $geometry: {
-            type: 'Point',
-            coordinates: [parseFloat(longitude), parseFloat(latitude)]
-          },
-          $maxDistance: maxDistance * 1000 // Convert km to meters
-        }
-      }
-    }).select('username profile.location'); // Limit returned fields
-
-    res.json(nearbyUsers);
-  } catch (error) {
-    console.error('Nearby Users Error:', error);
-    res.status(500).json({ 
-      message: 'Error finding nearby users', 
-      error: error.message 
-    });
-  }
-});
-
-// Update user's location
-router.post('/update', async (req, res) => {
-  try {
-    const { userId, address } = req.body;
-    
-    // Find user by ID
-    const user = await User.findById(userId);
+    const user = await User.findOne({ username });
     
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.render('login', { 
+        title: 'Login', 
+        error: 'User not found' 
+      });
     }
-
-    // Geocode and update location
-    await user.geocodeAddress(address);
-    await user.save();
-
-    res.json({
-      message: 'Location updated successfully',
-      location: user.profile.location
-    });
+    
+    const isMatch = await user.comparePassword(password);
+    
+    if (!isMatch) {
+      return res.render('login', { 
+        title: 'Login', 
+        error: 'Invalid credentials' 
+      });
+    }
+    
+    // Set session
+    req.session.userId = user._id;
+    
+    res.redirect('/dashboard');
   } catch (error) {
-    console.error('Location Update Error:', error);
-    res.status(500).json({ 
-      message: 'Error updating location', 
-      error: error.message 
+    console.error('Login Error:', error);
+    res.render('login', { 
+      title: 'Login', 
+      error: 'An unexpected error occurred' 
     });
   }
 });

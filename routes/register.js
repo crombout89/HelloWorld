@@ -1,7 +1,7 @@
 // routes/register.js
 const express = require('express');
 const router = express.Router();
-const User = require('../middleware/auth'); // Ensure this path is correct
+const User = require('../models/user');
 
 router.get('/register', (req, res) => {
     res.render('register', { 
