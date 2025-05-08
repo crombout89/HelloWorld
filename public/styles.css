@@ -144,16 +144,35 @@ h1 {
         color: var(--primary);
     }
 
-}
-
-/*** TABLET SETTINGS ***/
-
-@media screen and (min-width: 768px) and (max-width: 1024px) {
+    #responsive-header {
+        display: none;
+    }
 
 }
 
-/*** MOBILE SETTINGS ***/
+/*** RESPONSIVE SETTINGS ***/
 
-@media screen and (max-width: 767px) {
+@media screen and (max-width: 1024px) {
+    
+    #desktop-header {
+        display: none;
+    }
 
+    #responsive-header {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: space-evenly;
+        width: 100%;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        z-index: 999;
+    }
+
+    #responsive-header .nav-button {
+        background-color: var(--primary);
+        border-radius: 100%;
+    }
 }
