@@ -5,7 +5,6 @@ router.get('/profile', async (req, res) => {
   const sessionUser = req.session.user;
   if (!sessionUser) return res.redirect('/login');
 
-  // Initialize preferences and interests
   if (!sessionUser.preferences) sessionUser.preferences = [];
   if (!sessionUser.interests) sessionUser.interests = [];
 

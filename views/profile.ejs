@@ -9,7 +9,7 @@
   <% if (user) { %>
     <h2>User Details</h2>
     <ul>
-      <li><strong>Firstname:</strong> <%= user.Firstname %></li>
+     
       <li><strong>Username:</strong> <%= user.username %></li>
       <li><strong>Email:</strong> <%= user.email %></li>
       <li><strong>Joined Date:</strong> <%= user.joinDate %></li>
@@ -51,6 +51,12 @@
     <h2>Preferences</h2>
     <form action="/profile/preferences" method="POST">
       <label>
+        <input type="checkbox" name="preferences" value="get info before traveling"
+          <% if (user.preferences && user.preferences.includes('get info before traveling')) { %>checked<% } %> />
+        Get Info Before Traveling
+      </label><br/>
+
+      <label>
         <input type="checkbox" name="preferences" value="friendship"
           <% if (user.preferences && user.preferences.includes('friendship')) { %>checked<% } %> />
         Friendship
@@ -62,11 +68,7 @@
         Language Exchange
       </label><br/>
 
-      <label>
-        <input type="checkbox" name="preferences" value="get info before traveling"
-          <% if (user.preferences && user.preferences.includes('get info before traveling')) { %>checked<% } %> />
-        Get Info Before Traveling
-      </label><br/>
+
       <br>
 
       <button type="submit">Save Preferences</button>
@@ -74,7 +76,7 @@
 
     <p><a href="/logout">Logout</a></p>
   <% } else { %>
-    <p>You are not logged in. <a href="/login">Login here</a></p>
+    <p>You are not logged in! <a href="/login">Login here</a></p>
   <% } %>
 </body>
 </html>
