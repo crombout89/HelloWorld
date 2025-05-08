@@ -7,6 +7,7 @@ const usersRouter = require('./routes/users');
 const registerRouter = require('./routes/register');
 const loginRouter = require('./routes/login');
 const profileRouter = require('./routes/profile');
+const discoverRoutes = require('./routes/discover');
 
 // Body parsers
 app.use(express.urlencoded({ extended: true }));
@@ -23,7 +24,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/', loginRouter);
 app.use('/', registerRouter);
-app.use('/', profileRouter); 
+app.use('/', profileRouter);
+app.use('/discover', discoverRoutes); 
 app.use('/users', usersRouter);
 
 // Start server

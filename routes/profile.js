@@ -1,4 +1,4 @@
-/** const express = require('express');
+const express = require('express');
 const router = express.Router();
 
 router.get('/profile', async (req, res) => {
@@ -64,34 +64,5 @@ async function getLocationData() {
     }, 500);
   });
 }
-
-module.exports = router;*/
-
-// routes/profile.js
-const express = require('express');
-const router = express.Router();
-
-router.get('/profile', async (req, res) => { // Make the callback async
-  // Placeholder for user authentication/authorization (you'll add this later)
-  // Example: Check if the user is logged in (e.g., using sessions or JWT)
-
-  // Placeholder for getting user data from MongoDB (you'll add this later)
-  const userData = {
-    username: 'exampleUser', // Replace with actual user data from MongoDB
-    // ... other user data ...
-  };
-
-  let locationData = null;
-  try {
-    locationData = await getLocationData(); // Now await works correctly
-  } catch (error) {
-    console.error("Error getting location:", error);
-    locationData = { error: "Could not retrieve location" };
-  }
-
-  res.render('profile', { title: 'Profile', user: userData, location: locationData });
-});
-
-// ... (getLocationData function remains the same) ...
 
 module.exports = router;

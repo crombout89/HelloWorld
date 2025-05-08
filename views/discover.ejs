@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width,
+  initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title><%= title %></title>
+  <link rel='stylesheet' href='/styles.css' />
+  <link rel='stylesheet' href='css/discover.css' />
+  <link rel='stylesheet' href='css/effects.css' />
+  <link rel="stylesheet" href="https://use.typekit.net/yrl0zql.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="section-title">Discover Events</h1>
+        
+        <div class="discovery-grid" id="discoveryGrid">
+            <% discoveryOptions.forEach(function(option) { %>
+                <div class="discovery-card" data-search-type="<%= option.title.toLowerCase().replace(/\s+/g, '-') %>">
+                    <img src="/icons/<%= option.icon %>.svg" alt="<%= option.title %>">
+                    <h3><%= option.title %></h3>
+                    <p><%= option.description %></p>
+                </div>
+            <% }); %>
+        </div>
+    </div>
+    
+    <%- include('partials/search-modal') %>
+
+    <%- include('partials/navbar') %>
+
+    <script type="module" src="/assets/js/disocver.js" defer></script>
+</body>
+</html>
