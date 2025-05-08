@@ -16,28 +16,39 @@
 #welcome {
     z-index: 2;
     display: flex;
+    gap: 12px;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    text-align: center;
     background-color: white;
-    width: clamp(250px, 45vw, 550px);
-    padding: 3.5%;
+    color: var(--primary);
+    width: clamp(280px, 45vw, 450px);
+    padding: 20px;
     border-radius: 16px;
-    box-shadow: 3px 5px 10px -2px #00000040;
-    
-    /* Fade-in specific styles */
+    box-shadow: 5px 8px 10px -2px #00000040;
     opacity: 0;
     transform: translateY(20px);
     transition: 
         opacity 0.6s ease-out, 
         transform 0.6s ease-out;
-    visibility: hidden; /* Add this */
+    visibility: hidden;
 }
 
 #welcome.visible {
     opacity: 1;
     transform: translateY(0);
-    visibility: visible; /* Add this */
+    visibility: visible;
+}
+
+#welcome .button {
+    gap: 8px;
+    font-weight: 600;
+    color: var(--background);
+}
+
+#welcome .button img {
+    width: 20px;
 }
 
 #welcome .fade-in {
@@ -51,6 +62,10 @@
 #welcome .fade-in.visible {
     opacity: 1;
     transform: translateY(0);
+}
+
+#welcome .logo {
+    width: clamp(150px, 20vw, 200px);
 }
 
 /* =====================
