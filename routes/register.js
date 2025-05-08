@@ -1,81 +1,57 @@
-// routes/register.js
 const express = require('express');
 const router = express.Router();
-const User = require('../middleware/auth'); // Ensure this path is correct
+const User = require('../models/User'); // Ensure correct path to User model
 
-router.get('/register', (req, res) => {
-    res.render('register', { 
-        title: 'Register', 
-        error: null,
-        success: null
-    }); 
+// GET Register Page
+router.get('/', (req, res) => {
+  res.render('register', { 
+    title: 'Register', 
+    error: null 
+  });
 });
 
-router.post('/register', async (req, res) => {
-    const { username, email, password, firstName, lastName, address } = req.body;
-
-    try {
-        // Validation checks
-        if (!username || !email || !password) {
-            return res.render('register', { 
-                title: 'Register', 
-                error: 'Username, email, and password are required',
-                success: null
-            });
-        }
-
-        // Check if user already exists
-        const existingUser = await User.findOne({ 
-            $or: [{ email }, { username }] 
-        });
-
-        if (existingUser) {
-            return res.render('register', { 
-                title: 'Register', 
-                error: 'User with this email or username already exists',
-                success: null
-            });
-        }
-
-        // Create new user
-        const newUser = new User({
-            username,
-            email,
-            password,
-            profile: {
-                firstName,
-                lastName
-            }
-        });
-
-        // Optional: Geocode address if provided
-        if (address) {
-            try {
-                await newUser.geocodeAddress(address);
-            } catch (geocodeError) {
-                console.warn('Geocoding failed:', geocodeError.message);
-                // Continue with user creation even if geocoding fails
-            }
-        }
-
-        // Save user
-        await newUser.save();
-
-        // Render success page or redirect
-        res.render('register', {
-            title: 'Register',
-            error: null,
-            success: 'Registration successful! You can now log in.'
-        });
-
-    } catch (error) {
-        console.error('Registration Error:', error);
-        res.render('register', { 
-            title: 'Register', 
-            error: 'An error occurred during registration',
-            success: null
-        });
+// POST Register Route
+router.post('/', async (req, res) => {
+  try {
+    const { username, email, password } = req.body;
+    
+    // Check if user already exists
+    const existingUser = await User.findOne({ 
+      $or: [{ username }, { email }] 
+    });
+    
+    if (existingUser) {
+      return res.render('register', { 
+        title: 'Register', 
+        error: 'Username or email already exists' 
+      });
     }
+    
+    // Create new user
+    const newUser = new User({
+      username,
+      email,
+      password,
+      profile: {
+        firstName: '',
+        lastName: '',
+        bio: '',
+        interests: []
+      }
+    });
+    
+    // Save user
+    await newUser.save();
+    
+    // Redirect to login or dashboard
+    res.redirect('/login');
+  } catch (error) {
+    console.error('Registration Error:', error);
+    res.render('register', { 
+      title: 'Register', 
+      error: error.message || 'An unexpected error occurred' 
+    });
+  }
 });
 
 module.exports = router;
