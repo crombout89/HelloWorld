@@ -1,17 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
+  <meta name="viewport" content="width=device-width,
+  initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title><%= title %></title>
   <link rel='stylesheet' href='/styles.css' />
   <link rel="stylesheet" href="https://use.typekit.net/yrl0zql.css">
 </head>
 <body>
-    <div class="container">
-        <h1><%= title %></h1>
-        <p>Register or log in to continue.</p>
+    <!-- <div class="container">
+      <object data="/logo.svg" type="image/svg+xml">
+        <img src="/logo.png" alt="HelloWorld.app Logo" />
+      </object>
 
-        <a href="/register" class="button">Register</a>
-        <a href="/login" class="button">Login</a>
-    </div>
+      <h1><%= title %></h1>
+      <p>Register or log in to continue.</p>
+
+      <a href="/register" class="button">Register</a>
+      <a href="/login" class="button">Login</a>
+    </div> -->
+
+    <%- include('partials/navbar') %>
 </body>
 </html>
