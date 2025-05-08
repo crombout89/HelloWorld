@@ -52,6 +52,12 @@
     <h2>Preferences</h2>
     <form action="/profile/preferences" method="POST">
       <label>
+        <input type="checkbox" name="preferences" value="get info before traveling"
+          <% if (user.preferences && user.preferences.includes('get info before traveling')) { %>checked<% } %> />
+        Get Info Before Traveling
+      </label><br/>
+      
+      <label>
         <input type="checkbox" name="preferences" value="friendship"
           <% if (user.preferences && user.preferences.includes('friendship')) { %>checked<% } %> />
         Friendship
@@ -63,11 +69,7 @@
         Language Exchange
       </label><br/>
 
-      <label>
-        <input type="checkbox" name="preferences" value="get info before traveling"
-          <% if (user.preferences && user.preferences.includes('get info before traveling')) { %>checked<% } %> />
-        Get Info Before Traveling
-      </label><br/>
+
       <br>
 
       <button type="submit">Save Preferences</button>
