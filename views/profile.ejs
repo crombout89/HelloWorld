@@ -1,32 +1,80 @@
-<!-- views/profile.ejs -->
 <!DOCTYPE html>
 <html>
 <head>
   <title><%= title %></title>
-  <link rel='stylesheet' href='/styles.css' />
-  <link rel="stylesheet" href="https://use.typekit.net/yrl0zql.css">
 </head>
 <body>
-  <div class="container">
-    <h1><%= title %></h1>
+  <h1><%= title %></h1>
 
-    <% if (user) { %>
-      <p>Welcome, <%= user.username %>!</p>
+  <% if (user) { %>
+    <h2>User Details</h2>
+    <ul>
+      <li><strong>Firstname:</strong> <%= user.Firstname %></li>
+      <li><strong>Username:</strong> <%= user.username %></li>
+      <li><strong>Email:</strong> <%= user.email %></li>
+      <li><strong>Joined Date:</strong> <%= user.joinDate %></li>
+    </ul>
 
-      <% if (location) { %>
-        <% if (location.error) { %>
-          <p style="color: red;"><%= location.error %></p>
-        <% } else { %>
-          <p>Your location:</p>
-          <p>Latitude: <%= location.latitude %></p>
-          <p>Longitude: <%= location.longitude %></p>
-          <p>City: <%= location.city %></p>
-        <% } %>
+    <h2>Location Info</h2>
+    <% if (location) { %>
+      <% if (location.error) { %>
+        <p style="color: red;"><%= location.error %></p>
+      <% } else { %>
+        <ul>
+          <li><strong>Latitude:</strong> <%= location.latitude %></li>
+          <li><strong>Longitude:</strong> <%= location.longitude %></li>
+          <li><strong>City:</strong> <%= location.city %></li>
+        </ul>
       <% } %>
-
     <% } else { %>
-      <p>You are not logged in. <a href="/login">Login</a></p>
+      <p>No location data available.</p>
     <% } %>
-  </div>
+
+    <h2>My Interests</h2>
+    <% if (user.interests && user.interests.length > 0) { %>
+      <ul>
+        <% user.interests.forEach(interest => { %>
+          <li><%= interest %></li>
+        <% }); %>
+      </ul>
+    <% } else { %>
+      <p>No interests added yet.</p>
+    <% } %>
+
+  
+    <form action="/profile/interests" method="POST">
+      <label for="interest">Add Interest:</label>
+      <input type="text" name="interest" id="interest" required>
+      <button type="submit">Add</button>
+    </form>
+
+    <h2>Preferences</h2>
+    <form action="/profile/preferences" method="POST">
+      <label>
+        <input type="checkbox" name="preferences" value="friendship"
+          <% if (user.preferences && user.preferences.includes('friendship')) { %>checked<% } %> />
+        Friendship
+      </label><br/>
+
+      <label>
+        <input type="checkbox" name="preferences" value="language exchange"
+          <% if (user.preferences && user.preferences.includes('language exchange')) { %>checked<% } %> />
+        Language Exchange
+      </label><br/>
+
+      <label>
+        <input type="checkbox" name="preferences" value="get info before traveling"
+          <% if (user.preferences && user.preferences.includes('get info before traveling')) { %>checked<% } %> />
+        Get Info Before Traveling
+      </label><br/>
+      <br>
+
+      <button type="submit">Save Preferences</button>
+    </form>
+
+    <p><a href="/logout">Logout</a></p>
+  <% } else { %>
+    <p>You are not logged in. <a href="/login">Login here</a></p>
+  <% } %>
 </body>
 </html>
