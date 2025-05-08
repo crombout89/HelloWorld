@@ -14,10 +14,10 @@
     width: 100%;
     height: 100%;
     background-size: auto 100%;
-    background-position: center;
+    background-position: center center;
     background-repeat: no-repeat;
-    
-    animation: kenburns-mobile 25s linear infinite alternate;
+    animation: kenburns-mobile 45s linear infinite alternate;
+    z-index: 0 !important;
   }
   
   @keyframes kenburns-mobile {
@@ -32,6 +32,21 @@
   }
   
   /* Responsive adjustments */
+  @media screen and (min-width: 1025px) {
+
+    @keyframes kenburns-mobile {
+        0% {
+          background-size: auto 180%;
+          background-position: left center;
+        }
+        100% {
+          background-size: auto 180%;
+          background-position: right center;
+        }
+      }
+
+  }
+
   @media (orientation: landscape) {
     .kenburns-bg {
       background-size: 120% auto; /* Adapt for landscape devices */

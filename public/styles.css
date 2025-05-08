@@ -7,6 +7,10 @@
     --background: #f0f0f0;
 }
 
+* {
+    margin: 0;
+}
+
 body {
     font-family: 'brevia', sans-serif;
     background-color: var(--background);
@@ -19,6 +23,7 @@ body {
 h1 {
     font-family: 'sirenia', serif;
     color: var(--primary);
+    margin: 0;
 }
 
 .container {
