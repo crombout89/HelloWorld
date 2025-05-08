@@ -100,6 +100,7 @@ h1 {
         flex-direction: row;
         flex-wrap: nowrap;
         gap: 12px;
+        margin-left: 20px;
         padding-right: 10px;
     }
     
@@ -129,7 +130,7 @@ h1 {
     #desktop-header .nav-links {
         display: flex;
         flex-direction: row;
-        gap: 16px;
+        gap: 13px;
         list-style-type: none;
         font-size: 20px;
     }

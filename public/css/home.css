@@ -1,15 +1,9 @@
-#page-header {
-    justify-content: center;
-    align-items: center;
-    width: 100vw;
-    height: 100vh;
-    background-image: url('/assets/imgs/homepage.jpeg');
-    background-size: cover;
-    background-position: center center;
-}
+/* =================
+   JUMBOTRON STYLING
+   ================= */
 
-#welcome {
-    flex-direction: column;
+#homepage-jumbo-bg {
+    background-image: url('/assets/imgs/homepage.jpeg');
 }
 
 /* =====================
@@ -22,12 +16,5 @@
 
 /*** RESPONSIVE SETTINGS ***/
 @media screen and (max-width: 1024px) {
-
-    #page-header {
-        background-position: top;
-        height: 50vh !important;
-        border-radius: 0px 0px 16px 16px;
-        box-shadow: 0px 5px 6px -2px #00000040;
-    }
 
 }
