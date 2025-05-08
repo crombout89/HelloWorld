@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-class IndexController {  // Example using a class for a controller
+class IndexController {
   getIndex(req, res) {
     res.render('index', { title: 'HelloWorld.app' });
   }
