@@ -2,10 +2,14 @@ require('dotenv').config();
 
 const express = require('express');
 const config = require('./config/env');
+const connectDB = require('./config/database');
 const path = require('path');
 const { setupApiProtection } = require('./middleware/apiProtection');
 
 const app = express();
+
+// Connect to Database
+connectDB();
 
 // Set up API protection
 setupApiProtection(app);
