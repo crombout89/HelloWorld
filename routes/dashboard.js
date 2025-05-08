@@ -14,28 +14,25 @@ const isAuthenticated = async (req, res, next) => {
 
 // Dashboard Route
 router.get('/', async (req, res) => {
-    // This assumes you're using express-session
-    if (!req.session.userId) {
-      return res.redirect('/login');
-    }
+  try {
+    const user = await User.findById(req.session.userId);
     
-    try {
-      // Fetch user details using the ID stored in the session
-      const user = await User.findById(req.session.userId).select('-password');
-      
-      if (!user) {
-        return res.redirect('/login');
-      }
-  
-      res.render('dashboard', { 
-        user: user,
-        title: 'Dashboard' 
-      });
-    } catch (error) {
-      console.error('Dashboard Error:', error);
-      res.redirect('/login');
-    }
-  });
+    // Consider adding more location context
+    const locationDetails = {
+      address: user.profile.location || 'Not specified',
+      hasLocation: !!user.profile.location
+    };
+
+    res.render('dashboard', { 
+      user: user,
+      locationDetails: locationDetails,
+      title: 'Dashboard' 
+    });
+  } catch (error) {
+    console.error('Dashboard Error:', error);
+    res.redirect('/login');
+  }
+});
 
 // Profile Edit Route (example)
 router.get('/profile/edit', isAuthenticated, async (req, res) => {
@@ -54,34 +51,40 @@ router.get('/profile/edit', isAuthenticated, async (req, res) => {
 });
 
 // Profile Update Route
-router.post('/profile/update', isAuthenticated, async (req, res) => {
+router.post('/profile/update', async (req, res) => {
   try {
-    const userId = req.user._id;
-    const { firstName, lastName, bio, interests, address } = req.body;
+    const userId = req.session.userId;
+    const { 
+      firstName, 
+      lastName, 
+      location, 
+      interests, 
+      bio 
+    } = req.body;
 
     const user = await User.findById(userId);
 
     // Update profile fields
     user.profile.firstName = firstName;
     user.profile.lastName = lastName;
+    user.profile.location = location;
     user.profile.bio = bio;
-    user.profile.interests = interests.split(',').map(interest => interest.trim());
-
-    // Geocode address if provided
-    if (address) {
-      try {
-        await user.geocodeAddress(address);
-      } catch (geocodeError) {
-        console.warn('Geocoding failed:', geocodeError.message);
-        // Continue with profile update even if geocoding fails
-      }
+    
+    // Process interests
+    if (interests) {
+      user.profile.interests = interests
+        .split(',')
+        .map(interest => interest.trim())
+        .filter(interest => interest.length > 0);
     }
 
     await user.save();
 
+    req.flash('success', 'Profile updated successfully');
     res.redirect('/dashboard');
   } catch (error) {
     console.error('Profile Update Error:', error);
+    req.flash('error', 'Failed to update profile');
     res.redirect('/dashboard');
   }
 });

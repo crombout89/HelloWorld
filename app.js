@@ -9,14 +9,22 @@ const { setupApiProtection } = require('./middleware/apiProtection');
 const helmet = require('helmet');
 const cors = require('cors');
 const morgan = require('morgan');
-const User = require('./models/user'); // Make sure to import the User model
+const User = require('./models/user');
 
 const app = express();
 
 // Enhanced Security Middleware
-app.use(helmet()); // Adds various HTTP headers for security
-app.use(cors()); // Enable CORS for all routes
-app.use(morgan('dev')); // Logging middleware for requests
+app.use(helmet({
+  // Specifically allow inline scripts and module scripts
+  contentSecurityPolicy: {
+    directives: {
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      scriptSrcAttr: ["'self'", "'unsafe-inline'"]
+    }
+  }
+}));
+app.use(cors()); 
+app.use(morgan('dev'));
 
 // Connect to Database
 connectDB();
@@ -27,8 +35,8 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: { 
-    secure: process.env.NODE_ENV === 'production', // use secure cookies in production
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    secure: process.env.NODE_ENV === 'production',
+    maxAge: 24 * 60 * 60 * 1000 
   }
 }));
 
@@ -39,7 +47,7 @@ app.use(async (req, res, next) => {
       const user = await User.findById(req.session.userId).select('-password');
       if (user) {
         req.user = user;
-        res.locals.user = user; // make user available in all views
+        res.locals.user = user;
       }
     }
   } catch (error) {
@@ -57,6 +65,7 @@ const usersRouter = require('./routes/users');
 const dashboardRouter = require('./routes/dashboard'); 
 const registerRouter = require('./routes/register');
 const locationRoutes = require('./routes/location');
+const geolocationRoutes = require('./routes/geolocation');
 const loginRouter = require('./routes/login');
 const profileRouter = require('./routes/profile');
 const discoverRoutes = require('./routes/discover');
@@ -69,14 +78,36 @@ app.use(express.json());
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// Serve static files
-app.use(express.static(path.join(__dirname, 'public')));
+// Serve static files with proper MIME types
+app.use(express.static(path.join(__dirname, 'public'), {
+  setHeaders: (res, filePath) => {
+    if (path.extname(filePath) === '.js') {
+      res.setHeader('Content-Type', 'application/javascript');
+      // Allow module scripts
+      res.setHeader('X-Content-Type-Options', 'nosniff');
+    }
+    if (path.extname(filePath) === '.mjs') {
+      res.setHeader('Content-Type', 'application/javascript');
+    }
+  }
+}));
+
+// Additional route for explicitly serving JavaScript files
+app.get('/js/location.js', (req, res) => {
+  res.type('application/javascript');
+  res.sendFile(path.join(__dirname, 'public/js/location.js'));
+});
+
+app.get('/js/dashboard.js', (req, res) => {
+  res.type('application/javascript');
+  res.sendFile(path.join(__dirname, 'public/js/dashboard.js'));
+});
 
 // Centralized Router Validation
 const validateRouter = (router, routeName) => {
   if (!router || typeof router.use !== 'function') {
     console.warn(`Router not found or invalid: ${routeName}`);
-    return express.Router(); // Fallback to prevent app crash
+    return express.Router(); 
   }
   return router;
 };
@@ -87,6 +118,7 @@ app.use('/', validateRouter(registerRouter, 'registerRouter'));
 app.use('/', validateRouter(profileRouter, 'profileRouter'));
 app.use('/dashboard', dashboardRouter);
 app.use('/discover', validateRouter(discoverRoutes, 'discoverRoutes'));
+app.use('/api/geolocation', geolocationRoutes);
 app.use('/api/location', validateRouter(locationRoutes, 'locationRoutes'));
 app.use('/login', validateRouter(loginRouter, 'loginRouter')); 
 app.use('/users', validateRouter(usersRouter, 'usersRouter'));
@@ -130,4 +162,4 @@ const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT} in ${config.nodeEnv} mode`);
 });
 
-module.exports = server; // For testing purposes
+module.exports = server;

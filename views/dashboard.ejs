@@ -4,110 +4,74 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Dashboard</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-            line-height: 1.6;
-        }
-        .dashboard-container {
-            max-width: 900px;
-            margin: 0 auto;
-            background-color: white;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .dashboard-header {
-            background-color: #3498db;
-            color: white;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .dashboard-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            padding: 20px;
-        }
-        .dashboard-card {
-            background-color: #f9f9f9;
-            border-radius: 6px;
-            padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
-        .dashboard-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 15px;
-        }
-        .btn {
-            display: inline-block;
-            padding: 10px 15px;
-            border-radius: 4px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-        }
-        .btn-primary {
-            background-color: #3498db;
-            color: white;
-        }
-        .btn-danger {
-            background-color: #e74c3c;
-            color: white;
-        }
-        .btn:hover {
-            opacity: 0.9;
-        }
-        @media (max-width: 600px) {
-            .dashboard-content {
-                grid-template-columns: 1fr;
-            }
-        }
-    </style>
 </head>
 <body>
     <div class="dashboard-container">
-        <div class="dashboard-header">
-            <h1>Welcome, <%= user.username %>!</h1>
-            <a href="/logout" class="btn btn-danger">Logout</a>
-        </div>
+        <h1>User Dashboard</h1>
+        
+        <nav>
+            <a href="/logout">Logout</a>
+        </nav>
 
-        <div class="dashboard-content">
-            <div class="dashboard-card">
-                <h2>Profile Overview</h2>
-                <p><strong>Name:</strong> <%= user.profile.firstName %> <%= user.profile.lastName %></p>
-                <p><strong>Email:</strong> <%= user.email %></p>
-                <% if (user.profile.location) { %>
-                    <p><strong>Location:</strong> <%= user.profile.location %></p>
+        <section class="profile-overview">
+            <h2>Profile Overview</h2>
+            <p><strong>Name:</strong> <%= user.profile.firstName %> <%= user.profile.lastName %></p>
+            <p><strong>Email:</strong> <%= user.email %></p>
+            
+            <% if (user.profile.location) { %>
+            <p><strong>Saved Location:</strong> <%= user.profile.location %></p>
+            <% } %>
+        </section>
+
+        <section class="current-location">
+            <h2>Your Current Location</h2>
+            
+            <% if (user.geolocation && user.geolocation.coordinates) { %>
+                <div id="location-details">
+                    <p><strong>Latitude:</strong> <%= user.geolocation.coordinates[1] %></p>
+                    <p><strong>Longitude:</strong> <%= user.geolocation.coordinates[0] %></p>
+                    
+                    <% if (user.profile.location && user.profile.location.city) { %>
+                    <p><strong>City:</strong> <%= user.profile.location.city %></p>
+                    <% } %>
+                    
+                    <% if (user.profile.location && user.profile.location.country) { %>
+                    <p><strong>Country:</strong> <%= user.profile.location.country %></p>
+                    <% } %>
+                </div>
+            <% } else { %>
+                <p id="location-status">Location not set</p>
+                <button id="get-location-btn" type="button">Get Current Location</button>
+            <% } %>
+        </section>
+
+        <section class="account-details">
+            <h2>Account Details</h2>
+            <p><strong>Member Since:</strong> <%= new Date(user.createdAt).toLocaleDateString() %></p>
+            
+            <div class="interests">
+                <h3>Interests:</h3>
+                <% if (user.profile.interests && user.profile.interests.length > 0) { %>
+                    <p><%= user.profile.interests.join(', ') %></p>
+                <% } else { %>
+                    <p>No interests added</p>
                 <% } %>
             </div>
+        </section>
 
-            <div class="dashboard-card">
-                <h2>Quick Actions</h2>
-                <div class="dashboard-actions">
-                    <a href="/profile/edit" class="btn btn-primary">Edit Profile</a>
-                    <a href="/discover" class="btn btn-primary">Discover Users</a>
-                </div>
-            </div>
+        <section class="actions">
+            <button id="edit-profile-btn">Edit Profile</button>
+            <button id="discover-users-btn">Discover Users</button>
+        </section>
 
-            <div class="dashboard-card">
-                <h2>Account Details</h2>
-                <p><strong>Member Since:</strong> <%= new Date(user.createdAt).toLocaleDateString() %></p>
-                <p><strong>Interests:</strong> 
-                    <% if (user.profile.interests && user.profile.interests.length > 0) { %>
-                        <%= user.profile.interests.join(', ') %>
-                    <% } else { %>
-                        No interests added
-                    <% } %>
-                </p>
-            </div>
-        </div>
+        <section id="nearby-users-section">
+            <h2>Nearby Users</h2>
+            <div id="nearby-users-list"></div>
+        </section>
     </div>
+
+    <!-- Load scripts at the end of body -->
+    <script src="/assets/js/location.js"></script>
+    <script src="/assets/js/dashboard.js"></script>
 </body>
 </html>
