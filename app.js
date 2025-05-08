@@ -9,6 +9,7 @@ const { setupApiProtection } = require('./middleware/apiProtection');
 const helmet = require('helmet');
 const cors = require('cors');
 const morgan = require('morgan');
+const User = require('./models/user'); // Make sure to import the User model
 
 const app = express();
 
@@ -82,12 +83,23 @@ const validateRouter = (router, routeName) => {
 
 // Register routes with validation
 app.use('/', validateRouter(indexRouter, 'indexRouter'));
-app.use('/', validateRouter(loginRouter, 'loginRouter'));
 app.use('/', validateRouter(registerRouter, 'registerRouter'));
 app.use('/', validateRouter(profileRouter, 'profileRouter'));
+app.use('/dashboard', dashboardRouter);
 app.use('/discover', validateRouter(discoverRoutes, 'discoverRoutes'));
-app.use('/api/location', validateRouter(locationRoutes, 'locationRoutes')); 
+app.use('/api/location', validateRouter(locationRoutes, 'locationRoutes'));
+app.use('/login', validateRouter(loginRouter, 'loginRouter')); 
 app.use('/users', validateRouter(usersRouter, 'usersRouter'));
+
+// Logout Route
+app.get('/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Logout error:', err);
+    }
+    res.redirect('/login');
+  });
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
