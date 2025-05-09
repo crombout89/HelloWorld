@@ -25,5 +25,18 @@
     <%- include('partials/navbar') %>
 
     <script type="module" src="/assets/js/index.js" defer></script>
+    <script>
+        // Diagnostic font loading
+        document.addEventListener('DOMContentLoaded', () => {
+          console.log('Document loaded');
+          
+          // Check if fonts are loaded
+          document.fonts.ready.then(() => {
+            console.log('All fonts loaded successfully');
+          }).catch(error => {
+            console.error('Font loading error:', error);
+          });
+        });
+      </script>
 </body>
 </html>

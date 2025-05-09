@@ -12,16 +12,8 @@ const apiLimiter = rateLimit({
 });
 
 function setupApiProtection(app) {
-  // Security middleware
   app.use(helmet({
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        scriptSrc: ["'self'", "'unsafe-inline'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        imgSrc: ["'self'", "data:", "https:"]
-      }
-    }
+    contentSecurityPolicy: false
   }));
 
   // CORS configuration

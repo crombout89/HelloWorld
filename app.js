@@ -15,16 +15,21 @@ const app = express();
 
 // Enhanced Security Middleware
 app.use(helmet({
-  // Specifically allow inline scripts and module scripts
-  contentSecurityPolicy: {
-    directives: {
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-      scriptSrcAttr: ["'self'", "'unsafe-inline'"]
-    }
-  }
+  contentSecurityPolicy: false
 }));
 app.use(cors()); 
 app.use(morgan('dev'));
+
+app.post('/csp-report', (req, res) => {
+  let body = '';
+  req.on('data', chunk => {
+    body += chunk.toString();
+  });
+  req.on('end', () => {
+    console.log('CSP Violation Report:', body);
+    res.status(204).end();
+  });
+});
 
 // Connect to Database
 connectDB();
