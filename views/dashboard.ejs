@@ -1,12 +1,15 @@
-<!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>User Dashboard</title>
-</head>
+    <head>
+        <meta name="viewport" content="width=device-width,
+        initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <title><%= title %></title>
+        <link rel='stylesheet' href='/styles.css' />
+        <link rel='stylesheet' href='css/dashboard.css' />
+        <link rel='stylesheet' href='css/effects.css' />
+        <link rel="stylesheet" href="https://use.typekit.net/yrl0zql.css">
+    </head>
 <body>
-    <div class="dashboard-container">
+    <div class="container">
         <h1>User Dashboard</h1>
         
         <nav>
@@ -69,6 +72,8 @@
             <div id="nearby-users-list"></div>
         </section>
     </div>
+
+    <%- include('partials/navbar') %>
 
     <!-- Load scripts at the end of body -->
     <script src="/assets/js/location.js"></script>
