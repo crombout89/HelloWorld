@@ -1,0 +1,42 @@
+#dashboard {
+    width: 100%;
+    align-items: flex-start;
+    justify-content: flex-start;
+    flex-direction: column;
+    max-width: 800px;
+    gap: 20px;
+}
+
+#dashboard-header {
+    margin-top: 100px;
+    width: 100%;
+    flex-direction: column;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+#profile-img {
+    width: 100%;
+}
+
+#profile-overview {
+    gap: 24px;
+}
+
+#profile-photo {
+    background-color: var(--primary);
+    width: 300px;
+    padding: 20px 20px 0 20px;
+    border-radius: 50px;
+    overflow: hidden;
+}
+
+/*** RESPONSIVE SETTINGS ***/
+
+@media screen and (max-width: 1024px) {
+    
+}
