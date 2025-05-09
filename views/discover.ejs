@@ -10,13 +10,13 @@
   <link rel="stylesheet" href="https://use.typekit.net/yrl0zql.css">
 </head>
 <body>
-    <div class="container">
-        <h1 class="section-title">Discover Events</h1>
+    <div id="discover" class="container">
+        <h1 class="section-title">Discover Your World</h1>
         
         <div class="discovery-grid" id="discoveryGrid">
-            <% discoveryOptions.forEach(function(option) { %>
-                <div class="discovery-card" data-search-type="<%= option.title.toLowerCase().replace(/\s+/g, '-') %>">
-                    <img src="/icons/<%= option.icon %>.svg" alt="<%= option.title %>">
+            <% discoveryOptions.forEach(option => { %>
+                <div class="discovery-card">
+                    <img src="<%= option.icon %>" alt="<%= option.title %>" class="icon">
                     <h3><%= option.title %></h3>
                     <p><%= option.description %></p>
                 </div>
