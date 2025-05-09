@@ -16,7 +16,7 @@
     background-size: auto 100%;
     background-position: center center;
     background-repeat: no-repeat;
-    animation: kenburns-mobile 20s linear infinite alternate;
+    animation: kenburns-mobile 60s linear infinite alternate;
     z-index: 0 !important;
   }
   
@@ -32,10 +32,10 @@
   }
   
   /* Responsive adjustments */
-  @media screen and (min-width: 1025px) {
+  @media screen and (max-width: 1025px) {
 
     .kenburns-bg {
-      animation: kenburns-mobile 30s linear infinite alternate;
+      animation: kenburns-mobile 90s linear infinite alternate;
     }
 
     @keyframes kenburns-mobile {
