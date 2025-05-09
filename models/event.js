@@ -47,28 +47,44 @@ const EventSchema = new mongoose.Schema({
         match: [/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/, 'Invalid time format']
     },
 
-    // Location Information
+    // Updated Location Information
     location: {
+        type: String,
+        required: [true, 'Event location is required'],
+        trim: true,
+        minlength: [3, 'Location must be at least 3 characters']
+    },
+    locationLat: {
+        type: Number,
+        required: [true, 'Location latitude is required']
+    },
+    locationLng: {
+        type: Number,
+        required: [true, 'Location longitude is required']
+    },
+    locationFormatted: {
+        type: String,
+        trim: true
+    },
+    locationName: {
+        type: String,
+        trim: true
+    },
+    locationPlaceId: {
+        type: String,
+        trim: true
+    },
+    // Keep the GeoJSON data for geo-queries
+    locationGeoJSON: {
         type: {
-            address: {
-                type: String,
-                required: [true, 'Event address is required'],
-                trim: true,
-                minlength: [3, 'Address must be at least 3 characters']
-            },
-            coordinates: {
-                type: {
-                    type: String,
-                    enum: ['Point'],
-                    default: 'Point'
-                },
-                coordinates: {
-                    type: [Number], // [longitude, latitude]
-                    index: '2dsphere'
-                }
-            }
+            type: String,
+            enum: ['Point'],
+            default: 'Point'
         },
-        required: [true, 'Location details are required']
+        coordinates: {
+            type: [Number], // [longitude, latitude]
+            index: '2dsphere'
+        }
     },
 
     // Organizer and Participants
@@ -158,6 +174,14 @@ EventSchema.pre('save', function(next) {
     // Update timestamp
     this.updatedAt = Date.now();
 
+    // Update GeoJSON from lat/lng for geo-queries
+    if (this.locationLat && this.locationLng) {
+        this.locationGeoJSON = {
+            type: 'Point',
+            coordinates: [this.locationLng, this.locationLat] // GeoJSON uses [lng, lat] order
+        };
+    }
+
     // Check booking capacity
     if (this.capacity > 0 && this.remainingCapacity === 0) {
         this.isFullyBooked = true;
@@ -177,7 +201,7 @@ EventSchema.methods.canUserJoin = function(userId) {
 // Static method to find nearby events
 EventSchema.statics.findNearby = function(longitude, latitude, maxDistance) {
     return this.find({
-        'location.coordinates': {
+        'locationGeoJSON': {
             $near: {
                 $geometry: {
                     type: 'Point',

@@ -95,42 +95,39 @@
                     </div>
             
                     <div class="form-group">
-                        <label for="event-location">Event Location</label>
-                        <div id="location-selection-container">
-                            <div class="location-input-group">
-                                <input 
-                                    type="text" 
-                                    class="form-control" 
-                                    id="event-location" 
-                                    name="location" 
-                                    placeholder="Enter address or select on map"
-                                    required
-                                >
-                                <button 
-                                    type="button" 
-                                    id="use-current-location" 
-                                    class="btn btn-secondary"
-                                >
+                        <label for="event-location">Location</label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="event-location" 
+                            name="location" 
+                            required
+                            placeholder="Search for a location or click on the map"
+                        >
+                        <small class="form-text text-muted">
+                            Enter an address or click on the map to set the location
+                        </small>
+                        
+                        <!-- Map container -->
+                        <div id="location-map-container">
+                            <div id="map" style="height: 300px; width: 100%;"></div>
+                            <div id="location-map"></div>
+                            <div class="map-controls">
+                                <button type="button" id="use-my-location" class="btn btn-sm btn-secondary">
                                     Use My Location
                                 </button>
-                            </div>
-                            
-                            <div id="map-selection" class="hidden">
-                                <div id="location-map" style="height: 300px; width: 100%;"></div>
-                                <p id="selected-location-text"></p>
+                                <button type="button" id="reset-map" class="btn btn-sm btn-outline-secondary">
+                                    Reset Map
+                                </button>
                             </div>
                         </div>
                         
-                        <input 
-                            type="hidden" 
-                            id="location-latitude" 
-                            name="latitude"
-                        >
-                        <input 
-                            type="hidden" 
-                            id="location-longitude" 
-                            name="longitude"
-                        >
+                        <!-- Hidden fields to store location data -->
+                        <input type="hidden" id="location-lat" name="locationLat">
+                        <input type="hidden" id="location-lng" name="locationLng">
+                        <input type="hidden" id="location-formatted" name="locationFormatted">
+                        <input type="hidden" id="location-name" name="locationName">
+                        <input type="hidden" id="location-place-id" name="locationPlaceId">
                     </div>
             
                     <div class="form-group">
@@ -159,6 +156,27 @@
 
     <%- include('partials/navbar') %>
 
-    <script type="module" src="/js/create-event.js" defer></script>
+    <!-- First load location-map.js WITHOUT async/defer -->
+    <script>
+        // Load Google Maps API dynamically
+        function loadGoogleMapsAPI() {
+          const script = document.createElement('script');
+          script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyAzyCRDxCy2fIoCdDWRlKjH6TCHK1ItLnQ&libraries=places&callback=initMap";
+          script.async = true;
+          script.defer = true;
+          document.head.appendChild(script);
+          console.log("Google Maps API script added to page");
+        }
+        
+        // Wait for the page to load before loading Maps API
+        window.addEventListener('load', loadGoogleMapsAPI);
+      </script>
+      
+      <!-- First load location-map.js -->
+      <script src="/js/location-map.js"></script>
+      
+      <!-- Then load create-event.js -->
+      <script src="/js/create-event.js" defer></script>
+
 </body>
 </html>

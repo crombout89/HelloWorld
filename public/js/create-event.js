@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const titleInput = document.getElementById('event-title');
     const descriptionInput = document.getElementById('event-description');
     const dateInput = document.getElementById('event-date');
-    const locationInput = document.getElementById('event-location');
+    const timeInput = document.getElementById('event-time');
     const imageUploadInput = document.getElementById('event-image-upload');
 
     // Form validation
@@ -37,11 +37,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Location validation
-        if (locationInput.value.trim().length < 3) {
-            locationInput.classList.add('is-invalid');
+        if (!document.getElementById('location-lat').value || 
+            !document.getElementById('location-lng').value) {
+            document.getElementById('event-location').classList.add('is-invalid');
             isValid = false;
         } else {
-            locationInput.classList.remove('is-invalid');
+            document.getElementById('event-location').classList.remove('is-invalid');
         }
 
         return isValid;
@@ -51,15 +52,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (imageUploadInput) {
         imageUploadInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
-            const previewImage = document.getElementById('event-image-preview');
+            const preview = document.getElementById('event-image-preview');
             
             if (file) {
                 const reader = new FileReader();
-                reader.onload = (event) => {
-                    previewImage.src = event.target.result;
-                    previewImage.classList.remove('hidden');
+                reader.onload = (e) => {
+                    preview.src = e.target.result;
+                    preview.classList.remove('hidden');
                 };
                 reader.readAsDataURL(file);
+            } else {
+                preview.src = '';
+                preview.classList.add('hidden');
             }
         });
     }
@@ -68,53 +72,18 @@ document.addEventListener('DOMContentLoaded', () => {
     if (createEventForm) {
         createEventForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-
-            // Validate form
-            if (!validateForm()) {
-                return;
-            }
-
-            // Get form data
-            const formData = new FormData(createEventForm);
-            const errorContainer = document.getElementById('error-message');
-
-            // Disable submit button during submission
-            const submitButton = createEventForm.querySelector('button[type="submit"]');
-            submitButton.disabled = true;
-            submitButton.textContent = 'Creating Event...';
-
-            try {
-                const response = await fetch('/create-event', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const result = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(result.message || 'Event creation failed');
+            
+            if (validateForm()) {
+                try {
+                    createEventForm.submit();
+                } catch (error) {
+                    console.error('Error submitting form:', error);
+                    document.getElementById('error-message').textContent = 'An error occurred. Please try again.';
+                    document.getElementById('error-message').classList.remove('hidden');
                 }
-                
-                // Clear any previous error messages
-                if (errorContainer) {
-                    errorContainer.textContent = '';
-                    errorContainer.classList.add('hidden');
-                }
-
-                // Redirect or show success message
-                window.location.href = `/events/${result.eventId}`;
-            } catch (error) {
-                console.error('Event creation error:', error);
-                
-                // Show error message
-                if (errorContainer) {
-                    errorContainer.textContent = error.message;
-                    errorContainer.classList.remove('hidden');
-                }
-
-                // Re-enable submit button
-                submitButton.disabled = false;
-                submitButton.textContent = 'Create Event';
+            } else {
+                document.getElementById('error-message').textContent = 'Please correct the errors in the form.';
+                document.getElementById('error-message').classList.remove('hidden');
             }
         });
     }
@@ -122,12 +91,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Character count for description
     if (descriptionInput) {
         descriptionInput.addEventListener('input', () => {
-            const remainingChars = 500 - descriptionInput.value.length;
-            const charCountDisplay = document.getElementById('description-char-count');
-            
-            if (charCountDisplay) {
-                charCountDisplay.textContent = `${remainingChars} characters remaining`;
-            }
+            const remaining = 500 - descriptionInput.value.length;
+            document.getElementById('description-char-count').textContent = 
+                `${remaining} characters remaining`;
         });
     }
 });
