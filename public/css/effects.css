@@ -35,7 +35,7 @@
   @media screen and (max-width: 1025px) {
 
     .kenburns-bg {
-      animation: kenburns-mobile 90s linear infinite alternate;
+      animation: kenburns-mobile 40s linear infinite alternate;
     }
 
     @keyframes kenburns-mobile {

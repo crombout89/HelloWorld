@@ -14,6 +14,14 @@ router.get('/', (req, res) => {
                 icon: 'assets/svg/near-me.svg',
                 title: 'Near Me',
                 description: 'Use current location'
+            },{
+                icon: 'assets/svg/near-me.svg',
+                title: 'Find Friends',
+                description: 'Connect with new people'
+            },{
+                icon: 'assets/svg/near-me.svg',
+                title: 'Search by Interest',
+                description: 'Virtual social groups'
             },
             {
                 icon: 'assets/svg/group-events.svg',

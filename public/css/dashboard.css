@@ -1,3 +1,9 @@
+#current-location {
+    display: flex;
+    flex-direction: column;
+    justify-self: center;
+}
+
 #dashboard {
     width: 100%;
     display: flex;
