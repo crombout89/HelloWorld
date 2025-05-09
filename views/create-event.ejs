@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width,
+  initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title><%= title %></title>
+  <link rel='stylesheet' href='/styles.css' />
+  <link rel='stylesheet' href='css/events.css' />
+  <link rel='stylesheet' href='css/effects.css' />
+  <link rel="stylesheet" href="https://use.typekit.net/yrl0zql.css">
+</head>
+<body>
+    <div id="homepage-jumbotron" class="kenburns-container">
+        <div id="homepage-jumbo-bg" class="kenburns-bg"></div>
+
+        <div class="container create-event-container">
+            <h1 class="page-title">Create a New Event</h1>
+        
+            <div id="error-message" class="alert alert-danger hidden"></div>
+        
+            <form 
+                id="create-event-form" 
+                action="/create-event" 
+                method="POST" 
+                enctype="multipart/form-data"
+                novalidate
+            >
+            >
+                <div class="form-group">
+                    <label for="event-title">Event Title</label>
+                    <input 
+                        type="text" 
+                        class="form-control" 
+                        id="event-title" 
+                        name="title" 
+                        required 
+                        maxlength="100"
+                        aria-describedby="title-help"
+                    >
+                    <small id="title-help" class="form-text text-muted">
+                        Enter a descriptive title for your event (5-100 characters)
+                    </small>
+                </div>
+        
+                <div class="form-group">
+                    <label for="event-description">Event Description</label>
+                    <textarea 
+                        class="form-control" 
+                        id="event-description" 
+                        name="description" 
+                        required 
+                        maxlength="500"
+                        rows="4"
+                    ></textarea>
+                    <small id="description-char-count" class="form-text text-muted">
+                        500 characters remaining
+                    </small>
+                </div>
+        
+                <div class="form-group">
+                    <label for="event-category">Event Category</label>
+                    <select 
+                        class="form-control" 
+                        id="event-category" 
+                        name="category" 
+                        required
+                    >
+                        <option value="">Select a Category</option>
+                        <% categories.forEach(function(category) { %>
+                            <option value="<%= category %>"><%= category %></option>
+                        <% }); %>
+                    </select>
+                </div>
+        
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label for="event-date">Event Date</label>
+                        <input 
+                            type="date" 
+                            class="form-control" 
+                            id="event-date" 
+                            name="date" 
+                            required
+                        >
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label for="event-time">Event Time</label>
+                        <input 
+                            type="time" 
+                            class="form-control" 
+                            id="event-time" 
+                            name="time" 
+                            required
+                        >
+                    </div>
+                </div>
+        
+                <div class="form-group">
+                    <label for="event-location">Location</label>
+                    <input 
+                        type="text" 
+                        class="form-control" 
+                        id="event-location" 
+                        name="location" 
+                        required
+                    >
+                </div>
+        
+                <div class="form-group">
+                    <label for="event-image-upload">Event Image</label>
+                    <input 
+                        type="file" 
+                        class="form-control-file" 
+                        id="event-image-upload" 
+                        name="eventImage" 
+                        accept="image/*"
+                    >
+                    <img 
+                        id="event-image-preview" 
+                        class="img-preview hidden" 
+                        alt="Event Image Preview"
+                    >
+                </div>
+        
+                <button type="submit" class="btn btn-primary btn-block">
+                    Create Event
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <%- include('partials/navbar') %>
+
+    <script type="module" src="/js/create-event.js" defer></script>
+</body>
+</html>

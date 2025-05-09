@@ -1,0 +1,19 @@
+.create-event-container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.img-preview {
+    max-width: 100%;
+    margin-top: 10px;
+    border-radius: 8px;
+}
+
+.hidden {
+    display: none;
+}
+
+.is-invalid {
+    border-color: red;
+}
