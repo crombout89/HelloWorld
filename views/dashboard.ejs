@@ -9,8 +9,8 @@
         <link rel="stylesheet" href="https://use.typekit.net/yrl0zql.css">
     </head>
 <body>
-    <div id="dashboard" class="container">
-        <div id="dashboard-header" class="container">
+    <div id="dashboard">
+        <div id="dashboard-header">
 
             <section id="current-location">
                 <h2>Your Current Location</h2>
@@ -39,9 +39,9 @@
             </nav>
         </div>
 
-        <section id="profile-overview" class="container">
+        <section id="profile-overview">
 
-            <div id="profile-photo">
+            <div id="profile-photo" class="container">
                 <img id="profile-img" src="assets/imgs/demo-profile-1.png">
             </div>
 
@@ -55,7 +55,7 @@
                 <p><strong>Saved Location:</strong> <%= user.profile.location %></p>
                 <% } %>
 
-                <button id="edit-profile-btn">Edit Profile</button>
+                <button id="edit-profile-btn" class="button">Edit Profile</button>
             </div>
         </section>
 
@@ -71,7 +71,7 @@
         <section id="nearby-users-section">
             <h2>Nearby Users</h2>
             <div id="nearby-users-list"></div>
-            <button id="discover-users-btn">Discover Users</button>
+            <button id="discover-users-btn" class="button">Discover Users</button>
         </section>
     </div>
 
