@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
           el.classList.add('visible');
         }, index * 200);
       });
-    }, 4000);
+    }, 3000);
   } else {
     console.error('Welcome container not found');
   }
