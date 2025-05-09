@@ -95,13 +95,41 @@
                     </div>
             
                     <div class="form-group">
-                        <label for="event-location">Location</label>
+                        <label for="event-location">Event Location</label>
+                        <div id="location-selection-container">
+                            <div class="location-input-group">
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    id="event-location" 
+                                    name="location" 
+                                    placeholder="Enter address or select on map"
+                                    required
+                                >
+                                <button 
+                                    type="button" 
+                                    id="use-current-location" 
+                                    class="btn btn-secondary"
+                                >
+                                    Use My Location
+                                </button>
+                            </div>
+                            
+                            <div id="map-selection" class="hidden">
+                                <div id="location-map" style="height: 300px; width: 100%;"></div>
+                                <p id="selected-location-text"></p>
+                            </div>
+                        </div>
+                        
                         <input 
-                            type="text" 
-                            class="form-control" 
-                            id="event-location" 
-                            name="location" 
-                            required
+                            type="hidden" 
+                            id="location-latitude" 
+                            name="latitude"
+                        >
+                        <input 
+                            type="hidden" 
+                            id="location-longitude" 
+                            name="longitude"
                         >
                     </div>
             
