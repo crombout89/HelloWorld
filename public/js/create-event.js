@@ -69,11 +69,19 @@ document.addEventListener('DOMContentLoaded', () => {
         createEventForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
+            // Validate form
             if (!validateForm()) {
                 return;
             }
 
+            // Get form data
             const formData = new FormData(createEventForm);
+            const errorContainer = document.getElementById('error-message');
+
+            // Disable submit button during submission
+            const submitButton = createEventForm.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            submitButton.textContent = 'Creating Event...';
 
             try {
                 const response = await fetch('/create-event', {
@@ -81,23 +89,32 @@ document.addEventListener('DOMContentLoaded', () => {
                     body: formData
                 });
 
+                const result = await response.json();
+
                 if (!response.ok) {
-                    throw new Error('Event creation failed');
+                    throw new Error(result.message || 'Event creation failed');
+                }
+                
+                // Clear any previous error messages
+                if (errorContainer) {
+                    errorContainer.textContent = '';
+                    errorContainer.classList.add('hidden');
                 }
 
-                const result = await response.json();
-                
                 // Redirect or show success message
                 window.location.href = `/events/${result.eventId}`;
             } catch (error) {
                 console.error('Event creation error:', error);
                 
                 // Show error message
-                const errorContainer = document.getElementById('error-message');
                 if (errorContainer) {
                     errorContainer.textContent = error.message;
                     errorContainer.classList.remove('hidden');
                 }
+
+                // Re-enable submit button
+                submitButton.disabled = false;
+                submitButton.textContent = 'Create Event';
             }
         });
     }
@@ -112,56 +129,5 @@ document.addEventListener('DOMContentLoaded', () => {
                 charCountDisplay.textContent = `${remainingChars} characters remaining`;
             }
         });
-    }
-});
-
-// Add error handling for fetch
-createEventForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-
-    if (!validateForm()) {
-        return;
-    }
-
-    const formData = new FormData(createEventForm);
-    const errorContainer = document.getElementById('error-message');
-
-    // Disable submit button during submission
-    const submitButton = createEventForm.querySelector('button[type="submit"]');
-    submitButton.disabled = true;
-    submitButton.textContent = 'Creating Event...';
-
-    try {
-        const response = await fetch('/create-event', {
-            method: 'POST',
-            body: formData
-        });
-
-        const result = await response.json();
-
-        if (!response.ok) {
-            throw new Error(result.message || 'Event creation failed');
-        }
-        
-        // Clear any previous error messages
-        if (errorContainer) {
-            errorContainer.textContent = '';
-            errorContainer.classList.add('hidden');
-        }
-
-        // Redirect or show success message
-        window.location.href = `/events/${result.eventId}`;
-    } catch (error) {
-        console.error('Event creation error:', error);
-        
-        // Show error message
-        if (errorContainer) {
-            errorContainer.textContent = error.message;
-            errorContainer.classList.remove('hidden');
-        }
-
-        // Re-enable submit button
-        submitButton.disabled = false;
-        submitButton.textContent = 'Create Event';
     }
 });

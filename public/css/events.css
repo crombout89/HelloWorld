@@ -1,7 +1,27 @@
-.create-event-container {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
+#create-event {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    max-width: 800px;
+}
+
+#create-event-form {
+    display: flex;
+    flex-direction: column;
+}
+
+#create-event-form * {
+    pointer-events: auto !important;
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+#create-event-info {
+    background-color: var(--background);
+    z-index: 3;
 }
 
 .img-preview {
@@ -10,10 +30,22 @@
     border-radius: 8px;
 }
 
-.hidden {
-    display: none;
+input, textarea, select {
+    -webkit-appearance: none;
+    appearance: none;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 5px 0;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .is-invalid {
     border-color: red;
 }
+
+.hidden {
+    display: none;
+}
+
+
