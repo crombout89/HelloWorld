@@ -67,6 +67,7 @@ setupApiProtection(app);
 // Routers
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
+const communitiesRouter = require('./routes/communities');
 const createEventRoutes = require('./routes/create-event');
 const dashboardRouter = require('./routes/dashboard'); 
 const registerRouter = require('./routes/register');
@@ -122,6 +123,7 @@ const validateRouter = (router, routeName) => {
 app.use('/', validateRouter(indexRouter, 'indexRouter'));
 app.use('/', validateRouter(registerRouter, 'registerRouter'));
 app.use('/', validateRouter(profileRouter, 'profileRouter'));
+app.use('/communities', validateRouter(communitiesRouter, 'communitiesRouter'));
 app.use('/create-event', createEventRoutes);
 app.use('/dashboard', dashboardRouter);
 app.use('/discover', validateRouter(discoverRoutes, 'discoverRoutes'));
