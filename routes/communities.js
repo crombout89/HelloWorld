@@ -145,4 +145,52 @@ router.post('/:id/delete', isAuthenticated, async (req, res) => {
   }
 });
 
+// Join a community
+router.post('/:id/join', isAuthenticated, async (req, res) => {
+  try {
+    const community = await Community.findById(req.params.id);
+
+    if (!community) return res.status(404).send('Community not found');
+
+    const userId = req.session.userId;
+
+    // Prevent double-joining
+    if (!community.members.includes(userId)) {
+      community.members.push(userId);
+      await community.save();
+    }
+
+    res.redirect(`/communities/${community._id}`);
+  } catch (err) {
+    console.error('Join error:', err);
+    res.status(500).send('Failed to join community');
+  }
+});
+
+// Leave a community
+router.post('/:id/leave', isAuthenticated, async (req, res) => {
+  try {
+    const community = await Community.findById(req.params.id);
+
+    if (!community) return res.status(404).send('Community not found');
+
+    const userId = req.session.userId;
+
+    // Don't allow owner to leave
+    if (community.owner.toString() === userId) {
+      return res.status(403).send('Owner cannot leave their own community');
+    }
+
+    community.members = community.members.filter(
+      memberId => memberId.toString() !== userId
+    );
+
+    await community.save();
+    res.redirect('/communities');
+  } catch (err) {
+    console.error('Leave error:', err);
+    res.status(500).send('Failed to leave community');
+  }
+});
+
 module.exports = router;

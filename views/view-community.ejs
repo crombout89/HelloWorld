@@ -19,6 +19,14 @@
     <p><a href="/communities/<%= community._id %>/edit">Edit this community</a></p>
   <% } %>
 
+  <% if (!isOwner) { %>
+  <form action="/communities/<%= community._id %>/<%= community.members.some(m => m._id.toString() === user._id.toString()) ? 'leave' : 'join' %>" method="POST">
+    <button type="submit">
+      <%= community.members.some(m => m._id.toString() === user._id.toString()) ? 'Leave Community' : 'Join Community' %>
+    </button>
+  </form>
+<% } %>
+
   <p><a href="/communities">← Back to My Communities</a></p>
 </body>
 </html>
