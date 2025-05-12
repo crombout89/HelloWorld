@@ -15,9 +15,11 @@ function initMap() {
     map = new google.maps.Map(document.getElementById("map"), {
         center: defaultLocation,
         zoom: 12,
-        mapTypeControl: false,
+        mapTypeControl: true,
         streetViewControl: false,
-        fullscreenControl: true
+        fullscreenControl: true,
+        zoomControl: true,
+        gestureHandling: 'greedy' // Makes it easier to navigate, especially on mobile
     });
 
     marker = new google.maps.Marker({
@@ -38,18 +40,15 @@ function initMap() {
 
     // Add click event listener to the map
     map.addListener('click', (event) => {
-        if (marker.position) {
-            marker.position = event.latLng;
-        } else if (marker.setPosition) {
-            marker.setPosition(event.latLng);
-        }
-        
-        const latLng = {
-            lat: event.latLng.lat(),
-            lng: event.latLng.lng()
-        };
-        geocodePosition(latLng);
-    });
+    // Simplify this to just use setPosition
+    marker.setPosition(event.latLng);
+    
+    const latLng = {
+        lat: event.latLng.lat(),
+        lng: event.latLng.lng()
+    };
+    geocodePosition(latLng);
+});
 
     // Initialize autocomplete for the location input
     const locationInput = document.getElementById('event-location');
@@ -97,11 +96,14 @@ function setupLocationButtons() {
                         };
                         map.setCenter(userLocation);
                         
-                        if (marker.position) {
-                            marker.position = userLocation;
-                        } else if (marker.setPosition) {
-                            marker.setPosition(userLocation);
-                        }
+                        // With this simpler, more reliable code:
+                        marker.setPosition(userLocation);
+                        
+                        // Make sure the marker is visible on the map
+                        marker.setMap(map);
+                        
+                        // Set zoom closer for better visibility of user's location
+                        map.setZoom(15);
                         
                         geocodePosition(userLocation);
                     },
