@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const Community = require('../models/community');
+const User = require('../models/user');
 
 // Simple middleware to confirm login
 function isAuthenticated(req, res, next) {
@@ -55,6 +56,92 @@ router.post('/create', isAuthenticated, async (req, res) => {
   } catch (err) {
     console.error('Error creating community:', err);
     res.status(500).send('Failed to create community');
+  }
+});
+
+
+// View a single community
+router.get('/:id', isAuthenticated, async (req, res) => {
+  try {
+    const community = await Community.findById(req.params.id)
+      .populate('owner', 'username')
+      .populate('members', 'username');
+
+    if (!community) {
+      return res.status(404).send('Community not found');
+    }
+
+    const isOwner = community.owner._id.toString() === req.session.userId;
+    const isMember = community.members.some(m => m._id.toString() === req.session.userId);
+
+    if (!isOwner && !isMember) {
+      return res.status(403).send('You do not have access to this community');
+    }
+
+    res.render('view-community', {
+      title: community.name,
+      community,
+      isOwner
+    });
+  } catch (err) {
+    console.error('Error loading community view:', err);
+    res.status(500).send('Something went wrong');
+  }
+});
+
+// Show the edit form for a community (only for owner)
+router.get('/:id/edit', isAuthenticated, async (req, res) => {
+  try {
+    const community = await Community.findById(req.params.id);
+
+    if (!community || community.owner.toString() !== req.session.userId) {
+      return res.status(403).send('Not allowed');
+    }
+
+    res.render('edit-community', {
+      title: `Edit: ${community.name}`,
+      community
+    });
+  } catch (err) {
+    console.error('Error loading edit form:', err);
+    res.status(500).send('Something went wrong');
+  }
+});
+
+// Update the community (only owner)
+router.post('/:id/update', isAuthenticated, async (req, res) => {
+  try {
+    const community = await Community.findById(req.params.id);
+
+    if (!community || community.owner.toString() !== req.session.userId) {
+      return res.status(403).send('Not allowed');
+    }
+
+    community.name = req.body.name;
+    community.description = req.body.description;
+    await community.save();
+
+    res.redirect(`/communities/${community._id}`);
+  } catch (err) {
+    console.error('Update error:', err);
+    res.status(500).send('Update failed');
+  }
+});
+
+// Delete a community (only owner)
+router.post('/:id/delete', isAuthenticated, async (req, res) => {
+  try {
+    const community = await Community.findById(req.params.id);
+
+    if (!community || community.owner.toString() !== req.session.userId) {
+      return res.status(403).send('Not allowed');
+    }
+
+    await Community.findByIdAndDelete(req.params.id);
+    res.redirect('/communities');
+  } catch (err) {
+    console.error('Delete error:', err);
+    res.status(500).send('Delete failed');
   }
 });
 

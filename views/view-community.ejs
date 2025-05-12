@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+</head>
+<body>
+  <h1><%= community.name %></h1>
+  <p><%= community.description %></p>
+  <p><strong>Owner:</strong> <%= community.owner.username %></p>
+
+  <h3>Members:</h3>
+  <ul>
+    <% community.members.forEach(member => { %>
+      <li><%= member.username %></li>
+    <% }) %>
+  </ul>
+
+  <% if (isOwner) { %>
+    <p><a href="/communities/<%= community._id %>/edit">Edit this community</a></p>
+  <% } %>
+
+  <p><a href="/communities">← Back to My Communities</a></p>
+</body>
+</html>
