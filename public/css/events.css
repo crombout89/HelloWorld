@@ -1,14 +1,15 @@
 #create-event {
+    margin-top: 100px;
+    max-width: 800px;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    max-width: 800px;
+    min-height: 300vh;
 }
 
 #create-event-form {
     display: flex;
     flex-direction: column;
+    padding-bottom: 100px;
 }
 
 #create-event-form * {
@@ -48,4 +49,26 @@ input, textarea, select {
     display: none;
 }
 
+/* Add this to your CSS file or in a <style> tag in your HTML */
+#map {
+  width: 100%;
+  height: 400px; /* Adjust height as needed */
+  z-index: 1; /* Ensure map is accessible */
+  position: relative;
+}
 
+/* Make sure no parent elements are capturing mouse events */
+.map-container {
+  pointer-events: auto;
+}
+
+
+/*** RESPONSIVE SETTINGS ***/
+
+@media screen and (max-width: 1024px) {
+    
+    #create-event {
+        margin-top: 0;
+    }
+
+}
