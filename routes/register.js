@@ -58,7 +58,11 @@ router.post('/register', async (req, res) => {
             }
         }
 
-        // Save user
+        // Validate geolocation is complete before save
+        if (!newUser.geolocation?.coordinates || newUser.geolocation.coordinates.length !== 2) {
+        newUser.geolocation = undefined; // prevent geo index error
+        }
+
         await newUser.save();
 
         // Render success page or redirect
