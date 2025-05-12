@@ -44,6 +44,26 @@ app.use(session({
     maxAge: 24 * 60 * 60 * 1000 
   }
 }));
+// temp logIn session 
+app.use((req, res, next) => {
+  if (!req.session.userId) {
+    req.session.userId = '664245d013fb80f9d8123456'; // use an actual _id from your MongoDB if available
+    req.session.user = {
+      username: 'fereshteh',
+      email: 'fereshteh@example.com',
+      createdAt: new Date(),
+      interests: ['coding', 'music'],
+      preferences: ['language exchange'],
+      name: 'Fereshteh Aghaarabi',
+      bio: 'Testing profile page',
+      photo: ''
+    };
+  }
+  next();
+});
+
+
+
 
 // User Session Middleware
 app.use(async (req, res, next) => {
@@ -162,6 +182,7 @@ const shutdown = (signal) => {
 // Handle termination signals
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
+
 
 // Start server
 const PORT = config.port || 3000;
