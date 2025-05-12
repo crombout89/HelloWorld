@@ -50,5 +50,57 @@ router.get('/profile', async (req, res) => {
     location: locationData
   });
 });
+router.post('/profile/interests', (req, res) => {
+  const newInterest = req.body.interest?.trim();
+
+  if (!req.session.user.interests) {
+    req.session.user.interests = [];
+  }
+
+  if (newInterest && !req.session.user.interests.includes(newInterest)) {
+    req.session.user.interests.push(newInterest);
+  }
+
+  res.redirect('/profile');
+});
+
+
+router.post('/profile/preferences', (req, res) => {
+  const selected = req.body.preferences || [];
+  req.session.user.preferences = Array.isArray(selected) ? selected : [selected];
+  res.redirect('/profile');
+});
+
+
+router.post('/profile/update', upload.single('photo'), (req, res) => {
+  if (!req.session.user) return res.redirect('/login');
+
+  const { name, bio } = req.body;
+
+  req.session.user.name = name;
+  req.session.user.bio = bio;
+
+  if (req.file) {
+    req.session.user.photo = '/uploads/' + req.file.filename;
+  }
+
+  res.redirect('/profile');
+});
+
+
+async function getLocationData() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({
+        latitude: 34.0522,
+        longitude: -118.2437,
+        city: "Los Angeles"
+      });
+    }, 500);
+  });
+}
+
+module.exports = router;
+
 
 
