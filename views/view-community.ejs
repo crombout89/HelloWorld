@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+</head>
+<body>
+  <h1><%= community.name %></h1>
+  <p><%= community.description %></p>
+  <p><strong>Owner:</strong> <%= community.owner.username %></p>
+
+  <h3>Members:</h3>
+  <ul>
+    <% community.members.forEach(member => { %>
+      <li><%= member.username %></li>
+    <% }) %>
+  </ul>
+
+  <% if (isOwner) { %>
+    <p><a href="/communities/<%= community._id %>/edit">Edit this community</a></p>
+  <% } %>
+
+  <% if (!isOwner) { %>
+  <form action="/communities/<%= community._id %>/<%= community.members.some(m => m._id.toString() === user._id.toString()) ? 'leave' : 'join' %>" method="POST">
+    <button type="submit">
+      <%= community.members.some(m => m._id.toString() === user._id.toString()) ? 'Leave Community' : 'Join Community' %>
+    </button>
+  </form>
+<% } %>
+
+  <p><a href="/communities">← Back to My Communities</a></p>
+</body>
+</html>
