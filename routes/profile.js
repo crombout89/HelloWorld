@@ -1,5 +1,20 @@
 const express = require('express');
 const router = express.Router();
+const path = require('path');
+const multer = require('multer');
+
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'public/uploads/');
+  },
+  filename: function (req, file, cb) {
+    const uniqueName = Date.now() + '-' + file.originalname;
+    cb(null, uniqueName);
+  }
+});
+const upload = multer({ storage: storage });
+
 
 router.get('/profile', async (req, res) => {
   const sessionUser = req.session.user;
@@ -16,7 +31,10 @@ router.get('/profile', async (req, res) => {
       ? new Date(sessionUser.createdAt).toLocaleDateString()
       : 'Unknown',
     interests: sessionUser.interests,
-    preferences: sessionUser.preferences
+    preferences: sessionUser.preferences,
+    name: sessionUser.name || '',
+    bio: sessionUser.bio || '',
+    photo: sessionUser.photo || ''
   };
 
   let locationData;
@@ -32,7 +50,6 @@ router.get('/profile', async (req, res) => {
     location: locationData
   });
 });
-
 router.post('/profile/interests', (req, res) => {
   const newInterest = req.body.interest?.trim();
 
@@ -47,11 +64,29 @@ router.post('/profile/interests', (req, res) => {
   res.redirect('/profile');
 });
 
+
 router.post('/profile/preferences', (req, res) => {
-  const selected = req.body.preferences || []; // array or string
+  const selected = req.body.preferences || [];
   req.session.user.preferences = Array.isArray(selected) ? selected : [selected];
   res.redirect('/profile');
 });
+
+
+router.post('/profile/update', upload.single('photo'), (req, res) => {
+  if (!req.session.user) return res.redirect('/login');
+
+  const { name, bio } = req.body;
+
+  req.session.user.name = name;
+  req.session.user.bio = bio;
+
+  if (req.file) {
+    req.session.user.photo = '/uploads/' + req.file.filename;
+  }
+
+  res.redirect('/profile');
+});
+
 
 async function getLocationData() {
   return new Promise((resolve) => {
@@ -66,3 +101,6 @@ async function getLocationData() {
 }
 
 module.exports = router;
+
+
+

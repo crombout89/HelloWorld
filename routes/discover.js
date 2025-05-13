@@ -6,34 +6,27 @@ router.get('/', (req, res) => {
         title: 'Discover Events',
         discoveryOptions: [
             {
-                icon: 'map-pin',
+                icon: 'assets/svg/search-by-location.svg',
                 title: 'Search by Location',
                 description: 'Enter a city or address'
             },
             {
-                icon: 'locate',
+                icon: 'assets/svg/near-me.svg',
                 title: 'Near Me',
                 description: 'Use current location'
+            },{
+                icon: 'assets/svg/near-me.svg',
+                title: 'Find Friends',
+                description: 'Connect with new people'
+            },{
+                icon: 'assets/svg/near-me.svg',
+                title: 'Search by Interest',
+                description: 'Virtual social groups'
             },
             {
-                icon: 'calendar',
-                title: 'Upcoming Events', 
-                description: 'Browse all upcoming events'
-            },
-            {
-                icon: 'music',
-                title: 'Music Events',
-                description: 'Concerts, festivals, live music'
-            },
-            {
-                icon: 'theater',
-                title: 'Arts & Theater',
-                description: 'Plays, exhibitions, performances'
-            },
-            {
-                icon: 'football',
-                title: 'Sports',
-                description: 'Games, matches, tournaments'
+                icon: 'assets/svg/group-events.svg',
+                title: 'Community Events', 
+                description: 'Browse all upcoming community events'
             }
         ]
     });

@@ -9,74 +9,76 @@
         <link rel="stylesheet" href="https://use.typekit.net/yrl0zql.css">
     </head>
 <body>
-    <div class="container">
-        <h1>User Dashboard</h1>
-        
-        <nav>
-            <a href="/logout">Logout</a>
-        </nav>
+    <div id="dashboard">
+        <div id="dashboard-header">
 
-        <section class="profile-overview">
-            <h2>Profile Overview</h2>
-            <p><strong>Name:</strong> <%= user.profile.firstName %> <%= user.profile.lastName %></p>
-            <p><strong>Email:</strong> <%= user.email %></p>
-            
-            <% if (user.profile.location) { %>
-            <p><strong>Saved Location:</strong> <%= user.profile.location %></p>
-            <% } %>
-        </section>
-
-        <section class="current-location">
-            <h2>Your Current Location</h2>
-            
-            <% if (user.geolocation && user.geolocation.coordinates) { %>
-                <div id="location-details">
-                    <p><strong>Latitude:</strong> <%= user.geolocation.coordinates[1] %></p>
-                    <p><strong>Longitude:</strong> <%= user.geolocation.coordinates[0] %></p>
-                    
-                    <% if (user.profile.location && user.profile.location.city) { %>
-                    <p><strong>City:</strong> <%= user.profile.location.city %></p>
-                    <% } %>
-                    
-                    <% if (user.profile.location && user.profile.location.country) { %>
-                    <p><strong>Country:</strong> <%= user.profile.location.country %></p>
-                    <% } %>
-                </div>
-            <% } else { %>
-                <p id="location-status">Location not set</p>
-                <button id="get-location-btn" type="button">Get Current Location</button>
-            <% } %>
-        </section>
-
-        <section class="account-details">
-            <h2>Account Details</h2>
-            <p><strong>Member Since:</strong> <%= new Date(user.createdAt).toLocaleDateString() %></p>
-            
-            <div class="interests">
-                <h3>Interests:</h3>
-                <% if (user.profile.interests && user.profile.interests.length > 0) { %>
-                    <p><%= user.profile.interests.join(', ') %></p>
+            <section id="current-location">
+                <h2>Your Current Location</h2>
+                
+                <% if (user.geolocation && user.geolocation.coordinates) { %>
+                    <div id="location-details">
+                        <p><strong>Latitude:</strong> <%= user.geolocation.coordinates[1] %></p>
+                        <p><strong>Longitude:</strong> <%= user.geolocation.coordinates[0] %></p>
+                        
+                        <% if (user.profile.location && user.profile.location.city) { %>
+                        <p><strong>City:</strong> <%= user.profile.location.city %></p>
+                        <% } %>
+                        
+                        <% if (user.profile.location && user.profile.location.country) { %>
+                        <p><strong>Country:</strong> <%= user.profile.location.country %></p>
+                        <% } %>
+                    </div>
                 <% } else { %>
-                    <p>No interests added</p>
+                    <p id="location-status">Location not set</p>
+                    <button id="get-location-btn" type="button" class="button">Get Current Location</button>
                 <% } %>
+            </section>
+
+            <nav>
+                <a href="/logout">Logout</a>
+            </nav>
+        </div>
+
+        <section id="profile-overview">
+
+            <div id="profile-photo" class="container">
+                <img id="profile-img" src="assets/imgs/demo-profile-1.png">
+            </div>
+
+            <div id="profile-info" class="">
+                <h2>Profile Overview</h2>
+                <p><strong>Name:</strong> <%= user.profile.firstName %> <%= user.profile.lastName %></p>
+                <p><strong>Email:</strong> <%= user.email %></p>
+                <p><strong>Member Since:</strong> <%= new Date(user.createdAt).toLocaleDateString() %></p>
+                
+                <% if (user.profile.location) { %>
+                <p><strong>Saved Location:</strong> <%= user.profile.location %></p>
+                <% } %>
+
+                <button id="edit-profile-btn" class="button">Edit Profile</button>
             </div>
         </section>
 
-        <section class="actions">
-            <button id="edit-profile-btn">Edit Profile</button>
-            <button id="discover-users-btn">Discover Users</button>
+        <section id="interests" class="">
+            <h2>Interests:</h2>
+            <% if (user.profile.interests && user.profile.interests.length > 0) { %>
+                <p><%= user.profile.interests.join(', ') %></p>
+            <% } else { %>
+                <p>No interests added</p>
+            <% } %>
         </section>
 
         <section id="nearby-users-section">
             <h2>Nearby Users</h2>
             <div id="nearby-users-list"></div>
+            <button id="discover-users-btn" class="button">Discover Users</button>
         </section>
     </div>
 
     <%- include('partials/navbar') %>
 
     <!-- Load scripts at the end of body -->
-    <script src="/assets/js/location.js"></script>
-    <script src="/assets/js/dashboard.js"></script>
+    <script src="/js/location.js"></script>
+    <script src="/js/dashboard.js"></script>
 </body>
 </html>

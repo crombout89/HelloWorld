@@ -44,6 +44,26 @@ app.use(session({
     maxAge: 24 * 60 * 60 * 1000 
   }
 }));
+// temp logIn session 
+app.use((req, res, next) => {
+  if (!req.session.userId) {
+    req.session.userId = '664245d013fb80f9d8123456'; // use an actual _id from your MongoDB if available
+    req.session.user = {
+      username: 'fereshteh',
+      email: 'fereshteh@example.com',
+      createdAt: new Date(),
+      interests: ['coding', 'music'],
+      preferences: ['language exchange'],
+      name: 'Fereshteh Aghaarabi',
+      bio: 'Testing profile page',
+      photo: ''
+    };
+  }
+  next();
+});
+
+
+
 
 // User Session Middleware
 app.use(async (req, res, next) => {
@@ -67,6 +87,8 @@ setupApiProtection(app);
 // Routers
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
+const communitiesRouter = require('./routes/communities');
+const createEventRoutes = require('./routes/create-event');
 const dashboardRouter = require('./routes/dashboard'); 
 const registerRouter = require('./routes/register');
 const locationRoutes = require('./routes/location');
@@ -121,6 +143,8 @@ const validateRouter = (router, routeName) => {
 app.use('/', validateRouter(indexRouter, 'indexRouter'));
 app.use('/', validateRouter(registerRouter, 'registerRouter'));
 app.use('/', validateRouter(profileRouter, 'profileRouter'));
+app.use('/communities', validateRouter(communitiesRouter, 'communitiesRouter'));
+app.use('/create-event', createEventRoutes);
 app.use('/dashboard', dashboardRouter);
 app.use('/discover', validateRouter(discoverRoutes, 'discoverRoutes'));
 app.use('/api/geolocation', geolocationRoutes);
@@ -160,6 +184,7 @@ const shutdown = (signal) => {
 // Handle termination signals
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));
+
 
 // Start server
 const PORT = config.port || 3000;

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta name="viewport" content="width=device-width,
+  initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title><%= title %></title>
+  <link rel='stylesheet' href='/styles.css' />
+  <link rel='stylesheet' href='css/events.css' />
+  <link rel='stylesheet' href='css/effects.css' />
+  <link rel="stylesheet" href="https://use.typekit.net/yrl0zql.css">
+</head>
+<body>
+    <div id="create-event" class="kenburns-container">
+        <div id="create-event-bg" class="kenburns-bg"></div>
+
+            <div id="create-event-info">
+                <h1 class="page-title">Create a New Event</h1>
+            
+                <div id="error-message" class="alert alert-danger hidden"></div>
+            
+                <form 
+                    id="create-event-form" 
+                    action="/create-event" 
+                    method="POST" 
+                    enctype="multipart/form-data"
+                    novalidate
+                >
+                    <div class="form-group">
+                        <label for="event-title">Event Title</label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="event-title" 
+                            name="title" 
+                            required 
+                            maxlength="100"
+                            aria-describedby="title-help"
+                        >
+                        <small id="title-help" class="form-text text-muted">
+                            Enter a descriptive title for your event (5-100 characters)
+                        </small>
+                    </div>
+            
+                    <div class="form-group">
+                        <label for="event-description">Event Description</label>
+                        <textarea 
+                            class="form-control" 
+                            id="event-description" 
+                            name="description" 
+                            required 
+                            maxlength="500"
+                            rows="4"
+                        ></textarea>
+                        <small id="description-char-count" class="form-text text-muted">
+                            500 characters remaining
+                        </small>
+                    </div>
+            
+                    <div class="form-group">
+                        <label for="event-category">Event Category</label>
+                        <select 
+                            class="form-control" 
+                            id="event-category" 
+                            name="category" 
+                            required
+                        >
+                            <option value="">Select a Category</option>
+                            <% categories.forEach(function(category) { %>
+                                <option value="<%= category %>"><%= category %></option>
+                            <% }); %>
+                        </select>
+                    </div>
+            
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="event-date">Event Date</label>
+                            <input 
+                                type="date" 
+                                class="form-control" 
+                                id="event-date" 
+                                name="date" 
+                                required
+                            >
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="event-time">Event Time</label>
+                            <input 
+                                type="time" 
+                                class="form-control" 
+                                id="event-time" 
+                                name="time" 
+                                required
+                            >
+                        </div>
+                    </div>
+            
+                    <div class="form-group">
+                        <label for="event-location">Location</label>
+                        <input 
+                            type="text" 
+                            class="form-control" 
+                            id="event-location" 
+                            name="location" 
+                            required
+                            placeholder="Search for a location or click on the map"
+                        >
+                        <small class="form-text text-muted">
+                            Enter an address or click on the map to set the location
+                        </small>
+                        
+                        <!-- Map container -->
+                        <div id="location-map-container">
+                            <div id="map" style="height: 300px; width: 100%;"></div>
+                            <div id="location-map"></div>
+                            <div class="map-controls">
+                                <button type="button" id="use-my-location" class="btn btn-sm btn-secondary">
+                                    Use My Location
+                                </button>
+                                <button type="button" id="reset-map" class="btn btn-sm btn-outline-secondary">
+                                    Reset Map
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Hidden fields to store location data -->
+                        <input type="hidden" id="location-lat" name="locationLat">
+                        <input type="hidden" id="location-lng" name="locationLng">
+                        <input type="hidden" id="location-formatted" name="locationFormatted">
+                        <input type="hidden" id="location-name" name="locationName">
+                        <input type="hidden" id="location-place-id" name="locationPlaceId">
+                    </div>
+            
+                    <div class="form-group">
+                        <label for="event-image-upload">Event Image</label>
+                        <input 
+                            type="file" 
+                            class="form-control-file" 
+                            id="event-image-upload" 
+                            name="eventImage" 
+                            accept="image/*"
+                        >
+                        <img 
+                            id="event-image-preview" 
+                            class="img-preview hidden" 
+                            alt="Event Image Preview"
+                        >
+                    </div>
+            
+                    <button type="submit" class="button">
+                        Create Event
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <%- include('partials/navbar') %>
+
+    <!-- First load location-map.js WITHOUT async/defer -->
+    <script>
+        // Load Google Maps API dynamically
+        function loadGoogleMapsAPI() {
+          const script = document.createElement('script');
+          script.src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyAzyCRDxCy2fIoCdDWRlKjH6TCHK1ItLnQ&libraries=places&callback=initMap";
+          script.async = true;
+          script.defer = true;
+          document.head.appendChild(script);
+          console.log("Google Maps API script added to page");
+        }
+        
+        // Wait for the page to load before loading Maps API
+        window.addEventListener('load', loadGoogleMapsAPI);
+      </script>
+      
+      <!-- First load location-map.js -->
+      <script src="/js/location-map.js"></script>
+      
+      <!-- Then load create-event.js -->
+      <script src="/js/create-event.js" defer></script>
+
+</body>
+</html>
