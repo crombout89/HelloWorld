@@ -194,8 +194,16 @@ process.on('SIGINT', () => shutdown('SIGINT'));
 
 // Start server
 const PORT = config.port || 3000;
-const server = app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT} in ${config.nodeEnv} mode`);
+const server = require('http').createServer(app);
+const { Server } = require('socket.io');
+const io = new Server(server);
+app.set('io', io);
+
+const setupSocket = require('./socket'); // ✅ your modular handler
+setupSocket(io);
+
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
 });
 
 module.exports = server;
