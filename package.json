@@ -35,6 +35,7 @@
   "homepage": "https://github.com/crombout89/2800-202510-DTC04#readme",
   "devDependencies": {
     "eslint": "^9.26.0",
+    "nodemon": "^3.1.10",
     "prettier": "^3.5.3"
   }
 }
