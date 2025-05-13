@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+</head>
+<body>
+    <% messages.forEach(msg => { %>
+    <div class="message-block">
+        <p id="msg-<%= msg._id %>" class="original-text">
+        <%= msg.text %>
+        </p>
+        
+        <button 
+        class="translate-btn" 
+        data-message-id="<%= msg._id %>">
+        Translate
+        </button>
+        
+        <!-- optional: placeholder for translation -->
+        <div class="translated-text" id="translated-<%= msg._id %>"></div>
+    </div>
+    <% }) %>
+
+    <p>[Click “Translate” to see this message in your preferred language]</p>
+
+    <script src="/js/messages.js"></script>
+</body>
+</html>
