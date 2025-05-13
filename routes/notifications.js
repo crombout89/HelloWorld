@@ -39,7 +39,11 @@ router.get('/', isAuthenticated, async (req, res) => {
 
     res.render('notifications', {
       title: 'Your Notifications',
-      notifications
+      notifications,
+      user: {
+        ...req.session.user,
+        _id: req.session.userId // 👈 Add this manually so EJS has access
+      }
     });
   } catch (err) {
     console.error('Fetch notifications error:', err);

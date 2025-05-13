@@ -24,8 +24,16 @@
   <p><a href="/dashboard">Back to Dashboard</a></p>
 
   <script src="/socket.io/socket.io.js"></script>
-  <script src="/js/socket.js"></script>
+  <script>
+    const socket = io();
 
+    <% if (user && user._id) { %>
+      socket.emit('join', '<%= user._id %>');
+    <% } %>
+
+    socket.on('notification', data => {
+      alert('🔔 New Notification: ' + data.message);
+    });
   </script>
 </body>
 </html>
