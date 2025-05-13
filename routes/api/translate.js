@@ -1,12 +1,9 @@
 const express = require('express');
-const { OpenAI } = require('openai');
 const router = express.Router();
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 router.post('/', async (req, res) => {
+  console.log('✅ /api/translate route hit:', req.body); // ADD THIS
   const { text, targetLang } = req.body;
 
   if (!text || !targetLang) {
@@ -14,16 +11,21 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    const response = await openai.chat.completions.create({
-      model: 'gpt-4',
-      messages: [
-        { role: 'system', content: `Translate the following message to ${targetLang}. Respond with only the translated text.` },
-        { role: 'user', content: text }
-      ]
-    });
+    const response = await fetch('https://libretranslate.de/translate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      q: text,
+      source: 'auto',
+      target: targetLang.toLowerCase(),
+      format: 'text'
+    })
+  });
 
-    const translated = response.choices[0].message.content.trim();
-    res.json({ translated });
+  const data = await response.json();
+  console.log('🌐 LibreTranslate response:', data); // ← ADD THIS
+
+  res.json({ translated: data.translatedText });
   } catch (error) {
     console.error('Translation error:', error);
     res.status(500).json({ error: 'Translation failed' });
