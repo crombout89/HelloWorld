@@ -22,6 +22,8 @@ router.post('/create', isAuthenticated, async (req, res) => {
     });
 
     await notification.save();
+    const io = req.app.get('io');
+    io.to(userId).emit('notification', notification); // send to specific user
     res.status(201).json({ success: true, notification });
   } catch (err) {
     console.error('Notification creation error:', err);
