@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title><%= title %></title>
+</head>
+<body>
+  <h1><%= title %></h1>
+
+  <% if (notifications.length === 0) { %>
+    <p>You have no notifications.</p>
+  <% } else { %>
+    <ul>
+      <% notifications.forEach(n => { %>
+        <li>
+          <%= n.message %>
+          <% if (n.link) { %>
+            - <a href="<%= n.link %>">View</a>
+          <% } %>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+
+  <p><a href="/dashboard">Back to Dashboard</a></p>
+</body>
+</html>

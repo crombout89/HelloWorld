@@ -95,6 +95,7 @@ const locationRoutes = require('./routes/location');
 const geolocationRoutes = require('./routes/geolocation');
 const loginRouter = require('./routes/login');
 const messagesRoute = require('./routes/messages');
+const notificationsRoute = require('./routes/notifications');
 const profileRouter = require('./routes/profile');
 const discoverRoutes = require('./routes/discover');
 const translateRoute = require('./routes/api/translate');
@@ -145,6 +146,7 @@ const validateRouter = (router, routeName) => {
 app.use('/', validateRouter(indexRouter, 'indexRouter'));
 app.use('/', validateRouter(registerRouter, 'registerRouter'));
 app.use('/', validateRouter(profileRouter, 'profileRouter'));
+app.use('/', messagesRoute); 
 app.use('/api/translate', translateRoute);
 app.use('/communities', validateRouter(communitiesRouter, 'communitiesRouter'));
 app.use('/create-event', createEventRoutes);
@@ -153,7 +155,7 @@ app.use('/discover', validateRouter(discoverRoutes, 'discoverRoutes'));
 app.use('/api/geolocation', geolocationRoutes);
 app.use('/api/location', validateRouter(locationRoutes, 'locationRoutes'));
 app.use('/login', validateRouter(loginRouter, 'loginRouter'));
-app.use('/', messagesRoute); 
+app.use('/notifications', notificationsRoute);
 app.use('/users', validateRouter(usersRouter, 'usersRouter'));
 
 // Logout Route
