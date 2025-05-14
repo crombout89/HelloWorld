@@ -1,0 +1,17 @@
+<div class="page-title">
+  <h1>Message Inbox</h1>
+</div>
+
+<% if (users.length === 0) { %>
+  <p>No conversations yet.</p>
+<% } else { %>
+  <ul>
+    <% users.forEach(user => { %>
+      <li>
+        <a href="/messages/<%= user._id %>">💬 <%= user.username %></a>
+      </li>
+    <% }) %>
+  </ul>
+<% } %>
+
+<p><a href="/dashboard">← Back to Dashboard</a></p>
