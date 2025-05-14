@@ -1,0 +1,67 @@
+/* === COMMUNITY DASHBOARD === */
+
+.communities-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-family: 'Arial', sans-serif;
+  }
+  
+  .community-card {
+    border: 1px solid #ddd;
+    padding: 1.5rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    background-color: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    transition: transform 0.2s;
+  }
+  
+  .community-card:hover {
+    transform: scale(1.01);
+  }
+  
+  .community-card h2 {
+    margin-top: 0;
+    font-size: 1.4rem;
+  }
+  
+  .community-card p {
+    margin: 0.5rem 0 1rem;
+    color: #444;
+  }
+  
+  .community-card button {
+    background-color: #1e90ff;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  
+  .community-card button:hover {
+    background-color: #106fca;
+  }
+  
+  /* Create button at the top */
+  .create-button {
+    display: inline-block;
+    margin-bottom: 2rem;
+  }
+  
+  .create-button a button {
+    background-color: #4CAF50;
+    color: white;
+    font-weight: bold;
+    padding: 0.6rem 1.2rem;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .create-button a button:hover {
+    background-color: #3a9e41;
+  }
+  
