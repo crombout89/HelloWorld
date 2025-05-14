@@ -1,0 +1,19 @@
+.profile-container {
+  max-width: 600px;
+  margin: auto;
+  padding: 1rem;
+}
+
+.profile-photo img {
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.profile-info p {
+  margin-bottom: 0.75rem;
+}
+
+.profile-actions {
+  margin-top: 1.5rem;
+}
