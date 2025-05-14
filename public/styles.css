@@ -66,6 +66,7 @@ h1 {
 .button:hover {
     background-color: var(--secondary);
     transform: scale(1.1);
+    color: white;
 }
 
 .navbar {

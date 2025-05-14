@@ -35,7 +35,8 @@
             </section>
 
             <nav>
-                <a href="/logout">Logout</a>
+                <a href="/notifications" class="button">View Notifications</a>
+                <a href="/logout" class="button">Logout</a>
             </nav>
         </div>
 
@@ -55,17 +56,8 @@
                 <p><strong>Saved Location:</strong> <%= user.profile.location %></p>
                 <% } %>
 
-                <button id="edit-profile-btn" class="button">Edit Profile</button>
+                <a href="/profile" class="button">Edit Profile</a>
             </div>
-        </section>
-
-        <section id="interests" class="">
-            <h2>Interests:</h2>
-            <% if (user.profile.interests && user.profile.interests.length > 0) { %>
-                <p><%= user.profile.interests.join(', ') %></p>
-            <% } else { %>
-                <p>No interests added</p>
-            <% } %>
         </section>
 
         <section id="nearby-users-section">
@@ -74,8 +66,6 @@
             <button id="discover-users-btn" class="button">Discover Users</button>
         </section>
     </div>
-
-    <%- include('partials/navbar') %>
 
     <!-- Load scripts at the end of body -->
     <script src="/js/location.js"></script>
