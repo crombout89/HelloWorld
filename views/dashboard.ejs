@@ -42,9 +42,11 @@
 
         <section id="profile-overview">
 
-            <div id="profile-photo" class="container">
-                <img id="profile-img" src="assets/imgs/demo-profile-1.png">
-            </div>
+            <img 
+                src="<%= user.profile.profilePicture || '/assets/svg/profile-placeholder.svg' %>" 
+                alt="Profile Picture" 
+                class="w-32 h-32 object-cover rounded-full shadow"
+            />
 
             <div id="profile-info" class="">
                 <h2>Welcome, <%= user.fullName || user.username %></h2>
