@@ -1,0 +1,21 @@
+.profile-container {
+  max-width: 800px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.profile-photo img {
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.profile-info p {
+  margin-bottom: 0.75rem;
+}
+
+.profile-actions {
+  margin-top: 1.5rem;
+}

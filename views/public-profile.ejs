@@ -1,0 +1,27 @@
+<link rel="stylesheet" href="/css/profile.css">
+
+<div class="profile-container page-title">
+  <h1><%= user.username %>'s Public Profile</h1>
+
+  <p><strong>Bio:</strong> <%= user.bio || 'No bio provided.' %></p>
+
+  <% if (user.interests && user.interests.length > 0) { %>
+    <p><strong>Interests:</strong> <%= user.interests.join(', ') %></p>
+  <% } else { %>
+    <p><strong>Interests:</strong> None listed.</p>
+  <% } %>
+</div>
+
+  <% if (!isOwner) { %>
+    <div class="profile-actions">
+      <!-- You can conditionally show these based on friendship logic later -->
+      <form action="/friends/request/<%= user._id %>" method="POST">
+        <button type="submit" class="button">Add Friend</button>
+      </form>
+
+      <a href="/messages/<%= user._id %>" class="button">Send Message</a>
+    </div>
+  <% } else { %>
+    <p><em>This is your own profile.</em></p>
+  <% } %>
+</div>

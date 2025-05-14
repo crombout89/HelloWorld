@@ -68,9 +68,6 @@ app.use((req, res, next) => {
   next();
 });
 
-
-
-
 // User Session Middleware
 app.use(async (req, res, next) => {
   try {
