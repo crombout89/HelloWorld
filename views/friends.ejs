@@ -6,10 +6,16 @@
   <ul class="friends-list">
     <% friends.forEach(friend => { %>
       <li class="friend-card">
-        <a href="/profile/<%= friend._id %>">
-          <img src="<%= friend.profilePicture %>" alt="<%= friend.username %>" class="friend-avatar" />
-          <span><%= friend.username %></span>
-        </a>
+        <div>
+          <strong><%= friend.name || friend.username %></strong><br>
+          <%= friend.email %>
+        </div>
+        <div>
+          <a href="/messages/<%= friend._id %>" class="btn">Message</a>
+        </div>
+        <form action="/friends/remove/<%= friend._id %>" method="POST" style="display:inline;">
+          <button class="button danger" type="submit">Remove</button>
+        </form>
       </li>
     <% }) %>
   </ul>

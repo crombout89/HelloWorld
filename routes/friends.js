@@ -154,4 +154,30 @@ router.get("/requests", isAuthenticated, async (req, res) => {
   }
 });
 
+// ❌ Remove a friend
+router.post("/remove/:userId", isAuthenticated, async (req, res) => {
+  const userId = req.session.userId;
+  const friendId = req.params.userId;
+
+  try {
+    const result = await Friendship.findOneAndDelete({
+      status: "accepted",
+      $or: [
+        { requester: userId, recipient: friendId },
+        { requester: friendId, recipient: userId },
+      ],
+    });
+
+    if (!result) {
+      console.warn("No matching friendship found.");
+      return res.status(404).redirect("/friends");
+    }
+
+    res.redirect("/friends");
+  } catch (err) {
+    console.error("Friend removal error:", err);
+    res.redirect("/friends");
+  }
+});
+
 module.exports = router;
