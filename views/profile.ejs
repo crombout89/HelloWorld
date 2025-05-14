@@ -1,88 +1,89 @@
 <link rel="stylesheet" href="/css/profile.css">
 
-<div class="profile-edit-container page-title">
-  <h2>Update Your Profile</h2>
+<div class="profile-edit-container page-title" style="max-width: 600px; margin: auto; padding: 1rem;">
+  <h2 style="margin-bottom: 1.5rem;">Update Your Profile</h2>
 
   <!-- FORM: Update name, photo, bio -->
-  <form action="/profile/update" method="POST" enctype="multipart/form-data">
-    <div>
-      <label for="photo">Upload Profile Photo:</label>
+  <form action="/profile/update" method="POST" enctype="multipart/form-data" style="margin-bottom: 2rem;">
+    <div style="margin-bottom: 1rem;">
+      <label for="photo">Upload Profile Photo:</label><br>
       <input type="file" name="photo" id="photo">
     </div>
-  
+
     <% if (user.profile?.profilePicture) { %>
-      <p>Current Photo:</p>
-      <img src="<%= user.profile.profilePicture %>" alt="Profile Photo" width="100">
+      <div style="margin-bottom: 1rem;">
+        <p>Current Photo:</p>
+        <img src="<%= user.profile.profilePicture %>" alt="Profile Photo" width="100" style="border-radius: 8px;">
+      </div>
     <% } %>
-  
-    <div>
-      <label for="firstName">First Name:</label>
-      <input type="text" name="firstName" id="firstName" value="<%= user.profile?.firstName || '' %>">
+
+    <div style="margin-bottom: 1rem;">
+      <label for="firstName">First Name:</label><br>
+      <input type="text" name="firstName" id="firstName" value="<%= user.profile?.firstName || '' %>" style="width: 100%;">
     </div>
 
-    <div>
-      <label for="lastName">Last Name:</label>
-      <input type="text" name="lastName" id="lastName" value="<%= user.profile?.lastName || '' %>">
+    <div style="margin-bottom: 1rem;">
+      <label for="lastName">Last Name:</label><br>
+      <input type="text" name="lastName" id="lastName" value="<%= user.profile?.lastName || '' %>" style="width: 100%;">
     </div>
 
-    <div>
-      <label for="bio">Bio:</label>
-      <textarea name="bio" id="bio" rows="4"><%= user.profile?.bio || '' %></textarea>
+    <div style="margin-bottom: 1rem;">
+      <label for="bio">Bio:</label><br>
+      <textarea name="bio" id="bio" rows="4" style="width: 100%; resize: vertical;"><%= user.profile?.bio || '' %></textarea>
     </div>
 
-    <button type="submit">Save Profile</button>
+    <button type="submit" style="margin-top: 1rem;">Save Profile</button>
   </form>
 
-  <!-- FORM: Add interests -->
-  <h2>Interests</h2>
+  <!-- FORM: Interests -->
+  <h2 style="margin-bottom: 1rem;">Interests</h2>
 
   <% if (user.profile?.interests && user.profile.interests.length > 0) { %>
-    <ul>
+    <ul style="margin-bottom: 1rem;">
       <% user.profile.interests.forEach(interest => { %>
         <li><%= interest %></li>
       <% }); %>
     </ul>
   <% } else { %>
-    <p>No interests added yet.</p>
+    <p style="margin-bottom: 1rem;">No interests added yet.</p>
   <% } %>
 
-  <form action="/profile/interests" method="POST">
-    <label for="interest">Add New Interest:</label>
-    <input type="text" name="interest" id="interest" required>
+  <form action="/profile/interests" method="POST" style="margin-bottom: 2rem;">
+    <label for="interest">Add New Interest:</label><br>
+    <input type="text" name="interest" id="interest" required style="width: 100%; margin-bottom: 0.5rem;">
     <button type="submit">Add Interest</button>
   </form>
 
   <!-- FORM: Preferences -->
-<h2>Preferences</h2>
+  <h2 style="margin-bottom: 1rem;">Preferences</h2>
 
-<form action="/profile/preferences" method="POST">
-  <div>
-    <label>
-      <input type="checkbox" name="preferences" value="friendship"
-        <%= user.profile?.preferences?.includes("friendship") ? "checked" : "" %> />
-      Friendship
-    </label>
-  </div>
+  <form action="/profile/preferences" method="POST">
+    <div style="margin-bottom: 0.5rem;">
+      <label>
+        <input type="checkbox" name="preferences" value="friendship"
+          <%= user.profile?.preferences?.includes("friendship") ? "checked" : "" %> />
+        Friendship
+      </label>
+    </div>
 
-  <div>
-    <label>
-      <input type="checkbox" name="preferences" value="language exchange"
-        <%= user.profile?.preferences?.includes("language exchange") ? "checked" : "" %> />
-      Language Exchange
-    </label>
-  </div>
+    <div style="margin-bottom: 0.5rem;">
+      <label>
+        <input type="checkbox" name="preferences" value="language exchange"
+          <%= user.profile?.preferences?.includes("language exchange") ? "checked" : "" %> />
+        Language Exchange
+      </label>
+    </div>
 
-  <div>
-    <label>
-      <input type="checkbox" name="preferences" value="get info about your destination"
-        <%= user.profile?.preferences?.includes("get info about your destination") ? "checked" : "" %> />
-      Get Info About Your Destination
-    </label>
-  </div>
+    <div style="margin-bottom: 1rem;">
+      <label>
+        <input type="checkbox" name="preferences" value="get info about your destination"
+          <%= user.profile?.preferences?.includes("get info about your destination") ? "checked" : "" %> />
+        Get Info About Your Destination
+      </label>
+    </div>
 
-  <button type="submit">Save Preferences</button>
-</form>
-
+    <button type="submit">Save Preferences</button>
+  </form>
 
   <script src="/js/location.js"></script>
 </div>
