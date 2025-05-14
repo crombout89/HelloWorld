@@ -1,7 +1,7 @@
-const socket = window.appSocket;
+const appSocket = window.appSocket;
 let unreadCount = 0;
 
-socket?.on("notification", (data) => {
+appSocket?.on("notification", (data) => {
   showToast(data.message);
   console.log("📩 Notification received!");
   unreadCount++;

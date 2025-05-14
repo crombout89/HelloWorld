@@ -78,7 +78,21 @@ router.post("/messages/:userId", isAuthenticated, async (req, res) => {
       return res.redirect(`/messages/${recipient}`);
     }
 
-    await Message.create({ sender, recipient, text });
+    // Save message to DB
+    const message = await Message.create({ sender, recipient, text });
+
+    // ✅ Send a notification
+    const Notification = require("../models/notification");
+    const notification = new Notification({
+      user: recipient,
+      message: `${req.user?.username || "Someone"} sent you a message!`,
+      link: `/messages/${sender}`,
+    });
+    await notification.save();
+
+    // ✅ Emit to the recipient in real time
+    const io = req.app.get("io");
+    io.to(recipient).emit("notification", notification);
 
     res.redirect(`/messages/${recipient}`);
   } catch (err) {
