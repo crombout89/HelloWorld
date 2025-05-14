@@ -19,3 +19,17 @@
 .profile-actions {
   margin-top: 1.5rem;
 }
+
+.profile-picture-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1rem;
+}
+
+.public-profile-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}

@@ -3,6 +3,7 @@ const router = express.Router();
 const path = require("path");
 const multer = require("multer");
 const User = require("../models/user");
+const Friendship = require("../models/friendship");
 const { isLoggedIn } = require("../middleware/auth");
 
 // ========================
@@ -64,7 +65,7 @@ router.post("/profile/update", upload.single("photo"), async (req, res) => {
     const update = {
       "profile.firstName": firstName?.trim() || "",
       "profile.lastName": lastName?.trim() || "",
-      "profile.bio": bio?.trim() || ""
+      "profile.bio": bio?.trim() || "",
     };
 
     if (req.file) {
@@ -72,14 +73,16 @@ router.post("/profile/update", upload.single("photo"), async (req, res) => {
       update["profile.profilePicture"] = photoPath;
     }
 
-    const updatedUser = await User.findByIdAndUpdate(userId, update, { new: true });
+    const updatedUser = await User.findByIdAndUpdate(userId, update, {
+      new: true,
+    });
 
     req.session.user.profile = {
       ...req.session.user.profile,
       firstName: updatedUser.profile.firstName,
       lastName: updatedUser.profile.lastName,
       bio: updatedUser.profile.bio,
-      profilePicture: updatedUser.profile.profilePicture
+      profilePicture: updatedUser.profile.profilePicture,
     };
 
     res.redirect("/profile");
@@ -161,22 +164,48 @@ router.post("/profile/preferences", isLoggedIn, async (req, res) => {
 // ========================
 router.get("/profile/:userId", async (req, res) => {
   try {
-    const user = await User.findById(req.params.userId).select("username profile");
-    if (!user) return res.status(404).render("404");
+    const viewingUser = await User.findById(req.params.userId).select(
+      "username profile"
+    );
+    if (!viewingUser) return res.status(404).render("404");
 
     const isOwner =
-      req.session.user && req.session.user._id === user._id.toString();
+      req.session.user && req.session.user._id === viewingUser._id.toString();
+
+    let friendStatus = "none"; // default
+
+    if (!isOwner && req.session.user) {
+      const currentUserId = req.session.user._id;
+
+      const friendship = await Friendship.findOne({
+        $or: [
+          { sender: currentUserId, receiver: viewingUser._id },
+          { sender: viewingUser._id, receiver: currentUserId },
+        ],
+      });
+
+      if (friendship) {
+        if (friendship.status === "accepted") {
+          friendStatus = "friends";
+        } else if (friendship.status === "pending") {
+          friendStatus = "pending";
+        }
+      }
+    }
 
     res.render("public-profile", {
       user: {
-        _id: user._id,
-        username: user.username,
-        bio: user.profile?.bio || "",
-        interests: user.profile?.interests || [],
-        profilePicture: user.profile?.profilePicture || "/default-avatar.png",
+        _id: viewingUser._id,
+        username: viewingUser.username,
+        bio: viewingUser.profile?.bio || "",
+        interests: viewingUser.profile?.interests || [],
+        profilePicture:
+          viewingUser.profile?.profilePicture ||
+          "/assets/svg/profile-placeholder.svg",
       },
       isOwner,
-      title: `${user.username}'s Profile`,
+      friendStatus,
+      title: `${viewingUser.username}'s Profile`,
     });
   } catch (err) {
     console.error("Public profile error:", err);
