@@ -3,6 +3,7 @@ const router = express.Router();
 const path = require("path");
 const multer = require("multer");
 const User = require("../models/user");
+const { isLoggedIn } = require("../middleware/auth");
 
 // ========================
 // Multer Config for Photo Uploads
@@ -21,39 +22,33 @@ const upload = multer({ storage: storage });
 // ========================
 // GET: Logged-in User Profile Page
 // ========================
-router.get("/profile", async (req, res) => {
+router.get("/profile", isLoggedIn, async (req, res) => {
   const sessionUser = req.session.user;
-  if (!sessionUser) return res.redirect("/login");
+  const userId = sessionUser?._id || req.session.userId;
 
-  if (!sessionUser.preferences) sessionUser.preferences = [];
-  if (!sessionUser.interests) sessionUser.interests = [];
+  if (!userId) return res.redirect("/login");
 
-  const userData = {
-    username: sessionUser.username,
-    email: sessionUser.email || "Not provided",
-    role: sessionUser.role || "user",
-    joinDate: sessionUser.createdAt
-      ? new Date(sessionUser.createdAt).toLocaleDateString()
-      : "Unknown",
-    interests: sessionUser.interests,
-    preferences: sessionUser.preferences,
-    name: sessionUser.name || "",
-    bio: sessionUser.bio || "",
-    photo: sessionUser.photo || "",
-  };
-
-  let locationData;
   try {
-    locationData = await getLocationData();
-  } catch (error) {
-    locationData = { error: "Could not retrieve location" };
-  }
+    const user = await User.findById(userId);
 
-  res.render("profile", {
-    title: "Your Profile",
-    user: userData,
-    location: locationData,
-  });
+    if (!user) return res.redirect("/login");
+
+    let locationData;
+    try {
+      locationData = await getLocationData();
+    } catch (error) {
+      locationData = { error: "Could not retrieve location" };
+    }
+
+    res.render("profile", {
+      title: "Your Profile",
+      user,
+      location: locationData,
+    });
+  } catch (err) {
+    console.error("Error loading profile:", err);
+    res.redirect("/dashboard");
+  }
 });
 
 // ========================
@@ -81,35 +76,43 @@ router.post("/profile/preferences", (req, res) => {
   res.redirect("/profile");
 });
 
-// ========================
-// POST: Update Profile Info (Name, Bio, Photo) + Persist to DB
-// ========================
 router.post("/profile/update", async (req, res) => {
   if (!req.session.user) return res.redirect("/login");
+
   const { firstName, lastName, bio } = req.body;
-  console.log("Form data submitted:", { firstName, lastName, bio });
+  console.log("🔁 Form data received:", { firstName, lastName, bio });
+
   const userId = req.session.user._id;
+  console.log("🪪 User ID from session:", userId);
 
   try {
     const update = {
-      "profile.firstName": firstName,
-      "profile.lastName": lastName,
-      "profile.bio": bio
+      "profile.firstName": firstName?.trim() || "",
+      "profile.lastName": lastName?.trim() || "",
+      "profile.bio": bio?.trim() || "",
     };
 
-    await User.findByIdAndUpdate(userId, update, { new: true, runValidators: true });
+    const updatedUser = await User.findByIdAndUpdate(userId, update, {
+      new: true,
+      runValidators: true,
+    });
 
-    // Sync session with updated data
+    if (!updatedUser) {
+      console.error("❌ No user found for update");
+      return res.redirect("/profile");
+    }
+
+    // Sync session
     req.session.user.profile = {
       ...req.session.user.profile,
-      firstName,
-      lastName,
-      bio
+      firstName: updatedUser.profile.firstName,
+      lastName: updatedUser.profile.lastName,
+      bio: updatedUser.profile.bio,
     };
 
     res.redirect("/profile");
   } catch (err) {
-    console.error("Profile update error:", err);
+    console.error("❌ Profile update error:", err);
     res.redirect("/profile");
   }
 });
