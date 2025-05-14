@@ -164,7 +164,7 @@ router.post("/remove/:userId", isAuthenticated, async (req, res) => {
       status: "accepted",
       $or: [
         { requester: userId, recipient: friendId },
-        { requester: friendId, recipient: userId },
+        { requester: friendId, recipient: userId }
       ],
     });
 
