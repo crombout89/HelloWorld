@@ -128,7 +128,13 @@ router.get("/profile/:userId", async (req, res) => {
       req.session.user && req.session.user._id === user._id.toString();
 
     res.render("public-profile", {
-      user,
+      user: {
+        _id: user._id,
+        username: user.username,
+        bio: user.profile?.bio || "",
+        interests: user.profile?.interests || [],
+        profilePicture: user.profile?.photo || "/default-avatar.png",
+      },
       isOwner,
       title: `${user.username}'s Profile`,
     });
