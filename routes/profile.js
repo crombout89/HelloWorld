@@ -52,80 +52,59 @@ router.get("/profile", isLoggedIn, async (req, res) => {
 });
 
 // ========================
-// POST: Add Interest
+// POST: Update Name, Bio, and Profile Picture
 // ========================
-router.post("/profile/interests", (req, res) => {
-  const newInterest = req.body.interest?.trim();
-  if (!req.session.user.interests) {
-    req.session.user.interests = [];
-  }
-  if (newInterest && !req.session.user.interests.includes(newInterest)) {
-    req.session.user.interests.push(newInterest);
-  }
-  res.redirect("/profile");
-});
-
-// ========================
-// POST: Update Preferences
-// ========================
-router.post("/profile/preferences", (req, res) => {
-  const selected = req.body.preferences || [];
-  req.session.user.preferences = Array.isArray(selected)
-    ? selected
-    : [selected];
-  res.redirect("/profile");
-});
-
-router.post("/profile/update", async (req, res) => {
+router.post("/profile/update", upload.single("photo"), async (req, res) => {
   if (!req.session.user) return res.redirect("/login");
 
   const { firstName, lastName, bio } = req.body;
-  console.log("🔁 Form data received:", { firstName, lastName, bio });
-
   const userId = req.session.user._id;
-  console.log("🪪 User ID from session:", userId);
 
   try {
     const update = {
       "profile.firstName": firstName?.trim() || "",
       "profile.lastName": lastName?.trim() || "",
-      "profile.bio": bio?.trim() || "",
+      "profile.bio": bio?.trim() || ""
     };
 
-    const updatedUser = await User.findByIdAndUpdate(userId, update, {
-      new: true,
-      runValidators: true,
-    });
-
-    if (!updatedUser) {
-      console.error("❌ No user found for update");
-      return res.redirect("/profile");
+    if (req.file) {
+      const photoPath = "/uploads/" + req.file.filename;
+      update["profile.profilePicture"] = photoPath;
     }
 
-    // Sync session
+    const updatedUser = await User.findByIdAndUpdate(userId, update, { new: true });
+
     req.session.user.profile = {
       ...req.session.user.profile,
       firstName: updatedUser.profile.firstName,
       lastName: updatedUser.profile.lastName,
       bio: updatedUser.profile.bio,
+      profilePicture: updatedUser.profile.profilePicture
     };
 
     res.redirect("/profile");
   } catch (err) {
-    console.error("❌ Profile update error:", err);
+    console.error("Profile update error:", err);
     res.redirect("/profile");
   }
 });
 
+// ========================
+// SECTION: Interests (To be refactored)
+// ========================
+// Add logic here later for /profile/interests
+
+// ========================
+// SECTION: Preferences (To be refactored)
+// ========================
+// Add logic here later for /profile/preferences
 
 // ========================
 // GET: Public Read-Only Profile
 // ========================
 router.get("/profile/:userId", async (req, res) => {
   try {
-    const user = await User.findById(req.params.userId).select(
-      "username profile"
-    );
+    const user = await User.findById(req.params.userId).select("username profile");
     if (!user) return res.status(404).render("404");
 
     const isOwner =
@@ -137,7 +116,7 @@ router.get("/profile/:userId", async (req, res) => {
         username: user.username,
         bio: user.profile?.bio || "",
         interests: user.profile?.interests || [],
-        profilePicture: user.profile?.photo || "/default-avatar.png",
+        profilePicture: user.profile?.profilePicture || "/default-avatar.png",
       },
       isOwner,
       title: `${user.username}'s Profile`,
@@ -149,7 +128,7 @@ router.get("/profile/:userId", async (req, res) => {
 });
 
 // ========================
-// Mock Location Service (Used in Profile)
+// Mock Location Service
 // ========================
 async function getLocationData() {
   return new Promise((resolve) => {
