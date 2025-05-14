@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
+const Friendship = require("../models/friendship");
 
 // Middleware to check if user is authenticated
 const isAuthenticated = async (req, res, next) => {
@@ -13,24 +14,39 @@ const isAuthenticated = async (req, res, next) => {
 };
 
 // Dashboard Route
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    const user = await User.findById(req.session.userId);
-    
-    // Consider adding more location context
+    const userId = req.session.userId;
+    const user = await User.findById(userId);
+
+    // Fetch accepted friendships
+    const friendships = await Friendship.find({
+      status: "accepted",
+      $or: [{ requester: userId }, { recipient: userId }],
+    })
+      .populate("requester", "username profile")
+      .populate("recipient", "username profile");
+
+    // Extract friend objects
+    const friends = friendships.map((f) => {
+      const isRequester = f.requester._id.toString() === userId;
+      return isRequester ? f.recipient : f.requester;
+    });
+
     const locationDetails = {
-      address: user.profile.location || 'Not specified',
-      hasLocation: !!user.profile.location
+      address: user.profile.location || "Not specified",
+      hasLocation: !!user.profile.location,
     };
 
-    res.render('dashboard', { 
-      user: user,
-      locationDetails: locationDetails,
-      title: 'Dashboard' 
+    res.render("dashboard", {
+      user,
+      friends,
+      locationDetails,
+      title: "Dashboard",
     });
   } catch (error) {
-    console.error('Dashboard Error:', error);
-    res.redirect('/login');
+    console.error("Dashboard Error:", error);
+    res.redirect("/login");
   }
 });
 

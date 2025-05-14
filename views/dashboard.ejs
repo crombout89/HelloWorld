@@ -1,85 +1,86 @@
-<html lang="en">
-    <head>
-        <meta name="viewport" content="width=device-width,
-        initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-        <title><%= title %></title>
-        <link rel='stylesheet' href='/styles.css' />
-        <link rel='stylesheet' href='css/dashboard.css' />
-        <link rel='stylesheet' href='css/effects.css' />
-        <link rel="stylesheet" href="https://use.typekit.net/yrl0zql.css">
-    </head>
-<body>
-    <div id="dashboard">
-        <div id="dashboard-header">
+<link rel='stylesheet' href='css/dashboard.css' />
 
-            <section id="current-location">
-                <h2>Your Current Location</h2>
-                
-                <% if (user.geolocation && user.geolocation.coordinates) { %>
-                    <div id="location-details">
-                        <p><strong>Latitude:</strong> <%= user.geolocation.coordinates[1] %></p>
-                        <p><strong>Longitude:</strong> <%= user.geolocation.coordinates[0] %></p>
-                        
-                        <% if (user.profile.location && user.profile.location.city) { %>
-                        <p><strong>City:</strong> <%= user.profile.location.city %></p>
-                        <% } %>
-                        
-                        <% if (user.profile.location && user.profile.location.country) { %>
-                        <p><strong>Country:</strong> <%= user.profile.location.country %></p>
-                        <% } %>
-                    </div>
-                <% } else { %>
-                    <p id="location-status">Location not set</p>
-                    <button id="get-location-btn" type="button" class="button">Get Current Location</button>
-                <% } %>
-            </section>
+<div id="dashboard">
+    <div id="dashboard-header">
 
-            <nav>
-                <a href="/notifications" class="button">View Notifications</a>
-                <a href="/logout" class="button">Logout</a>
-            </nav>
-        </div>
-
-        <section id="profile-overview">
-
-            <img 
-                src="<%= user.profile.profilePicture || '/assets/svg/profile-placeholder.svg' %>" 
-                alt="Profile Picture" 
-                class="w-32 h-32 object-cover rounded-full shadow"
-            />
-
-            <div id="profile-info" class="">
-                <h2>Welcome, <%= user.fullName || user.username %></h2>
-
-                <p>
-                  <strong>Name:</strong>
-                  <%= user.profile.firstName || 'First' %>
-                  <%= user.profile.lastName || 'Last' %>
-                </p>
-
-                <p><strong>Bio:</strong> <%= user.profile.bio || 'No bio yet.' %></p>
-                
-                <p><strong>Interests:</strong>
-                  <% if (user.profile.interests?.length) { %>
-                    <%= user.profile.interests.join(', ') %>
-                  <% } else { %>
-                    None listed.
-                  <% } %>
-                </p>
-
-                <a href="/profile" class="button">Edit Profile</a>
-            </div>
+        <section id="current-location">
+            <h2>Your Current Location</h2>
+            
+            <% if (user.geolocation && user.geolocation.coordinates) { %>
+                <div id="location-details">
+                    <p><strong>Latitude:</strong> <%= user.geolocation.coordinates[1] %></p>
+                    <p><strong>Longitude:</strong> <%= user.geolocation.coordinates[0] %></p>
+                    
+                    <% if (user.profile.location && user.profile.location.city) { %>
+                    <p><strong>City:</strong> <%= user.profile.location.city %></p>
+                    <% } %>
+                    
+                    <% if (user.profile.location && user.profile.location.country) { %>
+                    <p><strong>Country:</strong> <%= user.profile.location.country %></p>
+                    <% } %>
+                </div>
+            <% } else { %>
+                <p id="location-status">Location not set</p>
+                <button id="get-location-btn" type="button" class="button">Get Current Location</button>
+            <% } %>
         </section>
 
-        <section id="nearby-users-section">
-            <h2>Nearby Users</h2>
-            <div id="nearby-users-list"></div>
-            <button id="discover-users-btn" class="button">Discover Users</button>
-        </section>
+        <nav>
+            <a href="/notifications" class="button">View Notifications</a>
+            <a href="/logout" class="button">Logout</a>
+        </nav>
     </div>
 
-    <!-- Load scripts at the end of body -->
-    <script src="/js/location.js"></script>
-    <script src="/js/dashboard.js"></script>
-</body>
-</html>
+    <section id="profile-overview">
+
+        <img 
+            src="<%= user.profile.profilePicture || '/assets/svg/profile-placeholder.svg' %>" 
+            alt="Profile Picture" 
+            class="w-32 h-32 object-cover rounded-full shadow"
+        />
+
+        <div id="profile-info" class="">
+            <h2>Welcome, <%= user.fullName || user.username %></h2>
+
+            <p>
+                <strong>Name:</strong>
+                <%= user.profile.firstName || 'First' %>
+                <%= user.profile.lastName || 'Last' %>
+            </p>
+
+            <p><strong>Bio:</strong> <%= user.profile.bio || 'No bio yet.' %></p>
+            
+            <p><strong>Interests:</strong>
+                <% if (user.profile.interests?.length) { %>
+                <%= user.profile.interests.join(', ') %>
+                <% } else { %>
+                None listed.
+                <% } %>
+            </p>
+
+            <a href="/profile" class="button">Edit Profile</a>
+        </div>
+    </section>
+
+    <div class="friends-summary">
+    <h2>Your Friends</h2>
+    <% if (friends.length === 0) { %>
+        <p>No friends yet.</p>
+    <% } else { %>
+        <ul>
+        <% friends.forEach(friend => { %>
+            <li>
+            <a href="/profile/<%= friend._id %>">
+                <%= friend.profile?.firstName || friend.username %>
+            </a>
+            </li>
+        <% }) %>
+        </ul>
+        <a href="/friends" class="button">View All Friends</a>
+    <% } %>
+    </div>
+</div>
+
+<!-- Load scripts at the end of body -->
+<script src="/js/location.js"></script>
+<script src="/js/dashboard.js"></script>
