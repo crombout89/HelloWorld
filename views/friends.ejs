@@ -1,0 +1,19 @@
+<h1>Your Friends</h1>
+
+<% if (friends.length === 0) { %>
+  <p>You don't have any friends yet. 😢</p>
+<% } else { %>
+  <ul class="friend-list">
+    <% friends.forEach(friend => { %>
+      <li class="friend-card">
+        <div>
+          <strong><%= friend.name || friend.username %></strong><br>
+          <%= friend.email %>
+        </div>
+        <div>
+          <a href="/messages/<%= friend._id %>" class="btn">Message</a>
+        </div>
+      </li>
+    <% }) %>
+  </ul>
+<% } %>

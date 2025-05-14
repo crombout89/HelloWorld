@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Message = require("../models/message");
 const User = require("../models/user");
+const { areFriends } = require("../services/friendService");
 
 // Middleware to check login
 function isAuthenticated(req, res, next) {
