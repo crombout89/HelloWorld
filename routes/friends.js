@@ -12,13 +12,19 @@ function isAuthenticated(req, res, next) {
 
 // 🔗 Send friend request
 router.post("/request/:userId", isAuthenticated, async (req, res) => {
+  const requester = req.session.user?._id;
+  const recipient = req.params.userId;
+
+  if (!requester) {
+    return res.redirect("/login");
+  }
+
+  if (requester === recipient) {
+    console.warn("Attempted to friend self");
+    return res.redirect(`/profile/${recipient}`);
+  }
+
   try {
-    const requester = req.session.userId;
-    const recipient = req.params.userId;
-
-    if (requester === recipient)
-      return res.status(400).json({ error: "Cannot friend yourself." });
-
     const existing = await Friendship.findOne({
       $or: [
         { requester, recipient },
@@ -26,95 +32,116 @@ router.post("/request/:userId", isAuthenticated, async (req, res) => {
       ],
     });
 
-    if (existing)
-      return res
-        .status(409)
-        .json({ error: "Friend request already exists or already friends." });
+    if (existing) {
+      console.log("Duplicate friend request detected.");
+      return res.redirect(`/profile/${recipient}`);
+    }
 
-    const friendship = await Friendship.create({ requester, recipient });
-    res.status(201).json({ message: "Friend request sent.", friendship });
+    await Friendship.create({ requester, recipient, status: "pending" });
+    console.log(`Friend request sent from ${requester} to ${recipient}`);
+    res.redirect(`/profile/${recipient}`);
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Could not send request." });
+    console.error("Error sending friend request:", err);
+    res.redirect(`/profile/${recipient}`);
   }
 });
 
-// ✅ Accept friend request by Friendship ID
-router.post("/accept-request/:requestId", isAuthenticated, async (req, res) => {
+// 🔄 Accept Friend Request
+router.post("/accept/:requestId", isAuthenticated, async (req, res) => {
   try {
-    const friendship = await Friendship.findOneAndUpdate(
-      { _id: req.params.requestId, recipient: req.session.userId, status: "pending" },
-      { status: "accepted" },
-      { new: true }
-    );
+    const requestId = req.params.requestId;
+    const request = await Friendship.findById(requestId);
 
-    if (!friendship) return res.status(404).send("Request not found.");
+    if (!request || request.status !== "pending") {
+      return res.status(404).send("Friend request not found.");
+    }
+
+    // Optional: verify the current user is the recipient
+    if (request.recipient.toString() !== req.session.userId) {
+      return res.status(403).send("Not authorized.");
+    }
+
+    request.status = "accepted";
+    await request.save();
+
     res.redirect("/friends/requests");
   } catch (err) {
     console.error("Error accepting request:", err);
-    res.status(500).send("Failed to accept request.");
+    res.status(500).send("Server error.");
   }
 });
 
-// ❌ Decline friend request by Friendship ID
-router.post("/decline-request/:requestId", isAuthenticated, async (req, res) => {
+// ❌ Decline Friend Request
+router.post("/reject/:requestId", isAuthenticated, async (req, res) => {
   try {
-    await Friendship.findOneAndDelete({
-      _id: req.params.requestId,
-      recipient: req.session.userId,
-      status: "pending",
-    });
+    const requestId = req.params.requestId;
+    const request = await Friendship.findById(requestId);
+
+    if (!request || request.status !== "pending") {
+      return res.status(404).send("Friend request not found.");
+    }
+
+    // Optional: verify the current user is the recipient
+    if (request.recipient.toString() !== req.session.userId) {
+      return res.status(403).send("Not authorized.");
+    }
+
+    await request.deleteOne(); // permanently remove the record
 
     res.redirect("/friends/requests");
   } catch (err) {
-    console.error("Error declining request:", err);
-    res.status(500).send("Failed to decline request.");
+    console.error("Error rejecting request:", err);
+    res.status(500).send("Server error.");
   }
 });
 
 // 👥 List current friends
 router.get("/", isAuthenticated, async (req, res) => {
+  const userId = req.session.userId;
+
   try {
-    const userId = req.session.userId;
-
     const friendships = await Friendship.find({
-      $or: [
-        { requester: userId, status: "accepted" },
-        { recipient: userId, status: "accepted" },
-      ],
-    }).populate("requester recipient");
+      status: "accepted",
+      $or: [{ requester: userId }, { recipient: userId }],
+    })
+      .populate("requester", "username profile")
+      .populate("recipient", "username profile");
 
-    const friends = friendships.map((f) =>
-      f.requester._id.toString() === userId ? f.recipient : f.requester
-    );
+    const friends = friendships.map((f) => {
+      const isRequester = f.requester._id.toString() === userId;
+      return isRequester ? f.recipient : f.requester;
+    });
 
     res.render("friends", {
       title: "Your Friends",
       friends,
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Could not fetch friends." });
+    console.error("Error loading friends:", err);
+    res.redirect("/dashboard");
   }
 });
 
-// 📬 View pending friend requests
+// 📬 View pending friend requests (recipient perspective)
 router.get("/requests", isAuthenticated, async (req, res) => {
   try {
-    const recipient = req.session.userId;
+    const userId = req.session.userId;
+    console.log("🔍 Logged-in userId:", userId); // should be 6824ddbb164954ef265d71bc
 
     const pendingRequests = await Friendship.find({
-      recipient,
+      recipient: userId,
       status: "pending",
     }).populate("requester");
 
+    console.log("📥 Found requests:", pendingRequests);
+
     res.render("friend-requests", {
-      title: "Pending Requests",
+      title: "Pending Friend Requests",
       requests: pendingRequests,
     });
   } catch (err) {
-    console.error("Error loading pending requests:", err);
-    res.status(500).render("error", { message: "Failed to load friend requests." });
+    console.error("Error loading requests:", err);
+    res.status(500).send("Could not load friend requests.");
   }
 });
 

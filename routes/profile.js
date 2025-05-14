@@ -144,7 +144,7 @@ router.get("/profile/:userId", async (req, res) => {
         interests: viewingUser.profile?.interests || [],
         profilePicture:
           viewingUser.profile?.profilePicture ||
-          "/assets/svg/profile-placeholder.svg",
+          "/assets/imgs/demo-profile-1.png",
       },
       isOwner,
       friendStatus,
