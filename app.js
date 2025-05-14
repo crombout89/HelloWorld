@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 const express = require('express');
+const expressLayouts = require('express-ejs-layouts');
 const config = require('./config/env');
 const connectDB = require('./config/database');
 const path = require('path');
@@ -21,7 +22,8 @@ app.use(express.json());
 app.use(helmet({
   contentSecurityPolicy: false
 }));
-app.use(cors()); 
+app.use(cors());
+app.use(expressLayouts);
 app.use(morgan('dev'));
 
 app.post('/csp-report', (req, res) => {
@@ -107,6 +109,7 @@ const translateRoute = require('./routes/api/translate');
 // View engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+app.set('layout', 'layout'); 
 
 // Serve static files with proper MIME types
 app.use(express.static(path.join(__dirname, 'public'), {
@@ -141,6 +144,12 @@ const validateRouter = (router, routeName) => {
   }
   return router;
 };
+
+app.use((req, res, next) => {
+  res.locals.user = req.session.user || null;
+  res.locals.userId = req.session.userId || null;
+  next();
+});
 
 // Register routes with validation
 app.use('/', validateRouter(indexRouter, 'indexRouter'));
