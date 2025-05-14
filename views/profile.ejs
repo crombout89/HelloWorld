@@ -1,92 +1,21 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title><%= title %></title>
-</head>
-<body>
-  <h1><%= title %></h1>
+<link rel="stylesheet" href="/css/profile.css">
 
-  <% if (user) { %>
-    <h2>User Details</h2>
-    <ul>
-      <li><strong>Username:</strong> <%= user.username %></li>
-      <li><strong>Email:</strong> <%= user.email %></li>
-      <li><strong>Joined Date:</strong> <%= user.joinDate %></li>
-    </ul>
+<div class="profile-edit-container page-title">
+  <h2>Update Your Name</h2>
 
-    <h2>Profile Settings</h2>
-    <form action="/profile/update" method="POST" enctype="multipart/form-data">
-      <label for="name">Full Name:</label>
-      <input type="text" id="name" name="name" placeholder="Enter your full name"><br><br>
+  <form method="POST" action="/profile/update">
+    <div>
+      <label for="firstName">First Name:</label>
+      <input type="text" name="firstName" id="firstName" value="<%= user.profile?.firstName || '' %>">
+    </div>
 
-      <label for="bio">Bio:</label><br>
-      <textarea id="bio" name="bio" rows="4" cols="50" placeholder="Tell us about yourself"></textarea><br><br>
+    <div>
+      <label for="lastName">Last Name:</label>
+      <input type="text" name="lastName" id="lastName" value="<%= user.profile?.lastName || '' %>">
+    </div>
 
-      <label for="photo">Upload Profile Photo:</label>
-      <input type="file" id="photo" name="photo"><br><br>
+    <button type="submit">Save</button>
+  </form>
 
-      <button type="submit">Update Profile</button>
-    </form>
+  <script src="/js/location.js"></script>
 
-    <h2>Location Info</h2>
-    <% if (location) { %>
-      <% if (location.error) { %>
-        <p style="color: red;"><%= location.error %></p>
-      <% } else { %>
-        <ul>
-          <li><strong>Latitude:</strong> <%= location.latitude %></li>
-          <li><strong>Longitude:</strong> <%= location.longitude %></li>
-          <li><strong>City:</strong> <%= location.city %></li>
-        </ul>
-      <% } %>
-    <% } else { %>
-      <p>No location data available.</p>
-    <% } %>
-
-    <h2>My Interests</h2>
-    <% if (user.interests && user.interests.length > 0) { %>
-      <ul>
-        <% user.interests.forEach(interest => { %>
-          <li><%= interest %></li>
-        <% }); %>
-      </ul>
-    <% } else { %>
-      <p>No interests added yet.</p>
-    <% } %>
-
-    <form action="/profile/interests" method="POST">
-      <label for="interest">Add Interest:</label>
-      <input type="text" name="interest" id="interest" required>
-      <button type="submit">Add</button>
-    </form>
-
-    <h2>Preferences</h2>
-    <form action="/profile/preferences" method="POST">
-      <label>
-        <input type="checkbox" name="preferences" value="get info before traveling"
-          <% if (user.preferences && user.preferences.includes('get info before traveling')) { %>checked<% } %> />
-        Get Info Before Traveling
-      </label><br/>
-
-      <label>
-        <input type="checkbox" name="preferences" value="friendship"
-          <% if (user.preferences && user.preferences.includes('friendship')) { %>checked<% } %> />
-        Friendship
-      </label><br/>
-
-      <label>
-        <input type="checkbox" name="preferences" value="language exchange"
-          <% if (user.preferences && user.preferences.includes('language exchange')) { %>checked<% } %> />
-        Language Exchange
-      </label><br/>
-
-      <br>
-      <button type="submit">Save Preferences</button>
-    </form>
-
-    <p><a href="/logout">Logout</a></p>
-  <% } else { %>
-    <p>You are not logged in! <a href="/login">Login here</a></p>
-  <% } %>
-</body>
-</html>

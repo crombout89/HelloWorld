@@ -35,6 +35,13 @@ router.post("/", async (req, res) => {
 
     // Set session
     req.session.userId = user._id;
+    req.session.user = {
+      _id: user._id,
+      username: user.username,
+      email: user.email,
+      createdAt: user.createdAt,
+      profile: user.profile || {},
+    };
 
     res.redirect("/dashboard");
   } catch (error) {
