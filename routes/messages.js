@@ -51,8 +51,9 @@ router.get('/messages/:userId', isAuthenticated, async (req, res) => {
     res.render('messages', {
       title: `Messages with ${otherUser?.username || 'User'}`,
       messages,
-      otherUser
-    });
+      otherUser,
+      user: req.user // ← Add this if it's not there
+  });
   } catch (err) {
     console.error('Error loading messages:', err);
     res.redirect('/dashboard');

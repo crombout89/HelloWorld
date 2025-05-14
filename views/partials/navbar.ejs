@@ -23,10 +23,12 @@
             <li><a href="/profile">Profile</a></li>
         </ul>
         <div id="nav-buttons">
-            <a href="/login" class="nav-button">
-                <img src="assets/svg/login.svg" class="nav-icon" alt="Login Icon">Login</a>
-            <a href="/register" class="nav-button">
-                <img src="assets/svg/register.svg" class="nav-icon" alt="Register Icon">Register</a>
+            <% if (!user) { %>
+                <a href="/login" class="nav-button">Login</a>
+                <a href="/register" class="nav-button">Register</a>
+            <% } else { %>
+                <a href="/logout" class="nav-button">Logout</a>
+            <% } %>
         </div>
     </div>
 
