@@ -13,6 +13,7 @@ function isAuthenticated(req, res, next) {
 
 // 📥 Inbox or redirect to first user you’ve messaged
 router.get("/messages", isAuthenticated, async (req, res) => {
+  console.log("📬 /messages route hit!");
   try {
     const currentUserId = req.session.userId;
 
@@ -32,7 +33,7 @@ router.get("/messages", isAuthenticated, async (req, res) => {
 
     const users = await User.find({ _id: { $in: Array.from(userIds) } });
 
-    res.render("messages-inbox", { title: "Your Messages", users });
+    res.render("inbox", { title: "Your Messages", users });
   } catch (err) {
     console.error("Error loading inbox:", err);
     res.redirect("/dashboard");
