@@ -11,10 +11,19 @@ function isAuthenticated(req, res, next) {
 }
 
 // 🔔 Create a new notification
-router.post('/create', isAuthenticated, async (req, res) => {
-  try {
-    const { userId, message, link } = req.body;
+router.post('/create', async (req, res) => {
+  // Debug log to verify body is being received
+  console.log('🧪 Raw POST body:', req.body);
 
+  const { userId, message, link } = req.body;
+
+  // Check for missing data
+  if (!userId || !message) {
+    console.warn('❗ Missing userId or message:', { userId, message });
+    return res.status(400).json({ error: 'Missing userId or message' });
+  }
+
+  try {
     const notification = new Notification({
       user: userId,
       message,
@@ -22,8 +31,10 @@ router.post('/create', isAuthenticated, async (req, res) => {
     });
 
     await notification.save();
+
     const io = req.app.get('io');
     io.to(userId).emit('notification', notification); // send to specific user
+
     res.status(201).json({ success: true, notification });
   } catch (err) {
     console.error('Notification creation error:', err);
@@ -46,8 +57,8 @@ router.get('/', isAuthenticated, async (req, res) => {
       }
     });
   } catch (err) {
-    console.error('Fetch notifications error:', err);
-    res.status(500).send('Error loading notifications');
+    console.error('Notification fetch error:', err);
+    res.status(500).json({ error: 'Failed to load notifications' });
   }
 });
 
