@@ -3,6 +3,14 @@
 <div class="profile-container page-title">
   <h1><%= user.username %>'s Public Profile</h1>
 
+  <div class="profile-picture-container">
+	<img 
+		src="<%= user.profilePicture %>" 
+		alt="Profile Picture" 
+		class="public-profile-avatar"
+	/>
+  </div>
+
   <p><strong>Bio:</strong> <%= user.bio || 'No bio provided.' %></p>
 
   <% if (user.interests && user.interests.length > 0) { %>
