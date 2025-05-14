@@ -84,9 +84,10 @@ router.post("/profile/preferences", (req, res) => {
 // ========================
 // POST: Update Profile Info (Name, Bio, Photo) + Persist to DB
 // ========================
-router.post("/profile/update", upload.single("photo"), async (req, res) => {
+router.post("/profile/update", async (req, res) => {
   if (!req.session.user) return res.redirect("/login");
   const { firstName, lastName, bio } = req.body;
+  console.log("Form data submitted:", { firstName, lastName, bio });
   const userId = req.session.user._id;
 
   try {
@@ -95,30 +96,24 @@ router.post("/profile/update", upload.single("photo"), async (req, res) => {
       "profile.lastName": lastName,
       "profile.bio": bio
     };
-  
-    if (req.file) {
-      const photoPath = "/uploads/" + req.file.filename;
-      update["profile.photo"] = photoPath;
-      req.session.user.photo = photoPath;
-    }
-  
-    await User.findByIdAndUpdate(userId, update);
-  
-    // Sync session for dashboard use
+
+    await User.findByIdAndUpdate(userId, update, { new: true, runValidators: true });
+
+    // Sync session with updated data
     req.session.user.profile = {
       ...req.session.user.profile,
       firstName,
       lastName,
-      bio,
-      photo: req.session.user.photo
+      bio
     };
-  
+
     res.redirect("/profile");
   } catch (err) {
     console.error("Profile update error:", err);
     res.redirect("/profile");
   }
 });
+
 
 // ========================
 // GET: Public Read-Only Profile

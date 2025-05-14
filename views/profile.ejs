@@ -8,29 +8,29 @@
       <li><strong>Email:</strong> <%= user.email %></li>
       <li><strong>Joined Date:</strong> <%= user.joinDate %></li>
     </ul>
-  </div>
 
     <h2>Profile Settings</h2>
     <form action="/profile/update" method="POST" enctype="multipart/form-data">
       <label>First Name:</label>
-      <input type="text" name="firstName" value="<%= user.firstName %>">
-    
+      <input type="text" name="firstName" value="<%= user.profile?.firstName || '' %>">
+
       <label>Last Name:</label>
-      <input type="text" name="lastName" value="<%= user.lastName %>">
-    
+      <input type="text" name="lastName" value="<%= user.profile?.lastName || '' %>">
+
       <label>Bio:</label>
-      <textarea name="bio"><%= user.bio %></textarea>
-    
+      <textarea name="bio"><%= user.profile?.bio || '' %></textarea>
+
       <label>Upload Profile Photo:</label>
       <input type="file" name="photo"><br>
-      <% if (user.photo) { %>
+      <% if (user.profile?.photo) { %>
         <p>Current Photo:</p>
-        <img src="<%= user.photo %>" alt="Profile Photo" width="100" />
+        <img src="<%= user.profile.photo %>" alt="Profile Photo" width="100" />
       <% } %>
 
       <br>
       <button type="submit">Save Profile</button>
     </form>
+
 
     <h2>Location Info</h2>
     <% if (location) { %>

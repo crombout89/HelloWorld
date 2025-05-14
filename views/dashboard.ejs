@@ -49,6 +49,12 @@
             <div id="profile-info" class="">
                 <h2>Welcome, <%= user.fullName || user.username %></h2>
 
+                <p>
+                  <strong>Name:</strong>
+                  <%= user.profile.firstName || 'First' %>
+                  <%= user.profile.lastName || 'Last' %>
+                </p>
+
                 <p><strong>Bio:</strong> <%= user.profile.bio || 'No bio yet.' %></p>
                 
                 <p><strong>Interests:</strong>
