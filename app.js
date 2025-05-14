@@ -1,6 +1,7 @@
 require('dotenv').config();
 
 const express = require('express');
+const expressLayouts = require('express-ejs-layouts');
 const config = require('./config/env');
 const connectDB = require('./config/database');
 const path = require('path');
@@ -13,11 +14,16 @@ const User = require('./models/user');
 
 const app = express();
 
+// Body parsers
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
 // Enhanced Security Middleware
 app.use(helmet({
   contentSecurityPolicy: false
 }));
-app.use(cors()); 
+app.use(cors());
+app.use(expressLayouts);
 app.use(morgan('dev'));
 
 app.post('/csp-report', (req, res) => {
@@ -95,17 +101,15 @@ const locationRoutes = require('./routes/location');
 const geolocationRoutes = require('./routes/geolocation');
 const loginRouter = require('./routes/login');
 const messagesRoute = require('./routes/messages');
+const notificationsRoute = require('./routes/notifications');
 const profileRouter = require('./routes/profile');
 const discoverRoutes = require('./routes/discover');
 const translateRoute = require('./routes/api/translate');
 
-// Body parsers
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
-
 // View engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
+app.set('layout', 'layout'); 
 
 // Serve static files with proper MIME types
 app.use(express.static(path.join(__dirname, 'public'), {
@@ -141,10 +145,17 @@ const validateRouter = (router, routeName) => {
   return router;
 };
 
+app.use((req, res, next) => {
+  res.locals.user = req.session.user || null;
+  res.locals.userId = req.session.userId || null;
+  next();
+});
+
 // Register routes with validation
 app.use('/', validateRouter(indexRouter, 'indexRouter'));
 app.use('/', validateRouter(registerRouter, 'registerRouter'));
 app.use('/', validateRouter(profileRouter, 'profileRouter'));
+app.use('/', messagesRoute); 
 app.use('/api/translate', translateRoute);
 app.use('/communities', validateRouter(communitiesRouter, 'communitiesRouter'));
 app.use('/create-event', createEventRoutes);
@@ -153,7 +164,7 @@ app.use('/discover', validateRouter(discoverRoutes, 'discoverRoutes'));
 app.use('/api/geolocation', geolocationRoutes);
 app.use('/api/location', validateRouter(locationRoutes, 'locationRoutes'));
 app.use('/login', validateRouter(loginRouter, 'loginRouter'));
-app.use('/', messagesRoute); 
+app.use('/notifications', notificationsRoute);
 app.use('/users', validateRouter(usersRouter, 'usersRouter'));
 
 // Logout Route
@@ -192,8 +203,16 @@ process.on('SIGINT', () => shutdown('SIGINT'));
 
 // Start server
 const PORT = config.port || 3000;
-const server = app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT} in ${config.nodeEnv} mode`);
+const server = require('http').createServer(app);
+const { Server } = require('socket.io');
+const io = new Server(server);
+app.set('io', io);
+
+const setupSocket = require('./socket'); // ✅ your modular handler
+setupSocket(io);
+
+server.listen(PORT, () => {
+  console.log(`Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
 });
 
 module.exports = server;
