@@ -14,6 +14,11 @@
       <input type="text" name="lastName" id="lastName" value="<%= user.profile?.lastName || '' %>">
     </div>
 
+    <div>
+      <label for="bio">Bio:</label>
+      <textarea name="bio" id="bio" rows="4"><%= user.profile?.bio || '' %></textarea>
+    </div>
+
     <button type="submit">Save</button>
   </form>
 
