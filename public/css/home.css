@@ -7,7 +7,6 @@
 }
 
 #homepage-jumbotron {
-    height: calc(100vh - 70px);
     display: flex;
     flex-direction: column;
     justify-content: center;
