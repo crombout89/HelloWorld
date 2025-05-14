@@ -1,0 +1,23 @@
+<h2>Pending Friend Requests</h2>
+
+<% if (requests.length === 0) { %>
+  <p>No pending requests.</p>
+<% } else { %>
+  <ul class="friend-request-list">
+    <% requests.forEach(req => { %>
+      <li class="request-item">
+        <img src="<%= req.requester.profile?.profilePicture || '/assets/svg/profile-placeholder.svg' %>" alt="Profile" class="avatar-sm" />
+        
+        <span><strong><%= req.requester.username %></strong> wants to be your friend</span>
+
+        <form method="POST" action="/friends/accept-request/<%= req._id %>">
+        <button class="btn btn-success">Accept</button>
+        </form>
+
+        <form method="POST" action="/friends/decline-request/<%= req._id %>">
+        <button class="btn btn-danger">Decline</button>
+        </form>
+      </li>
+    <% }) %>
+  </ul>
+<% } %>

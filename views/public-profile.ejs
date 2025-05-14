@@ -3,6 +3,14 @@
 <div class="profile-container page-title">
   <h1><%= user.username %>'s Public Profile</h1>
 
+  <div class="profile-picture-container">
+	<img 
+		src="<%= user.profilePicture %>" 
+		alt="Profile Picture" 
+		class="public-profile-avatar"
+	/>
+  </div>
+
   <p><strong>Bio:</strong> <%= user.bio || 'No bio provided.' %></p>
 
   <% if (user.interests && user.interests.length > 0) { %>
@@ -14,10 +22,15 @@
 
   <% if (!isOwner) { %>
     <div class="profile-actions">
-      <!-- You can conditionally show these based on friendship logic later -->
-      <form action="/friends/request/<%= user._id %>" method="POST">
-        <button type="submit" class="button">Add Friend</button>
-      </form>
+      <% if (friendStatus === "none") { %>
+        <form action="/friends/request/<%= user._id %>" method="POST">
+          <button type="submit" class="button">Add Friend</button>
+        </form>
+      <% } else if (friendStatus === "pending") { %>
+        <button class="button disabled">Request Sent</button>
+      <% } else if (friendStatus === "friends") { %>
+        <button class="button disabled">Friends</button>
+      <% } %>
 
       <a href="/messages/<%= user._id %>" class="button">Send Message</a>
     </div>
