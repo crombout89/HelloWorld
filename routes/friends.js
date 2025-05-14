@@ -97,9 +97,9 @@ router.post("/reject/:requestId", isAuthenticated, async (req, res) => {
 
 // 👥 List current friends
 router.get("/", isAuthenticated, async (req, res) => {
-  const userId = req.session.userId;
-
   try {
+    const userId = req.session.userId;
+
     const friendships = await Friendship.find({
       status: "accepted",
       $or: [{ requester: userId }, { recipient: userId }],
@@ -109,15 +109,24 @@ router.get("/", isAuthenticated, async (req, res) => {
 
     const friends = friendships.map((f) => {
       const isRequester = f.requester._id.toString() === userId;
-      return isRequester ? f.recipient : f.requester;
+      const friend = isRequester ? f.recipient : f.requester;
+
+      const profilePicture = friend.profile?.profilePicture?.startsWith(
+        "/uploads"
+      )
+        ? friend.profile.profilePicture
+        : "/default-profile.png";
+
+      return {
+        _id: friend._id,
+        username: friend.username,
+        profilePicture,
+      };
     });
 
-    res.render("friends", {
-      title: "Your Friends",
-      friends,
-    });
+    res.render("friends", { title: "Your Friends", friends });
   } catch (err) {
-    console.error("Error loading friends:", err);
+    console.error("Friends page error:", err);
     res.redirect("/dashboard");
   }
 });
