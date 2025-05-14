@@ -39,47 +39,36 @@ router.post("/request/:userId", isAuthenticated, async (req, res) => {
   }
 });
 
-// ✅ Accept friend request
-router.post("/accept/:userId", isAuthenticated, async (req, res) => {
+// ✅ Accept friend request by Friendship ID
+router.post("/accept-request/:requestId", isAuthenticated, async (req, res) => {
   try {
-    const recipient = req.session.userId;
-    const requester = req.params.userId;
-
     const friendship = await Friendship.findOneAndUpdate(
-      { requester, recipient, status: "pending" },
+      { _id: req.params.requestId, recipient: req.session.userId, status: "pending" },
       { status: "accepted" },
       { new: true }
     );
 
-    if (!friendship)
-      return res.status(404).json({ error: "No pending request found." });
-
-    res.json({ message: "Friend request accepted.", friendship });
+    if (!friendship) return res.status(404).send("Request not found.");
+    res.redirect("/friends/requests");
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Could not accept request." });
+    console.error("Error accepting request:", err);
+    res.status(500).send("Failed to accept request.");
   }
 });
 
-// ❌ Decline friend request
-router.post("/decline/:userId", isAuthenticated, async (req, res) => {
+// ❌ Decline friend request by Friendship ID
+router.post("/decline-request/:requestId", isAuthenticated, async (req, res) => {
   try {
-    const recipient = req.session.userId;
-    const requester = req.params.userId;
-
-    const deleted = await Friendship.findOneAndDelete({
-      requester,
-      recipient,
+    await Friendship.findOneAndDelete({
+      _id: req.params.requestId,
+      recipient: req.session.userId,
       status: "pending",
     });
 
-    if (!deleted)
-      return res.status(404).json({ error: "No pending request found." });
-
-    res.json({ message: "Friend request declined." });
+    res.redirect("/friends/requests");
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Could not decline request." });
+    console.error("Error declining request:", err);
+    res.status(500).send("Failed to decline request.");
   }
 });
 
@@ -106,6 +95,26 @@ router.get("/", isAuthenticated, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Could not fetch friends." });
+  }
+});
+
+// 📬 View pending friend requests
+router.get("/requests", isAuthenticated, async (req, res) => {
+  try {
+    const recipient = req.session.userId;
+
+    const pendingRequests = await Friendship.find({
+      recipient,
+      status: "pending",
+    }).populate("requester");
+
+    res.render("friend-requests", {
+      title: "Pending Requests",
+      requests: pendingRequests,
+    });
+  } catch (err) {
+    console.error("Error loading pending requests:", err);
+    res.status(500).render("error", { message: "Failed to load friend requests." });
   }
 });
 
