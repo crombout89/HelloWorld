@@ -13,6 +13,10 @@ const User = require('./models/user');
 
 const app = express();
 
+// Body parsers
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
 // Enhanced Security Middleware
 app.use(helmet({
   contentSecurityPolicy: false
@@ -99,10 +103,6 @@ const notificationsRoute = require('./routes/notifications');
 const profileRouter = require('./routes/profile');
 const discoverRoutes = require('./routes/discover');
 const translateRoute = require('./routes/api/translate');
-
-// Body parsers
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
 
 // View engine setup
 app.set('views', path.join(__dirname, 'views'));
