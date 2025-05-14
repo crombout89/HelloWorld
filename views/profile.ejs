@@ -1,11 +1,6 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title><%= title %></title>
-</head>
-<body>
-  <h1><%= title %></h1>
+<link rel="stylesheet" href="/css/profile.css">
 
+<div class="profile-container page-title">
   <% if (user) { %>
     <h2>User Details</h2>
     <ul>
@@ -13,19 +8,28 @@
       <li><strong>Email:</strong> <%= user.email %></li>
       <li><strong>Joined Date:</strong> <%= user.joinDate %></li>
     </ul>
+  </div>
 
     <h2>Profile Settings</h2>
     <form action="/profile/update" method="POST" enctype="multipart/form-data">
-      <label for="name">Full Name:</label>
-      <input type="text" id="name" name="name" placeholder="Enter your full name"><br><br>
+      <label>First Name:</label>
+      <input type="text" name="firstName" value="<%= user.firstName %>">
+    
+      <label>Last Name:</label>
+      <input type="text" name="lastName" value="<%= user.lastName %>">
+    
+      <label>Bio:</label>
+      <textarea name="bio"><%= user.bio %></textarea>
+    
+      <label>Upload Profile Photo:</label>
+      <input type="file" name="photo"><br>
+      <% if (user.photo) { %>
+        <p>Current Photo:</p>
+        <img src="<%= user.photo %>" alt="Profile Photo" width="100" />
+      <% } %>
 
-      <label for="bio">Bio:</label><br>
-      <textarea id="bio" name="bio" rows="4" cols="50" placeholder="Tell us about yourself"></textarea><br><br>
-
-      <label for="photo">Upload Profile Photo:</label>
-      <input type="file" id="photo" name="photo"><br><br>
-
-      <button type="submit">Update Profile</button>
+      <br>
+      <button type="submit">Save Profile</button>
     </form>
 
     <h2>Location Info</h2>
@@ -88,5 +92,6 @@
   <% } else { %>
     <p>You are not logged in! <a href="/login">Login here</a></p>
   <% } %>
-</body>
-</html>
+
+  <script src="/js/location.js"></script>
+

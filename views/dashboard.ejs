@@ -47,14 +47,17 @@
             </div>
 
             <div id="profile-info" class="">
-                <h2>Profile Overview</h2>
-                <p><strong>Name:</strong> <%= user.profile.firstName %> <%= user.profile.lastName %></p>
-                <p><strong>Email:</strong> <%= user.email %></p>
-                <p><strong>Member Since:</strong> <%= new Date(user.createdAt).toLocaleDateString() %></p>
+                <h2>Welcome, <%= user.fullName || user.username %></h2>
+
+                <p><strong>Bio:</strong> <%= user.profile.bio || 'No bio yet.' %></p>
                 
-                <% if (user.profile.location) { %>
-                <p><strong>Saved Location:</strong> <%= user.profile.location %></p>
-                <% } %>
+                <p><strong>Interests:</strong>
+                  <% if (user.profile.interests?.length) { %>
+                    <%= user.profile.interests.join(', ') %>
+                  <% } else { %>
+                    None listed.
+                  <% } %>
+                </p>
 
                 <a href="/profile" class="button">Edit Profile</a>
             </div>

@@ -86,27 +86,33 @@ router.post("/profile/preferences", (req, res) => {
 // ========================
 router.post("/profile/update", upload.single("photo"), async (req, res) => {
   if (!req.session.user) return res.redirect("/login");
-  const { name, bio } = req.body;
+  const { firstName, lastName, bio } = req.body;
   const userId = req.session.user._id;
 
   try {
     const update = {
-      "profile.name": name,
-      "profile.bio": bio,
+      "profile.firstName": firstName,
+      "profile.lastName": lastName,
+      "profile.bio": bio
     };
-
+  
     if (req.file) {
       const photoPath = "/uploads/" + req.file.filename;
       update["profile.photo"] = photoPath;
       req.session.user.photo = photoPath;
     }
-
+  
     await User.findByIdAndUpdate(userId, update);
-
-    // Sync session
-    req.session.user.name = name;
-    req.session.user.bio = bio;
-
+  
+    // Sync session for dashboard use
+    req.session.user.profile = {
+      ...req.session.user.profile,
+      firstName,
+      lastName,
+      bio,
+      photo: req.session.user.photo
+    };
+  
     res.redirect("/profile");
   } catch (err) {
     console.error("Profile update error:", err);
