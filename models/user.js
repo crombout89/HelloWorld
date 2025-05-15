@@ -39,7 +39,6 @@ const UserSchema = new mongoose.Schema({
       maxlength: 500
     },
     location: {
-      // Enhanced location object
       address: {
         type: String,
         trim: true,
@@ -72,9 +71,19 @@ const UserSchema = new mongoose.Schema({
       type: [String],
       validate: {
         validator: function(v) {
-          return v.length <= 10; // Limit number of interests
+          return v.length <= 10;
         },
         message: 'Interests cannot exceed 10'
+      }
+    },
+    preferences: {
+      type: [String],
+      default: [],
+      validate: {
+        validator: function(prefs) {
+          return prefs.every(p => typeof p === "string" && p.trim().length > 0);
+        },
+        message: 'Preferences must be non-empty strings'
       }
     },
     profilePicture: {
@@ -82,7 +91,6 @@ const UserSchema = new mongoose.Schema({
       default: '/default-profile.png'
     }
   },
-  // Add geolocation for geospatial queries
   geolocation: {
     type: {
       type: String,
@@ -90,7 +98,7 @@ const UserSchema = new mongoose.Schema({
       default: 'Point'
     },
     coordinates: {
-      type: [Number], // [longitude, latitude]
+      type: [Number],
       index: '2dsphere'
     }
   },
@@ -116,8 +124,7 @@ const UserSchema = new mongoose.Schema({
 });
 
 // Password hashing middleware
-UserSchema.pre('save', async function(next) {
-  // Only hash the password if it has been modified (or is new)
+UserSchema.pre('save', async function (next) {
   if (this.isModified('password')) {
     try {
       this.password = await bcrypt.hash(this.password, 12);
@@ -126,18 +133,24 @@ UserSchema.pre('save', async function(next) {
     }
   }
 
-  // Update geolocation if coordinates are present in profile
-  if (this.profile.location.coordinates.latitude && this.profile.location.coordinates.longitude) {
+  if (
+    this.profile &&
+    this.profile.location &&
+    this.profile.location.coordinates &&
+    typeof this.profile.location.coordinates.latitude === "number" &&
+    typeof this.profile.location.coordinates.longitude === "number"
+  ) {
     this.geolocation = {
-      type: 'Point',
+      type: "Point",
       coordinates: [
         this.profile.location.coordinates.longitude,
         this.profile.location.coordinates.latitude
       ]
     };
+  } else {
+    this.geolocation = undefined;
   }
 
-  // Update the updatedAt timestamp
   this.updatedAt = Date.now();
   next();
 });
@@ -190,6 +203,11 @@ UserSchema.path('profile.interests').validate(function(interests) {
   return interests.every(interest => interest.trim().length > 0);
 }, 'Interests cannot be empty strings');
 
+// Validation for preferences
+UserSchema.path('profile.preferences').validate(function(prefs) {
+  return prefs.every(p => p.trim().length > 0);
+}, 'Preferences must be non-empty strings');
+
 // Virtual for full name
 UserSchema.virtual('fullName').get(function() {
   return `${this.profile.firstName || ''} ${this.profile.lastName || ''}`.trim();
@@ -202,9 +220,9 @@ UserSchema.methods.toSafeObject = function() {
   return userObject;
 };
 
-// Additional method for finding nearby users
+// Method to find nearby users
 UserSchema.statics.findNearbyUsers = function(latitude, longitude, maxDistance = 10) {
-  const distanceInMeters = maxDistance * 1000; // convert km to meters
+  const distanceInMeters = maxDistance * 1000;
   return this.find({
     geolocation: {
       $near: {
@@ -218,7 +236,7 @@ UserSchema.statics.findNearbyUsers = function(latitude, longitude, maxDistance =
   });
 };
 
-// Compound index for performance
+// Compound index
 UserSchema.index({ username: 1, email: 1 });
 
 module.exports = mongoose.models.User || mongoose.model('User', UserSchema);

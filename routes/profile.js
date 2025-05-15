@@ -95,10 +95,67 @@ router.post("/profile/update", upload.single("photo"), async (req, res) => {
 // ========================
 // SECTION: Interests (To be refactored)
 // ========================
+// POST: Update Interests
+// ========================
+router.post("/profile/interests", isLoggedIn, async (req, res) => {
+  const userId = req.session.user._id;
+  const newInterest = req.body.interest?.trim();
+
+  if (!newInterest) return res.redirect("/profile");
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) return res.redirect("/login");
+
+    if (!Array.isArray(user.profile.interests)) {
+      user.profile.interests = [];
+    }
+
+    if (!user.profile.interests.includes(newInterest)) {
+      user.profile.interests.push(newInterest);
+      await user.save();
+
+      // Also update session
+      req.session.user.profile.interests = user.profile.interests;
+    }
+
+    res.redirect("/profile");
+  } catch (err) {
+    console.error("Error updating interests:", err);
+    res.redirect("/profile");
+  }
+});
+
+// ========================
 // Add logic here later for /profile/interests
 
 // ========================
 // SECTION: Preferences (To be refactored)
+// ========================
+// POST: Update Preferences
+// ========================
+router.post("/profile/preferences", isLoggedIn, async (req, res) => {
+  const userId = req.session.user._id;
+  const selectedPrefs = req.body.preferences;
+
+  // Normalize to array (in case only one checkbox is selected)
+  const preferences = Array.isArray(selectedPrefs) ? selectedPrefs : [selectedPrefs];
+
+  try {
+    const user = await User.findById(userId);
+    if (!user) return res.redirect("/login");
+
+    user.profile.preferences = preferences;
+    await user.save();
+
+    req.session.user.profile.preferences = preferences;
+    res.redirect("/profile");
+  } catch (err) {
+    console.error("Error updating preferences:", err);
+    res.redirect("/profile");
+  }
+});
+
 // ========================
 // Add logic here later for /profile/preferences
 
