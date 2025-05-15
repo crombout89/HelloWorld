@@ -1,0 +1,13 @@
+<h2>Invite a Friend</h2>
+
+<% if (query.success) { %>
+  <p style="color: green;">Invitation sent!</p>
+<% } else if (query.error) { %>
+  <p style="color: red;">Failed to send invitation. Please try again.</p>
+<% } %>
+
+<form action="/invite" method="POST">
+  <label for="email">Friend's Email:</label>
+  <input type="email" name="email" required />
+  <button type="submit">Send Invite</button>
+</form>
