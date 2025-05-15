@@ -1,26 +1,29 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title><%= title %></title>
-</head>
-<body>
-  <h1><%= title %></h1>
+<h1><%= title %></h1>
 
-  <% if (notifications.length === 0) { %>
-    <p>You have no notifications.</p>
-  <% } else { %>
-    <ul>
-      <% notifications.forEach(n => { %>
-        <li>
-          <%= n.message %>
-          <% if (n.link) { %>
-            - <a href="<%= n.link %>">View</a>
-          <% } %>
-        </li>
-      <% }) %>
-    </ul>
-  <% } %>
+<% if (notifications.length === 0) { %>
+  <p>You have no notifications.</p>
+<% } else { %>
+  <ul>
+    <% notifications.forEach(n => { %>
+      <li>
+        <%= n.message %>
+  
+        <!-- View link -->
+        <form action="/notifications/mark-read/<%= n._id %>" method="POST" style="display:inline;">
+          <input type="hidden" name="redirect" value="<%= n.link %>">
+          <button class="text-link">View</button>
+        </form>
+  
+        <% if (!n.read) { %>
+          <!-- Mark as read manually -->
+          <form action="/notifications/mark-read/<%= n._id %>" method="POST" style="display:inline;">
+            <input type="hidden" name="redirect" value="/notifications">
+            <button class="text-link">Mark as read</button>
+          </form>
+        <% } %>
+      </li>
+    <% }) %>
+  </ul>
+<% } %>
 
-  <p><a href="/dashboard">Back to Dashboard</a></p>
-</body>
-</html>
+<p><a href="/dashboard">Back to Dashboard</a></p>
