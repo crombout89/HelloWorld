@@ -2,6 +2,7 @@
 const express = require('express');
 const router = express.Router();
 const Community = require('../models/community');
+const Notification = require("../models/notification");
 const { getFriendsForUser } = require("../services/friendService");
 const User = require('../models/user');
 const multer = require("multer");
@@ -90,6 +91,9 @@ router.get("/:id", isAuthenticated, async (req, res) => {
     const isMember = community.members.some(
       (m) => m._id.toString() === req.session.userId
     );
+    const hasRequested = community.pendingRequests?.some(
+      (reqId) => reqId.toString() === req.session.userId
+    );
 
     if (!isOwner && !isMember) {
       return res.status(403).send("You do not have access to this community");
@@ -108,7 +112,8 @@ router.get("/:id", isAuthenticated, async (req, res) => {
       community,
       isOwner,
       isMember,
-      friends, // ✅ now passed to EJS
+      friends,
+      hasRequested,
     });
   } catch (err) {
     console.error("Error loading community view:", err);
@@ -285,11 +290,11 @@ router.get('/:id/public', async (req, res) => {
       return res.status(404).render('404');
     }
 
-    const isLoggedIn = !!req.session.userId;
-    const isMember = isLoggedIn && community.members.some(
-      (m) => m._id.toString() === req.session.userId
-    );
-    const isOwner = isLoggedIn && community.owner._id.toString() === req.session.userId;
+    const userId = req.session?.userId;
+    const isLoggedIn = !!userId;
+    const isMember = isLoggedIn && community.members.some(m => m._id.toString() === userId);
+    const isOwner = isLoggedIn && community.owner._id.toString() === userId;
+    const hasRequested = isLoggedIn && community.pendingRequests?.some(id => id.toString() === userId);
 
     res.render('public-community', {
       title: `${community.name} (Public View)`,
@@ -297,11 +302,51 @@ router.get('/:id/public', async (req, res) => {
       isLoggedIn,
       isMember,
       isOwner,
+      hasRequested,
       user: req.session.user || null
     });
   } catch (err) {
     console.error('Public view error:', err);
     res.status(500).render('500');
+  }
+});
+
+// POST: Request to join a community
+router.post("/:id/request", isAuthenticated, async (req, res) => {
+  try {
+    const community = await Community.findById(req.params.id);
+    if (!community) return res.status(404).send("Community not found");
+
+    const userId = req.session.userId;
+    const alreadyMember = community.members.includes(userId);
+    const alreadyRequested = community.pendingRequests?.includes(userId);
+
+    if (alreadyMember || alreadyRequested) {
+      return res.redirect(`/communities/${community._id}`);
+    }
+
+    community.pendingRequests.push(userId);
+    await community.save();
+
+    // ✅ Send a notification to the owner for approval
+    const ownerId = community.owner;
+    const requester = await User.findById(req.session.userId);
+
+    const notification = new Notification({
+      user: ownerId,
+      message: `${requester.username} has requested to join "${community.name}"`,
+      link: `/communities/${communityId}/manage`, // or your moderation route
+    });
+    await notification.save();
+
+    // 🔔 Real-time emit
+    const io = req.app.get("io");
+    io.to(ownerId.toString()).emit("notification", notification);
+
+    res.redirect(`/communities/${community._id}`);
+  } catch (err) {
+    console.error("Join request error:", err);
+    res.redirect("/communities");
   }
 });
 

@@ -13,6 +13,16 @@
   <p><strong>Members:</strong> <%= community.members.length %></p>
 </div>
 
+<% if (!isMember && !hasRequested) { %>
+  <form action="/communities/<%= community._id %>/request" method="POST">
+    <button type="submit" class="btn">Request to Join</button>
+  </form>
+<% } else if (hasRequested) { %>
+  <p><em>Join request pending</em></p>
+<% } else { %>
+  <p><em>You are a member of this community</em></p>
+<% } %>
+
 <% if (isMember) { %>
 <div class="member-section">
   <h3>👋 Welcome back, member!</h3>

@@ -82,7 +82,7 @@ document.querySelectorAll(".open-invite-modal")?.forEach((button) => {
 
     // ✅ Mark notification as read before showing modal
     try {
-      const res = await fetch(`/notifications/${notificationId}/read`, {
+      await fetch(`/notifications/mark-read/${notificationId}`, {
         method: "POST",
       });
 
