@@ -122,6 +122,7 @@ router.get("/:id", isAuthenticated, async (req, res) => {
       friends,
       hasRequested,
       posts,
+      currentUserId: req.session.userId,
     });
   } catch (err) {
     console.error("Error loading community view:", err);
