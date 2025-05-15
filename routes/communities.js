@@ -91,8 +91,8 @@ router.get("/:id", isAuthenticated, async (req, res) => {
     }
 
     const posts = await Post.find({ community: community._id })
-      .populate("author", "username")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .populate("author", "username");
 
     const isOwner = community.owner._id.toString() === req.session.userId;
     const isMember = community.members.some(
