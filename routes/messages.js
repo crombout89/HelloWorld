@@ -61,7 +61,8 @@ router.get("/messages/:userId", isAuthenticated, async (req, res) => {
       title: `Messages with ${otherUser?.username || "User"}`,
       messages,
       otherUser,
-      user: req.user, // ← Add this if it's not there
+      user: req.user,
+      targetLanguage: otherUser?.profile?.language || "en",
     });
   } catch (err) {
     console.error("Error loading messages:", err);

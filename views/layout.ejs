@@ -21,6 +21,14 @@
   <!-- Toast container -->
   <div id="toast-container" style="position: fixed; bottom: 1rem; right: 1rem; z-index: 9999;"></div>
 
+  
+  <!-- Preferred Language logic -->
+  <% if (typeof targetLanguage !== 'undefined') { %>
+    <script>
+      window.targetLanguage = "<%= targetLanguage %>";
+    </script>
+  <% } %>
+
   <!-- Socket + modular client-side logic -->
   <script>
     const notifications = <%- JSON.stringify(locals.notifications || []) %>;
