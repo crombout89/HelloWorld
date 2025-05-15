@@ -103,14 +103,20 @@ router.post("/messages/:userId", isAuthenticated, async (req, res) => {
   }
 });
 
-// 🌍 Translate a message to another language
-router.post("/messages/:userId/translate", 
-  //isAuthenticated, 
-  async (req, res) => {
-  const { text, to } = req.body;
-  const from = "en"; // You can make this dynamic later
+// 🌍 Translate a message to recipient's preferred language
+router.post("/messages/:userId/translate", isAuthenticated, async (req, res) => {
+  const { text } = req.body;
+  const senderId = req.session.userId;
+  const recipientId = req.params.userId;
 
   try {
+    // 1. Load the recipient to get their preferred language
+    const recipient = await User.findById(recipientId);
+
+    const to = recipient?.profile?.language || "fr"; // default fallback to French
+    const from = "en"; // You could also detect this dynamically later
+
+    // 2. Translate the message
     const translated = await translateText(text, from, to);
 
     if (!translated) {

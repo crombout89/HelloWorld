@@ -1,14 +1,15 @@
 const fetch = require("node-fetch");
-
+const modelMap = require("../config/translationModels");
 const HF_API_KEY = process.env.HF_API_KEY;
 
-// Construct the model URL dynamically
-function getModelUrl(sourceLang, targetLang) {
-  return `https://api-inference.huggingface.co/models/Helsinki-NLP/opus-mt-${sourceLang}-${targetLang}`;
-}
-
 async function translateText(text, sourceLang = "en", targetLang = "fr") {
-  const url = getModelUrl(sourceLang, targetLang);
+  const model = modelMap[targetLang];
+
+  if (!model) {
+    throw new Error(`No model available for language: ${targetLang}`);
+  }
+
+  const url = `https://api-inference.huggingface.co/models/${model}`;
 
   try {
     const response = await fetch(url, {
@@ -20,19 +21,15 @@ async function translateText(text, sourceLang = "en", targetLang = "fr") {
       body: JSON.stringify({ inputs: text }),
     });
 
-    const raw = await response.text();
-    console.log("🌐 HuggingFace response:", raw);
+    const result = await response.json();
 
-    const result = JSON.parse(raw);
-
-    // Expected: [{ translation_text: "..." }]
     if (Array.isArray(result) && result[0]?.translation_text) {
       return result[0].translation_text;
     }
 
-    throw new Error("Unexpected API response format");
-  } catch (err) {
-    console.error("❌ Translation error:", err.message);
+    throw new Error("Unexpected response from translation API");
+  } catch (error) {
+    console.error("Translation error:", error.message);
     return null;
   }
 }

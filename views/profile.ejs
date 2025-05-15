@@ -28,6 +28,22 @@
     </div>
 
     <div style="margin-bottom: 1rem;">
+      <label for="language">Preferred Language:</label>
+      <select name="language" id="language">
+        <option value="">Select a language</option>
+        <option value="en" <%= user.profile.language === "en" ? "selected" : "" %>>🇺🇸 English</option>
+        <option value="es" <%= user.profile.language === "es" ? "selected" : "" %>>🇪🇸 Spanish</option>
+        <option value="fr" <%= user.profile.language === "fr" ? "selected" : "" %>>🇫🇷 French</option>
+        <option value="fa" <%= user.profile.language === "fa" ? "selected" : "" %>>🇮🇷 Farsi</option>
+        <option value="de" <%= user.profile.language === "de" ? "selected" : "" %>>🇩🇪 German</option>
+        <option value="it" <%= user.profile.language === "it" ? "selected" : "" %>>🇮🇹 Italian</option>
+        <option value="zh" <%= user.profile.language === "zh" ? "selected" : "" %>>🇨🇳 Chinese</option>
+        <option value="ar" <%= user.profile.language === "ar" ? "selected" : "" %>>🇸🇦 Arabic</option>
+        <option value="ru" <%= user.profile.language === "ru" ? "selected" : "" %>>🇷🇺 Russian</option>
+      </select>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
       <label for="bio">Bio:</label><br>
       <textarea name="bio" id="bio" rows="4" style="width: 100%; resize: vertical;"><%= user.profile?.bio || '' %></textarea>
     </div>

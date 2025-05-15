@@ -1,127 +1,140 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-const UserSchema = new mongoose.Schema({
-  username: {
-    type: String,
-    required: true,
-    unique: true,
-    trim: true,
-    minlength: 3,
-    maxlength: 50
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true,
-    match: [/^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/, 'Please fill a valid email address']
-  },
-  password: {
-    type: String,
-    required: true,
-    minlength: 6
-  },
-  profile: {
-    firstName: {
+const UserSchema = new mongoose.Schema(
+  {
+    username: {
       type: String,
+      required: true,
+      unique: true,
       trim: true,
-      maxlength: 50
+      minlength: 3,
+      maxlength: 50,
     },
-    lastName: {
+    email: {
       type: String,
+      required: true,
+      unique: true,
+      lowercase: true,
       trim: true,
-      maxlength: 50
+      match: [
+        /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/,
+        "Please fill a valid email address",
+      ],
     },
-    bio: {
+    password: {
       type: String,
-      maxlength: 500
+      required: true,
+      minlength: 6,
     },
-    location: {
-      address: {
+    profile: {
+      firstName: {
         type: String,
         trim: true,
-        maxlength: 200
+        maxlength: 50,
       },
-      city: {
+      lastName: {
         type: String,
         trim: true,
-        maxlength: 100
+        maxlength: 50,
       },
-      country: {
+      language: {
         type: String,
         trim: true,
-        maxlength: 100
+        maxlength: 50,
+      },
+      bio: {
+        type: String,
+        maxlength: 500,
+      },
+      location: {
+        address: {
+          type: String,
+          trim: true,
+          maxlength: 200,
+        },
+        city: {
+          type: String,
+          trim: true,
+          maxlength: 100,
+        },
+        country: {
+          type: String,
+          trim: true,
+          maxlength: 100,
+        },
+        coordinates: {
+          latitude: {
+            type: Number,
+            min: -90,
+            max: 90,
+          },
+          longitude: {
+            type: Number,
+            min: -180,
+            max: 180,
+          },
+        },
+      },
+      interests: {
+        type: [String],
+        validate: {
+          validator: function (v) {
+            return v.length <= 10;
+          },
+          message: "Interests cannot exceed 10",
+        },
+      },
+      preferences: {
+        type: [String],
+        default: [],
+        validate: {
+          validator: function (prefs) {
+            return prefs.every(
+              (p) => typeof p === "string" && p.trim().length > 0
+            );
+          },
+          message: "Preferences must be non-empty strings",
+        },
+      },
+      profilePicture: {
+        type: String,
+        default: "/default-profile.png",
+      },
+    },
+    geolocation: {
+      type: {
+        type: String,
+        enum: ["Point"],
+        default: "Point",
       },
       coordinates: {
-        latitude: {
-          type: Number,
-          min: -90,
-          max: 90
-        },
-        longitude: {
-          type: Number,
-          min: -180,
-          max: 180
-        }
-      }
+        type: [Number],
+        index: "2dsphere",
+      },
     },
-    interests: {
-      type: [String],
-      validate: {
-        validator: function(v) {
-          return v.length <= 10;
-        },
-        message: 'Interests cannot exceed 10'
-      }
-    },
-    preferences: {
-      type: [String],
-      default: [],
-      validate: {
-        validator: function(prefs) {
-          return prefs.every(p => typeof p === "string" && p.trim().length > 0);
-        },
-        message: 'Preferences must be non-empty strings'
-      }
-    },
-    profilePicture: {
+    accountStatus: {
       type: String,
-      default: '/default-profile.png'
-    }
-  },
-  geolocation: {
-    type: {
-      type: String,
-      enum: ['Point'],
-      default: 'Point'
+      enum: ["active", "suspended", "deleted"],
+      default: "active",
     },
-    coordinates: {
-      type: [Number],
-      index: '2dsphere'
-    }
+    lastLogin: {
+      type: Date,
+    },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+      immutable: true,
+    },
+    updatedAt: {
+      type: Date,
+      default: Date.now,
+    },
   },
-  accountStatus: {
-    type: String,
-    enum: ['active', 'suspended', 'deleted'],
-    default: 'active'
-  },
-  lastLogin: {
-    type: Date
-  },
-  createdAt: {
-    type: Date,
-    default: Date.now,
-    immutable: true
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
+  {
+    timestamps: true,
   }
-}, {
-  timestamps: true
-});
+);
 
 // Password hashing middleware
 UserSchema.pre('save', async function (next) {
