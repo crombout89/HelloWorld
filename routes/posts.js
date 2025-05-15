@@ -78,38 +78,73 @@ router.post("/communities/:id/posts", isLoggedIn, async (req, res) => {
   }
 });
 
-// DELETE a post by ID
+// DELETE a post (only post author or community owner)
 router.post(
   "/communities/:communityId/posts/:postId/delete",
   isLoggedIn,
   async (req, res) => {
     const { communityId, postId } = req.params;
+    const userId = req.session.userId;
 
     try {
-      const post = await Post.findById(postId).populate("author");
-      const community = await Community.findById(communityId);
+      const post = await Post.findById(postId).populate("author", "_id");
+      const community = await Community.findById(communityId).populate(
+        "owner",
+        "_id"
+      );
 
       if (!post || !community) {
-        return res.status(404).send("Post or Community not found");
+        return res.status(404).send("Post or community not found");
       }
 
-      const isOwner = community.owner.toString() === req.session.userId;
-      const isAuthor = post.author._id.toString() === req.session.userId;
+      const isOwner = community.owner._id.toString() === userId;
+      const isAuthor = post.author._id.toString() === userId;
 
       if (!isOwner && !isAuthor) {
         return res
           .status(403)
-          .send("You do not have permission to delete this post");
+          .send("You do not have permission to delete this post.");
       }
 
-      await post.deleteOne();
-
+      await Post.findByIdAndDelete(postId);
       res.redirect(`/communities/${communityId}`);
     } catch (err) {
       console.error("Post delete error:", err);
-      res.status(500).send("Error deleting post");
+      res.status(500).send("Something went wrong while deleting the post.");
     }
   }
 );
+
+// PATCH /posts/:postId/edit
+router.post("/:postId/edit", isLoggedIn, async (req, res) => {
+  const { postId } = req.params;
+  const { title, body } = req.body;
+
+  try {
+    const post = await Post.findById(postId)
+      .populate("author")
+      .populate("community");
+
+    if (!post) {
+      return res.status(404).send("Post not found");
+    }
+
+    const isAuthor = post.author._id.toString() === req.session.userId;
+    const isOwner = post.community.owner.toString() === req.session.userId;
+
+    if (!isAuthor && !isOwner) {
+      return res.status(403).send("You are not authorized to edit this post");
+    }
+
+    post.title = title;
+    post.body = body;
+    await post.save();
+
+    res.redirect(`/communities/${post.community._id}`);
+  } catch (err) {
+    console.error("Post update error:", err);
+    res.status(500).send("Something went wrong while editing the post");
+  }
+});
 
 module.exports = router;

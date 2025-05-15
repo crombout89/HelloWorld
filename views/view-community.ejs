@@ -42,6 +42,20 @@
         <button type="submit" class="btn-delete">🗑 Delete</button>
       </form>
       <% } %>
+      <% if (user && (user._id.toString() === post.author._id.toString() || isOwner)) { %>
+      <!-- Edit Toggle Button -->
+      <button type="button" onclick="toggleEditForm('<%= post._id %>')">✏️ Edit</button>
+
+      <!-- Edit Form (Initially Hidden) -->
+      <form id="edit-form-<%= post._id %>" action="/posts/<%= post._id %>/edit" method="POST" style="display: none; margin-top: 0.5em;">
+        <input type="text" name="title" value="<%= post.title %>" required />
+        <br />
+        <textarea name="body" rows="3" required><%= post.body %></textarea>
+        <br />
+        <button type="submit">✅ Save</button>
+        <button type="button" onclick="toggleEditForm('<%= post._id %>')">❌ Cancel</button>
+      </form>
+      <% } %>
     </li>
     <% }); %>
   </ul>
@@ -85,3 +99,12 @@
 <% } %>
 
 <p><a href="/communities">← Back to My Communities</a></p>
+
+<script>
+  function toggleEditForm(postId) {
+    const form = document.getElementById(`edit-form-${postId}`);
+    if (form) {
+      form.style.display = form.style.display === "none" ? "block" : "none";
+    }
+  }
+</script>
