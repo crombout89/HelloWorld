@@ -4,6 +4,7 @@ const express = require('express');
 const expressLayouts = require('express-ejs-layouts');
 const config = require('./config/env');
 const connectDB = require('./config/database');
+const Notification = require("./models/notification");
 const path = require('path');
 const session = require('express-session');
 const { setupApiProtection } = require('./middleware/apiProtection');
@@ -66,6 +67,9 @@ app.use(async (req, res, next) => {
   }
   next();
 });
+
+const injectNotifications = require("./middleware/notifications");
+app.use(injectNotifications);
 
 // Set up API protection
 setupApiProtection(app);

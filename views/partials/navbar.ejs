@@ -1,11 +1,11 @@
 <nav class="navbar">
 
-    <a href="/notifications" id="alerts" class="sticky-btn">
-        <div class="bell-wrapper">
-            <img src="/assets/svg/bell.svg" class="bell-icon">
-            <span id="notification-badge" class="badge" style="display: none;">0</span>
-        </div>
-    </a>
+    <% if (user && user._id) { %>
+        <a href="/notifications" id="alerts" class="sticky-btn">
+          <img src="/assets/svg/bell.svg">
+          <span id="notification-badge" class="badge" style="display: none;">0</span>
+        </a>
+    <% } %>
 
     <!-- Desktop Header -->
     <div id="desktop-header">
