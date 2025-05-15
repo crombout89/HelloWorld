@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const User = require("../models/user");
 const Friendship = require("../models/friendship");
+const Notification = require("../models/notification");
 
 // Middleware to check if user is authenticated
 const isAuthenticated = async (req, res, next) => {
@@ -19,7 +20,6 @@ router.get('/', async (req, res) => {
     const userId = req.session.userId;
     const user = await User.findById(userId);
 
-    // Fetch accepted friends
     const friendships = await Friendship.find({
       status: "accepted",
       $or: [{ requester: userId }, { recipient: userId }],
@@ -32,6 +32,9 @@ router.get('/', async (req, res) => {
       return isRequester ? f.recipient : f.requester;
     });
 
+    // 🔔 Add this line to get notifications
+    const notifications = await Notification.find({ user: userId }).sort({ createdAt: -1 });
+
     const locationDetails = {
       address: user.profile.location || 'Not specified',
       hasLocation: !!user.profile.location
@@ -40,9 +43,10 @@ router.get('/', async (req, res) => {
     res.render('dashboard', { 
       title: 'Dashboard',
       user,
-      friends,             // 👈 Add this
+      friends,
       friendCount: friends.length,
-      locationDetails
+      locationDetails,
+      notifications // 👈 add this
     });
   } catch (error) {
     console.error('Dashboard Error:', error);

@@ -23,7 +23,9 @@
 
   <!-- Socket + modular client-side logic -->
   <script>
-    window.userId = "<%= user?._id || '' %>";
+    const notifications = <%- JSON.stringify(locals.notifications || []) %>;
+    window.notifications = notifications;
+    window.userId = "<%= userId || '' %>";
   </script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/socket.js"></script>

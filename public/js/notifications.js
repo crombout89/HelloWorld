@@ -1,13 +1,21 @@
-const appSocket = window.appSocket;
-let unreadCount = 0;
+// ====== Initial Count Setup ======
+console.log("Loaded notifications:", window.notifications || []);
+const unread = (window.notifications || []).filter((n) => !n.read);
+let unreadCount = unread.length;
 
-appSocket?.on("notification", (data) => {
-  showToast(data.message);
-  console.log("📩 Notification received!");
-  unreadCount++;
-  updateBadge();
-});
+console.log("Unread count:", unreadCount);
 
+// ====== Badge Handling ======
+function updateBadge() {
+  const badge = document.getElementById("notification-badge");
+  console.log("Badge element:", badge);
+  if (!badge) return;
+
+  badge.innerText = unreadCount;
+  badge.style.display = unreadCount > 0 ? "flex" : "none";
+}
+
+// ====== Toast Handler ======
 function showToast(message) {
   const container = document.getElementById("toast-container");
   const toast = document.createElement("div");
@@ -30,15 +38,21 @@ function showToast(message) {
   }, 4000);
 }
 
-function updateBadge() {
-  const badge = document.getElementById("notification-badge");
-  if (!badge) return;
+// ====== Socket Listener ======
+const appSocket = window.appSocket;
+appSocket?.on("notification", (data) => {
+  showToast(data.message);
+  console.log("📩 Notification received!");
 
-  badge.innerText = unreadCount;
-  badge.style.display = unreadCount > 0 ? "flex" : "none";
-}
+  unreadCount++;
+  updateBadge();
+});
 
+// ====== Reset on Click ======
 document.getElementById("alerts")?.addEventListener("click", () => {
   unreadCount = 0;
   updateBadge();
 });
+
+// Initial draw of badge
+updateBadge();
