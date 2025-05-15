@@ -49,10 +49,76 @@ appSocket?.on("notification", (data) => {
 });
 
 // ====== Reset on Click ======
-document.getElementById("alerts")?.addEventListener("click", () => {
+/* document.getElementById("alerts")?.addEventListener("click", () => {
   unreadCount = 0;
   updateBadge();
+}); */
+
+// ====== Modal Logic ======
+function openModal(contentHtml) {
+  const modal = document.getElementById("generic-modal");
+  const body = modal.querySelector(".modal-body");
+  body.innerHTML = contentHtml;
+
+  modal.classList.add("show");
+  modal.style.display = "block";
+
+  const close = modal.querySelector(".modal-close");
+  close?.addEventListener("click", () => closeModal());
+}
+
+function closeModal() {
+  const modal = document.getElementById("generic-modal");
+  modal.classList.remove("show");
+  modal.style.display = "none";
+}
+
+// Invitation modal logic
+document.querySelectorAll(".open-invite-modal")?.forEach((button) => {
+  button.addEventListener("click", async () => {
+    const notificationId = button.dataset.notificationId;
+    const message = button.dataset.message;
+    const link = button.dataset.link;
+
+    // ✅ Mark notification as read before showing modal
+    try {
+      const res = await fetch(`/notifications/${notificationId}/read`, {
+        method: "POST",
+      });
+
+      if (res.ok) {
+        // Remove the notification from the list
+        const row = document.getElementById(`notif-${notificationId}`);
+        if (row) row.remove();
+
+        // Decrease badge count
+        unreadCount = Math.max(unreadCount - 1, 0);
+        updateBadge();
+      } else {
+        console.error("❌ Failed to mark notification as read.");
+      }
+    } catch (err) {
+      console.error("⚠️ Error marking notification as read:", err);
+    }
+
+    // 📨 Show modal with Accept/Decline logic
+    const html = `
+      <p>${message}</p>
+      <div class="modal-actions">
+        <form action="${link}/accept" method="POST" style="display: inline;">
+          <input type="hidden" name="notificationId" value="${notificationId}">
+          <button class="btn-accept" type="submit">Accept</button>
+        </form>
+        <form action="${link}/decline" method="POST" style="display: inline;">
+          <input type="hidden" name="notificationId" value="${notificationId}">
+          <button class="btn-decline" type="submit">Decline</button>
+        </form>
+      </div>
+    `;
+
+    openModal(html);
+  });
 });
 
-// Initial draw of badge
+// Initial badge draw
 updateBadge();

@@ -5,7 +5,6 @@ module.exports = async function injectNotifications(req, res, next) {
   try {
     const notifications = await Notification.find({
       user: req.session.userId,
-      read: false,
     }).lean();
     res.locals.notifications = notifications;
   } catch (err) {

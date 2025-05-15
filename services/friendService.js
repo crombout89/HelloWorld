@@ -11,4 +11,18 @@ async function areFriends(userA, userB) {
   return Boolean(friendship);
 }
 
-module.exports = { areFriends };
+async function getFriendsForUser(userId) {
+  const friendships = await Friendship.find({
+    status: "accepted",
+    $or: [{ requester: userId }, { recipient: userId }],
+  }).populate("requester recipient", "username profile");
+
+  return friendships.map((f) => {
+    return f.requester._id.toString() === userId ? f.recipient : f.requester;
+  });
+}
+
+module.exports = {
+  areFriends,
+  getFriendsForUser, // ✅ make sure this is here
+};

@@ -1,18 +1,48 @@
 document.addEventListener("DOMContentLoaded", () => {
+  // Auto-scroll to bottom on load
+  const scrollToBottom = () => {
+    const thread = document.querySelector(".messages-thread");
+    if (thread) {
+      thread.scrollTop = thread.scrollHeight;
+    }
+  };
+
+  scrollToBottom();
+
+  // Optional: Polling every 5 seconds to refresh messages
+  const refreshMessages = async () => {
+    const path = window.location.pathname;
+    const thread = document.querySelector(".messages-thread");
+    if (!thread) return;
+
+    try {
+      const response = await fetch(path, {
+        headers: { "X-Requested-With": "XMLHttpRequest" },
+      });
+      const html = await response.text();
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, "text/html");
+      const newThread = doc.querySelector(".messages-thread");
+
+      if (newThread && thread.innerHTML !== newThread.innerHTML) {
+        thread.innerHTML = newThread.innerHTML;
+        scrollToBottom();
+      }
+    } catch (err) {
+      console.error("Failed to refresh messages:", err);
+    }
+  };
+
+  setInterval(refreshMessages, 5000); // every 5s
+
+  // Translation Button Logic
   document.querySelectorAll(".translate-btn").forEach((button) => {
     button.addEventListener("click", async () => {
       const messageId = button.dataset.messageId;
-      console.log("Translate button clicked for message:", messageId);
-
       const textElement = document.getElementById(`msg-${messageId}`);
-      if (!textElement) {
-        console.error(`Could not find element with id msg-${messageId}`);
-        return;
-      }
+      if (!textElement) return;
 
       const originalText = textElement.innerText;
-      console.log("Original text:", originalText);
-
       const targetLang = window.targetLanguage || "en";
 
       const languageMap = {
@@ -28,37 +58,27 @@ document.addEventListener("DOMContentLoaded", () => {
       };
 
       try {
-        console.log("Sending fetch...");
         const res = await fetch("/api/translate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            text: originalText,
-            targetLang: targetLang,
-          }),
+          body: JSON.stringify({ text: originalText, targetLang }),
         });
 
-        console.log("Fetch sent, awaiting response...");
         const data = await res.json();
-        console.log("Translated response:", data);
-
-        if (data.error || !data.translated) {
-          throw new Error(data.error || "Invalid response");
-        }
+        if (!data.translated)
+          throw new Error(data.error || "Translation failed");
 
         const translatedText = data.translated;
         const flagLabel = languageMap[targetLang] || targetLang.toUpperCase();
 
-        // Check if translation already exists for this message
         const existing = textElement.parentNode.querySelector(
           `.translated-text[data-id="${messageId}"]`
         );
-
         if (!existing) {
           const translatedDiv = document.createElement("div");
           translatedDiv.innerText = `[${flagLabel}] ${translatedText}`;
           translatedDiv.classList.add("translated-text");
-          translatedDiv.setAttribute("data-id", messageId); // so we can check later
+          translatedDiv.setAttribute("data-id", messageId);
           textElement.parentNode.appendChild(translatedDiv);
         }
 

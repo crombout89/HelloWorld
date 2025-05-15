@@ -2,7 +2,14 @@
 const express = require('express');
 const router = express.Router();
 const Community = require('../models/community');
+const { getFriendsForUser } = require("../services/friendService");
 const User = require('../models/user');
+const multer = require("multer");
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "public/uploads"),
+  filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname),
+});
+const upload = multer({ storage });
 
 // Simple middleware to confirm login
 function isAuthenticated(req, res, next) {
@@ -39,53 +46,73 @@ router.get('/new', isAuthenticated, (req, res) => {
 });
 
 // Handle form submission to create community
-router.post('/create', isAuthenticated, async (req, res) => {
-  try {
-    const { name, description } = req.body;
-    const userId = req.session.userId;
+router.post(
+  "/create",
+  isAuthenticated,
+  upload.single("coverImage"),
+  async (req, res) => {
+    const { name, description, category, tags } = req.body;
+    const coverImage = req.file ? `/uploads/${req.file.filename}` : null;
 
-    const community = new Community({
-      name,
-      description,
-      owner: userId,
-      members: [userId]
-    });
+    try {
+      const community = new Community({
+        name,
+        description,
+        category,
+        tags: tags?.split(",").map((t) => t.trim()),
+        coverImage,
+        owner: req.session.userId,
+        members: [req.session.userId],
+      });
 
-    await community.save();
-    res.redirect('/communities');
-  } catch (err) {
-    console.error('Error creating community:', err);
-    res.status(500).send('Failed to create community');
+      await community.save();
+      res.redirect(`/communities/${community._id}`);
+    } catch (err) {
+      console.error("Error creating community:", err);
+      res.status(500).send("Something went wrong");
+    }
   }
-});
+);
 
 
 // View a single community
-router.get('/:id', isAuthenticated, async (req, res) => {
+router.get("/:id", isAuthenticated, async (req, res) => {
   try {
     const community = await Community.findById(req.params.id)
-      .populate('owner', 'username')
-      .populate('members', 'username');
+      .populate("owner", "username")
+      .populate("members", "username");
 
     if (!community) {
-      return res.status(404).send('Community not found');
+      return res.status(404).send("Community not found");
     }
 
     const isOwner = community.owner._id.toString() === req.session.userId;
-    const isMember = community.members.some(m => m._id.toString() === req.session.userId);
+    const isMember = community.members.some(
+      (m) => m._id.toString() === req.session.userId
+    );
 
     if (!isOwner && !isMember) {
-      return res.status(403).send('You do not have access to this community');
+      return res.status(403).send("You do not have access to this community");
     }
 
-    res.render('view-community', {
+    // ✅ Safely load the user's friends (used for invite dropdown)
+    let friends = [];
+    try {
+      friends = await getFriendsForUser(req.session.userId);
+    } catch (err) {
+      console.warn("Could not load friends list:", err.message);
+    }
+
+    res.render("view-community", {
       title: community.name,
       community,
-      isOwner
+      isOwner,
+      isMember,
+      friends, // ✅ now passed to EJS
     });
   } catch (err) {
-    console.error('Error loading community view:', err);
-    res.status(500).send('Something went wrong');
+    console.error("Error loading community view:", err);
+    res.status(500).send("Something went wrong");
   }
 });
 
@@ -109,24 +136,38 @@ router.get('/:id/edit', isAuthenticated, async (req, res) => {
 });
 
 // Update the community (only owner)
-router.post('/:id/update', isAuthenticated, async (req, res) => {
-  try {
-    const community = await Community.findById(req.params.id);
+router.post(
+  "/:id/update",
+  isAuthenticated,
+  upload.single("coverImage"),
+  async (req, res) => {
+    try {
+      const community = await Community.findById(req.params.id);
+      if (!community) return res.redirect("/communities");
 
-    if (!community || community.owner.toString() !== req.session.userId) {
-      return res.status(403).send('Not allowed');
+      if (community.owner.toString() !== req.session.userId) {
+        return res.status(403).send("Forbidden");
+      }
+
+      const updates = {
+        name: req.body.name,
+        description: req.body.description,
+        category: req.body.category,
+        tags: req.body.tags.split(",").map((tag) => tag.trim()),
+      };
+
+      if (req.file) {
+        updates.coverImage = "/uploads/" + req.file.filename;
+      }
+
+      await Community.findByIdAndUpdate(req.params.id, updates);
+      res.redirect(`/communities/${community._id}`);
+    } catch (err) {
+      console.error("Error updating community:", err);
+      res.redirect("/communities");
     }
-
-    community.name = req.body.name;
-    community.description = req.body.description;
-    await community.save();
-
-    res.redirect(`/communities/${community._id}`);
-  } catch (err) {
-    console.error('Update error:', err);
-    res.status(500).send('Update failed');
   }
-});
+);
 
 // Delete a community (only owner)
 router.post('/:id/delete', isAuthenticated, async (req, res) => {
@@ -146,50 +187,90 @@ router.post('/:id/delete', isAuthenticated, async (req, res) => {
 });
 
 // Join a community
-router.post('/:id/join', isAuthenticated, async (req, res) => {
+router.post("/:id/join", isAuthenticated, async (req, res) => {
   try {
-    const community = await Community.findById(req.params.id);
-
-    if (!community) return res.status(404).send('Community not found');
-
-    const userId = req.session.userId;
-
-    // Prevent double-joining
-    if (!community.members.includes(userId)) {
-      community.members.push(userId);
-      await community.save();
-    }
-
-    res.redirect(`/communities/${community._id}`);
+    await Community.findByIdAndUpdate(req.params.id, {
+      $addToSet: { members: req.session.userId }
+    });
+    res.redirect(`/communities/${req.params.id}`);
   } catch (err) {
-    console.error('Join error:', err);
-    res.status(500).send('Failed to join community');
+    console.error("Join error:", err);
+    res.redirect("/communities");
   }
 });
 
 // Leave a community
-router.post('/:id/leave', isAuthenticated, async (req, res) => {
+router.post("/:id/leave", isAuthenticated, async (req, res) => {
+  try {
+    await Community.findByIdAndUpdate(req.params.id, {
+      $pull: { members: req.session.userId }
+    });
+    res.redirect(`/communities/${req.params.id}`);
+  } catch (err) {
+    console.error("Leave error:", err);
+    res.redirect("/communities");
+  }
+});
+
+// Invite a friend to a community (via notification)
+router.post("/:id/invite", isAuthenticated, async (req, res) => {
+  const { friendId } = req.body;
+  const communityId = req.params.id;
+
+  try {
+    const community = await Community.findById(communityId);
+    if (!community) throw new Error("Community not found");
+
+    const isMember = community.members.some(
+      (m) => m.toString() === req.session.userId
+    );
+    if (!isMember) return res.status(403).send("Not authorized to invite");
+
+    // Create notification (don't auto-add)
+    const Notification = require("../models/notification");
+
+    await Notification.create({
+      user: friendId,
+      message: `${req.user.username} invited you to join "${community.name}"`,
+      link: `/communities/${communityId}`, // optional direct link
+      meta: {
+        type: "community_invite",
+        communityId,
+        invitedBy: req.session.userId,
+      },
+    });
+
+    res.redirect(`/communities/${communityId}`);
+  } catch (err) {
+    console.error("Invite error:", err);
+    res.redirect("/communities");
+  }
+});
+
+// Accept or decline a community invite
+router.post('/:id/respond', isAuthenticated, async (req, res) => {
+  const { decision, notificationId } = req.body;
+
   try {
     const community = await Community.findById(req.params.id);
+    if (!community) return res.status(404).send("Community not found");
 
-    if (!community) return res.status(404).send('Community not found');
-
-    const userId = req.session.userId;
-
-    // Don't allow owner to leave
-    if (community.owner.toString() === userId) {
-      return res.status(403).send('Owner cannot leave their own community');
+    if (decision === "accept") {
+      const isMember = community.members.includes(req.session.userId);
+      if (!isMember) {
+        community.members.push(req.session.userId);
+        await community.save();
+      }
     }
 
-    community.members = community.members.filter(
-      memberId => memberId.toString() !== userId
-    );
+    // Always delete the notification
+    const Notification = require("../models/notification");
+    await Notification.findByIdAndDelete(notificationId);
 
-    await community.save();
-    res.redirect('/communities');
+    res.redirect(`/communities/${req.params.id}`);
   } catch (err) {
-    console.error('Leave error:', err);
-    res.status(500).send('Failed to leave community');
+    console.error("Invite response error:", err);
+    res.redirect("/notifications");
   }
 });
 

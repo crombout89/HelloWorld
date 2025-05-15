@@ -1,21 +1,35 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title><%= title %></title>
-</head>
-<body>
-  <h1><%= title %></h1>
+<title><%= title %></title>
 
-  <form action="/communities/create" method="POST">
-    <label for="name">Community Name:</label><br>
-    <input type="text" id="name" name="name" required><br><br>
+<div class="page-title">
+  <h1>Create a New Community</h1>
+</div>
 
-    <label for="description">Description:</label><br>
-    <textarea id="description" name="description" rows="4" cols="50"></textarea><br><br>
+<form action="/communities/create" method="POST" enctype="multipart/form-data">
 
-    <button type="submit">Create</button>
-  </form>
+  <label for="coverImage">Cover Image:</label>
+  <input type="file" name="coverImage" id="coverImage" accept="image/*">
 
-  <p><a href="/communities">← Back to My Communities</a></p>
-</body>
-</html>
+  <label for="name">Community Name:</label><br>
+  <input type="text" id="name" name="name" required><br><br>
+
+  <!-- Category Selection -->
+  <label for="category">Category:</label>
+  <select name="category" id="category" required>
+    <option value="Tech">Tech</option>
+    <option value="Social">Social</option>
+    <option value="Gaming">Gaming</option>
+    <option value="Local">Local</option>
+    <option value="Other">Other</option>
+  </select>
+
+  <!-- Tags (comma-separated) -->
+  <label for="tags">Tags:</label>
+  <input type="text" id="tags" name="tags" placeholder="e.g. javascript, node, women-in-tech">
+
+  <label for="description">Description:</label><br>
+  <textarea id="description" name="description" rows="4" cols="50"></textarea><br><br>
+
+  <button type="submit">Create</button>
+</form>
+
+<p><a href="/communities">← Back to My Communities</a></p>

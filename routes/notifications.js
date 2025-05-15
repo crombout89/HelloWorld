@@ -42,21 +42,20 @@ router.post('/create', async (req, res) => {
   }
 });
 
-// 📬 Fetch all notifications for the logged-in user
+// 📬 Fetch all unread notifications for the logged-in user
 router.get("/", isAuthenticated, async (req, res) => {
   try {
-    const userId = req.session.userId;
-
-    const notifications = await Notification.find({ user: userId }).sort({
-      createdAt: -1,
-    });
+    const notifications = await Notification.find({
+      user: req.session.userId,
+      read: false,
+    }).sort({ createdAt: -1 });
 
     res.render("notifications", {
       title: "Your Notifications",
       notifications,
       user: {
         ...req.session.user,
-        _id: userId, // 👈 Needed for layout.ejs logic
+        _id: req.session.userId,
       },
     });
   } catch (err) {
@@ -82,6 +81,20 @@ router.post("/mark-read/:id", isAuthenticated, async (req, res) => {
   } catch (err) {
     console.error("Mark read error:", err);
     res.redirect("/notifications");
+  }
+});
+
+// Mark all notifications as read
+router.post('/mark-all-read', isAuthenticated, async (req, res) => {
+  try {
+    await Notification.updateMany(
+      { user: req.session.userId, read: false },
+      { $set: { read: true } }
+    );
+    res.redirect('/notifications');
+  } catch (err) {
+    console.error("❌ Error marking all as read:", err);
+    res.status(500).send("Failed to mark notifications as read");
   }
 });
 
