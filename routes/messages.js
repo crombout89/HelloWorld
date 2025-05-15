@@ -3,6 +3,7 @@ const router = express.Router();
 const Message = require("../models/message");
 const User = require("../models/user");
 const { areFriends } = require("../services/friendService");
+const { translateText } = require("../services/translate");
 
 // Middleware to check login
 function isAuthenticated(req, res, next) {
@@ -101,5 +102,29 @@ router.post("/messages/:userId", isAuthenticated, async (req, res) => {
     res.redirect(`/messages/${req.params.userId}`);
   }
 });
+
+router.post(
+  "/messages/:userId/translate",
+  isAuthenticated,
+  async (req, res) => {
+    const { text, to } = req.body;
+
+    if (!text || !to) {
+      return res.status(400).json({ error: "Missing text or target language" });
+    }
+
+    try {
+      const translated = await translateText(text, "en", to); // assuming source language is English
+      if (translated) {
+        res.json({ translated });
+      } else {
+        res.status(500).json({ error: "Translation failed" });
+      }
+    } catch (err) {
+      console.error("Translation error:", err);
+      res.status(500).json({ error: "Server error" });
+    }
+  }
+);
 
 module.exports = router;
