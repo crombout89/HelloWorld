@@ -274,4 +274,35 @@ router.post('/:id/respond', isAuthenticated, async (req, res) => {
   }
 });
 
+// 🧭 Public view of a community (read-only)
+router.get('/:id/public', async (req, res) => {
+  try {
+    const community = await Community.findById(req.params.id)
+      .populate('owner', 'username')
+      .populate('members', 'username');
+
+    if (!community) {
+      return res.status(404).render('404');
+    }
+
+    const isLoggedIn = !!req.session.userId;
+    const isMember = isLoggedIn && community.members.some(
+      (m) => m._id.toString() === req.session.userId
+    );
+    const isOwner = isLoggedIn && community.owner._id.toString() === req.session.userId;
+
+    res.render('public-community', {
+      title: `${community.name} (Public View)`,
+      community,
+      isLoggedIn,
+      isMember,
+      isOwner,
+      user: req.session.user || null
+    });
+  } catch (err) {
+    console.error('Public view error:', err);
+    res.status(500).render('500');
+  }
+});
+
 module.exports = router;

@@ -1,0 +1,27 @@
+<div class="community-banner">
+  <% if (community.coverImage) { %>
+  <img src="<%= community.coverImage %>" alt="Community Cover">
+  <% } %>
+  <h1><%= community.name %></h1>
+  <p><%= community.description %></p>
+  <p><strong>Category:</strong> <%= community.category %></p>
+  <p><strong>Tags:</strong> <%= community.tags.join(', ') %></p>
+</div>
+
+<div class="community-meta">
+  <p><strong>Owner:</strong> <%= community.owner.username %></p>
+  <p><strong>Members:</strong> <%= community.members.length %></p>
+</div>
+
+<% if (isMember) { %>
+<div class="member-section">
+  <h3>👋 Welcome back, member!</h3>
+  <!-- Add member-only content here -->
+</div>
+<% } else if (isLoggedIn) { %>
+<form action="/communities/<%= community._id %>/join" method="POST">
+  <button type="submit">Join Community</button>
+</form>
+<% } else { %>
+<p><a href="/login">Log in</a> to join this community.</p>
+<% } %>

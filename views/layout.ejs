@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta name="viewport" content="width=device-width,
   initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -7,9 +8,10 @@
   <link rel="stylesheet" href="/styles.css">
   <link rel='stylesheet' href='/css/effects.css' />
   <link rel="stylesheet" href="https://use.typekit.net/yrl0zql.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-   <!-- custom view-specific styles like /css/profile.css will get inserted here -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+  <!-- custom view-specific styles like /css/profile.css will get inserted here -->
 </head>
+
 <body>
 
   <!-- You can add a navbar here -->
@@ -31,14 +33,14 @@
     </div>
   </div>
 
-<!-- Include modal logic -->
-<script src="/js/modal.js"></script>
+  <!-- Include modal logic -->
+  <script src="/js/modal.js"></script>
 
   <!-- Preferred Language logic -->
   <% if (typeof targetLanguage !== 'undefined') { %>
-    <script>
-      window.targetLanguage = "<%= targetLanguage %>";
-    </script>
+  <script>
+    window.targetLanguage = "<%= targetLanguage %>";
+  </script>
   <% } %>
 
   <!-- Socket + modular client-side logic -->
@@ -53,4 +55,5 @@
   <script src="/js/messages.js"></script>
   <script src="/js/modal.js"></script>
 </body>
+
 </html>

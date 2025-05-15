@@ -1,5 +1,5 @@
 // public/js/modal.js
-export function showModal(contentHtml) {
+function showModal(contentHtml) {
   let modal = document.getElementById("app-modal");
 
   if (!modal) {

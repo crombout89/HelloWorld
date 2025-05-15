@@ -1,35 +1,53 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
+const Community = require("../models/community");
+const { isLoggedIn } = require("../middleware/auth");
 
-router.get('/', (req, res) => {
-    res.render('discover', { 
-        title: 'Discover Events',
-        discoveryOptions: [
-            {
-                icon: 'assets/svg/search-by-location.svg',
-                title: 'Search by Location',
-                description: 'Enter a city or address'
-            },
-            {
-                icon: 'assets/svg/near-me.svg',
-                title: 'Near Me',
-                description: 'Use current location'
-            },{
-                icon: 'assets/svg/near-me.svg',
-                title: 'Find Friends',
-                description: 'Connect with new people'
-            },{
-                icon: 'assets/svg/near-me.svg',
-                title: 'Search by Interest',
-                description: 'Virtual social groups'
-            },
-            {
-                icon: 'assets/svg/group-events.svg',
-                title: 'Community Events', 
-                description: 'Browse all upcoming community events'
-            }
-        ]
+router.get("/", (req, res) => {
+  res.render("discover", {
+    title: "Discover",
+    discoveryOptions: [
+      {
+        icon: "assets/svg/group-events.svg",
+        title: "Communities",
+        description: "Browse user communities",
+      },
+      {
+        icon: "assets/svg/search-by-location.svg",
+        title: "Search by Location",
+        description: "Enter a city or address",
+      },
+      {
+        icon: "assets/svg/near-me.svg",
+        title: "Near Me",
+        description: "Use current location",
+      },
+      {
+        icon: "assets/svg/near-me.svg",
+        title: "Find Friends",
+        description: "Connect with new people",
+      },
+      {
+        icon: "assets/svg/near-me.svg",
+        title: "Search by Interest",
+        description: "Virtual social groups",
+      },
+    ],
+  });
+});
+
+// GET /discover/communities
+router.get("/communities", isLoggedIn, async (req, res) => {
+  try {
+    const communities = await Community.find().populate("owner", "username");
+    res.render("directory-communities", {
+      title: "Community Directory",
+      communities,
     });
+  } catch (err) {
+    console.error("Error loading community directory:", err);
+    res.status(500).send("Something went wrong");
+  }
 });
 
 module.exports = router;
