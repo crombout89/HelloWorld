@@ -1,29 +1,31 @@
-<h1><%= title %></h1>
+<h1>Your Notifications</h1>
 
 <% if (notifications.length === 0) { %>
-  <p>You have no notifications.</p>
+  <p>You have no notifications at the moment.</p>
 <% } else { %>
-  <ul>
-    <% notifications.forEach(n => { %>
-      <li>
-        <%= n.message %>
-  
-        <!-- View link -->
-        <form action="/notifications/mark-read/<%= n._id %>" method="POST" style="display:inline;">
-          <input type="hidden" name="redirect" value="<%= n.link %>">
-          <button class="text-link">View</button>
-        </form>
-  
-        <% if (!n.read) { %>
-          <!-- Mark as read manually -->
-          <form action="/notifications/mark-read/<%= n._id %>" method="POST" style="display:inline;">
-            <input type="hidden" name="redirect" value="/notifications">
-            <button class="text-link">Mark as read</button>
-          </form>
-        <% } %>
+  <form method="POST" action="/notifications/mark-all-read">
+    <button class="btn btn-secondary" type="submit">✅ Mark All as Read</button>
+  </form>
+
+  <ul class="notification-list">
+    <% notifications.forEach(note => { %>
+      <li class="notification-item" id="notif-<%= note._id %>">
+        <div class="notification-content">
+          <p><%= note.message %></p>
+
+          <% if (note.link && note.link.includes('/communities/')) { %>
+            <button 
+              class="btn open-invite-modal" 
+              data-notification-id="<%= note._id %>" 
+              data-message="<%= note.message %>" 
+              data-link="<%= note.link %>">
+              View Invite
+            </button>
+          <% } else if (note.link) { %>
+            <a href="<%= note.link %>" class="btn">View</a>
+          <% } %>
+        </div>
       </li>
     <% }) %>
   </ul>
 <% } %>
-
-<p><a href="/dashboard">Back to Dashboard</a></p>

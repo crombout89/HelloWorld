@@ -212,7 +212,7 @@ router.post("/:id/leave", isAuthenticated, async (req, res) => {
   }
 });
 
-// Invite a friend to a community
+// Invite a friend to a community (via notification)
 router.post("/:id/invite", isAuthenticated, async (req, res) => {
   const { friendId } = req.body;
   const communityId = req.params.id;
@@ -221,22 +221,56 @@ router.post("/:id/invite", isAuthenticated, async (req, res) => {
     const community = await Community.findById(communityId);
     if (!community) throw new Error("Community not found");
 
-    // Make sure only members can invite
     const isMember = community.members.some(
       (m) => m.toString() === req.session.userId
     );
     if (!isMember) return res.status(403).send("Not authorized to invite");
 
-    // Avoid duplicates
-    if (!community.members.includes(friendId)) {
-      community.members.push(friendId);
-      await community.save();
-    }
+    // Create notification (don't auto-add)
+    const Notification = require("../models/notification");
+
+    await Notification.create({
+      user: friendId,
+      message: `${req.user.username} invited you to join "${community.name}"`,
+      link: `/communities/${communityId}`, // optional direct link
+      meta: {
+        type: "community_invite",
+        communityId,
+        invitedBy: req.session.userId,
+      },
+    });
 
     res.redirect(`/communities/${communityId}`);
   } catch (err) {
     console.error("Invite error:", err);
     res.redirect("/communities");
+  }
+});
+
+// Accept or decline a community invite
+router.post('/:id/respond', isAuthenticated, async (req, res) => {
+  const { decision, notificationId } = req.body;
+
+  try {
+    const community = await Community.findById(req.params.id);
+    if (!community) return res.status(404).send("Community not found");
+
+    if (decision === "accept") {
+      const isMember = community.members.includes(req.session.userId);
+      if (!isMember) {
+        community.members.push(req.session.userId);
+        await community.save();
+      }
+    }
+
+    // Always delete the notification
+    const Notification = require("../models/notification");
+    await Notification.findByIdAndDelete(notificationId);
+
+    res.redirect(`/communities/${req.params.id}`);
+  } catch (err) {
+    console.error("Invite response error:", err);
+    res.redirect("/notifications");
   }
 });
 

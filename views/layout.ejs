@@ -21,7 +21,19 @@
   <!-- Toast container -->
   <div id="toast-container" style="position: fixed; bottom: 1rem; right: 1rem; z-index: 9999;"></div>
 
-  
+  <!-- Global Modal Root -->
+  <div id="global-modal" class="modal hidden">
+    <div class="modal-content">
+      <span class="close-modal">&times;</span>
+      <div id="modal-body">
+        <!-- Modal content gets injected here -->
+      </div>
+    </div>
+  </div>
+
+<!-- Include modal logic -->
+<script src="/js/modal.js"></script>
+
   <!-- Preferred Language logic -->
   <% if (typeof targetLanguage !== 'undefined') { %>
     <script>
@@ -39,5 +51,6 @@
   <script src="/js/socket.js"></script>
   <script src="/js/notifications.js"></script>
   <script src="/js/messages.js"></script>
+  <script src="/js/modal.js"></script>
 </body>
 </html>
