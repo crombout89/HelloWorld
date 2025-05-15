@@ -88,6 +88,7 @@ const loginRouter = require('./routes/login');
 const messagesRoute = require('./routes/messages');
 const notificationsRoute = require('./routes/notifications');
 const profileRouter = require('./routes/profile');
+const rssRoutes = require("./routes/rss");
 const discoverRoutes = require('./routes/discover');
 const translateRoute = require('./routes/api/translate');
 
@@ -147,6 +148,7 @@ app.use('/create-event', createEventRoutes);
 app.use('/dashboard', dashboardRouter);
 app.use('/discover', validateRouter(discoverRoutes, 'discoverRoutes'));
 app.use("/friends", friendsRoute);
+app.use("/rss", rssRoutes);
 app.use('/api/geolocation', geolocationRoutes);
 app.use('/api/location', validateRouter(locationRoutes, 'locationRoutes'));
 app.use('/login', validateRouter(loginRouter, 'loginRouter'));
