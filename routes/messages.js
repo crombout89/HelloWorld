@@ -3,6 +3,7 @@ const router = express.Router();
 const Message = require("../models/message");
 const User = require("../models/user");
 const { areFriends } = require("../services/friendService");
+const { translateText } = require("../services/translate");
 
 // Middleware to check login
 function isAuthenticated(req, res, next) {
@@ -99,6 +100,27 @@ router.post("/messages/:userId", isAuthenticated, async (req, res) => {
   } catch (err) {
     console.error("Error sending message:", err);
     res.redirect(`/messages/${req.params.userId}`);
+  }
+});
+
+// 🌍 Translate a message to another language
+router.post("/messages/:userId/translate", 
+  //isAuthenticated, 
+  async (req, res) => {
+  const { text, to } = req.body;
+  const from = "en"; // You can make this dynamic later
+
+  try {
+    const translated = await translateText(text, from, to);
+
+    if (!translated) {
+      return res.status(500).json({ error: "Translation failed" });
+    }
+
+    res.json({ translated });
+  } catch (err) {
+    console.error("❌ Translation route error:", err.message);
+    res.status(500).json({ error: "Translation failed" });
   }
 });
 
