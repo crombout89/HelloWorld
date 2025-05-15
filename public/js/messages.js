@@ -1,8 +1,8 @@
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.translate-btn').forEach(button => {
-    button.addEventListener('click', async () => {
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".translate-btn").forEach((button) => {
+    button.addEventListener("click", async () => {
       const messageId = button.dataset.messageId;
-      console.log('Translate button clicked for message:', messageId);
+      console.log("Translate button clicked for message:", messageId);
 
       const textElement = document.getElementById(`msg-${messageId}`);
       if (!textElement) {
@@ -11,41 +11,62 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const originalText = textElement.innerText;
-      console.log('Original text:', originalText);
+      console.log("Original text:", originalText);
 
-      const targetLang = 'en'; // Hardcoded for now
+      const targetLang = window.targetLanguage || "en";
+
+      const languageMap = {
+        en: "🇺🇸 English",
+        es: "🇪🇸 Spanish",
+        fr: "🇫🇷 French",
+        fa: "🇮🇷 Farsi",
+        de: "🇩🇪 German",
+        it: "🇮🇹 Italian",
+        zh: "🇨🇳 Chinese",
+        ar: "🇸🇦 Arabic",
+        ru: "🇷🇺 Russian",
+      };
 
       try {
-        console.log('Sending fetch...');
-        const res = await fetch('http://localhost:3000/api/translate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        console.log("Sending fetch...");
+        const res = await fetch("/api/translate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             text: originalText,
-            targetLang: targetLang
-          })
+            targetLang: targetLang,
+          }),
         });
 
-        console.log('Fetch sent, awaiting response...');
-        console.log('Response status:', res.status);
-
+        console.log("Fetch sent, awaiting response...");
         const data = await res.json();
-        console.log('Translated response:', data);
+        console.log("Translated response:", data);
 
         if (data.error || !data.translated) {
-          throw new Error(data.error || 'Invalid response');
+          throw new Error(data.error || "Invalid response");
         }
 
         const translatedText = data.translated;
+        const flagLabel = languageMap[targetLang] || targetLang.toUpperCase();
 
-        const translatedDiv = document.createElement('div');
-        translatedDiv.innerText = `[Translated] ${translatedText}`;
-        translatedDiv.classList.add('translated-text');
+        // Check if translation already exists for this message
+        const existing = textElement.parentNode.querySelector(
+          `.translated-text[data-id="${messageId}"]`
+        );
 
-        textElement.parentNode.appendChild(translatedDiv);
+        if (!existing) {
+          const translatedDiv = document.createElement("div");
+          translatedDiv.innerText = `[${flagLabel}] ${translatedText}`;
+          translatedDiv.classList.add("translated-text");
+          translatedDiv.setAttribute("data-id", messageId); // so we can check later
+          textElement.parentNode.appendChild(translatedDiv);
+        }
+
+        button.disabled = true;
+        button.innerText = "✓ Translated";
       } catch (err) {
-        console.error('Translation error:', err);
-        alert('⚠️ Failed to translate message.');
+        console.error("Translation error:", err);
+        alert("⚠️ Failed to translate message.");
       }
     });
   });

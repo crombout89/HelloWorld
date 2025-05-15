@@ -2,12 +2,29 @@ const fetch = require("node-fetch");
 const modelMap = require("../config/translationModels");
 const HF_API_KEY = process.env.HF_API_KEY;
 
-async function translateText(text, sourceLang = "en", targetLang = "fr") {
-  const model = modelMap[targetLang];
+const HF_MODEL_MAP = {
+  es: "Helsinki-NLP/opus-mt-en-es", // Spanish
+  fr: "Helsinki-NLP/opus-mt-en-fr", // French
+  de: "Helsinki-NLP/opus-mt-en-de", // German
+  it: "Helsinki-NLP/opus-mt-en-it", // Italian
+  zh: "Helsinki-NLP/opus-mt-en-zh", // Chinese
+  ar: "Helsinki-NLP/opus-mt-en-ar", // Arabic
+  ru: "Helsinki-NLP/opus-mt-en-ru", // Russian
+  fa: "Helsinki-NLP/opus-mt-en-fa", // Farsi (Persian)
+};
 
-  if (!model) {
-    throw new Error(`No model available for language: ${targetLang}`);
+async function translateText(text, sourceLang = "en", targetLang = "es") {
+  if (sourceLang === targetLang) {
+    console.log(
+      "⚠️ Skipping translation: source and target languages are the same."
+    );
+    return text;
   }
+
+  const modelKey = `${sourceLang}-${targetLang}`;
+  const model = HF_MODEL_MAP[targetLang];
+
+  if (!model) throw new Error(`No model available for language: ${targetLang}`);
 
   const url = `https://api-inference.huggingface.co/models/${model}`;
 

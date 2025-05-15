@@ -13,7 +13,12 @@
         <% if (msg.translatedText) { %>
           <p class="translated">[Translated] <%= msg.translatedText %></p>
         <% } else { %>
-          <button class="translate-btn" data-message-id="<%= msg._id %>">Translate</button>
+          <button 
+            class="translate-btn" 
+            data-text="<%= msg.text %>" 
+            data-message-id="<%= msg._id %>">
+            Translate
+          </button>
         <% } %>
 
         <small><%= new Date(msg.createdAt).toLocaleTimeString() %></small>
