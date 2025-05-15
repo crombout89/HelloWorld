@@ -1,4 +1,6 @@
 // routes/communities.js
+const fetch = require("node-fetch");
+
 const express = require('express');
 const router = express.Router();
 const Community = require('../models/community');
@@ -311,42 +313,73 @@ router.get('/:id/public', async (req, res) => {
   }
 });
 
-// POST: Request to join a community
+// ✅ REQUEST TO JOIN COMMUNITY
 router.post("/:id/request", isAuthenticated, async (req, res) => {
   try {
     const community = await Community.findById(req.params.id);
     if (!community) return res.status(404).send("Community not found");
 
     const userId = req.session.userId;
+
+    // ⛔ Prevent duplicate requests or rejoining
     const alreadyMember = community.members.includes(userId);
     const alreadyRequested = community.pendingRequests?.includes(userId);
-
     if (alreadyMember || alreadyRequested) {
       return res.redirect(`/communities/${community._id}`);
     }
 
+    // ✅ Add request to pending list
     community.pendingRequests.push(userId);
     await community.save();
 
-    // ✅ Send a notification to the owner for approval
-    const ownerId = community.owner;
-    const requester = await User.findById(req.session.userId);
-
+    // 📨 Notify community owner
+    const requester = await User.findById(userId);
     const notification = new Notification({
-      user: ownerId,
+      user: community.owner,
       message: `${requester.username} has requested to join "${community.name}"`,
-      link: `/communities/${communityId}/manage`, // or your moderation route
+      link: `/communities/${req.params.id}/manage`,
+      meta: {
+        type: "join_request",
+        communityId: community._id,
+        requestedBy: userId
+      }
     });
+
     await notification.save();
+    console.log("✅ Sent join request notification to admin:", community.owner);
 
-    // 🔔 Real-time emit
+    // 🔔 Emit real-time notification
     const io = req.app.get("io");
-    io.to(ownerId.toString()).emit("notification", notification);
+    io.to(community.owner.toString()).emit("notification", notification);
 
-    res.redirect(`/communities/${community._id}`);
+    res.redirect(`/communities/${req.params.id}/public`);
   } catch (err) {
     console.error("Join request error:", err);
     res.redirect("/communities");
+  }
+});
+
+// ✅ MANAGE COMMUNITY JOIN REQUESTS (Owner Only)
+router.get("/:id/manage", isAuthenticated, async (req, res) => {
+  try {
+    const community = await Community.findById(req.params.id)
+      .populate("owner", "username")
+      .populate("members", "username")
+      .populate("pendingRequests", "username");
+
+    if (!community) return res.status(404).send("Community not found");
+
+    const isOwner = community.owner._id.toString() === req.session.userId;
+    if (!isOwner) return res.status(403).send("Not authorized");
+
+    res.render("manage-community", {
+      title: `Manage ${community.name}`,
+      community,
+      pendingRequests: community.pendingRequests,
+    });
+  } catch (err) {
+    console.error("Error loading manage page:", err);
+    res.status(500).send("Something went wrong");
   }
 });
 
