@@ -56,13 +56,14 @@ router.get("/messages/:userId", isAuthenticated, async (req, res) => {
     }).sort({ createdAt: 1 });
 
     const otherUser = await User.findById(otherUserId);
+    const currentUser = await User.findById(currentUserId); // ✅ ADD THIS
 
     res.render("messages", {
       title: `Messages with ${otherUser?.username || "User"}`,
       messages,
       otherUser,
       user: req.user,
-      targetLanguage: otherUser?.profile?.language || "en",
+      targetLanguage: currentUser?.profile?.language || "en", // ✅ FIX THIS
     });
   } catch (err) {
     console.error("Error loading messages:", err);
@@ -104,18 +105,19 @@ router.post("/messages/:userId", isAuthenticated, async (req, res) => {
   }
 });
 
-// 🌍 Translate a message to recipient's preferred language
+// 🌍 Translate a message to the logged-in user's preferred language
 router.post("/messages/:userId/translate", isAuthenticated, async (req, res) => {
   const { text } = req.body;
-  const senderId = req.session.userId;
-  const recipientId = req.params.userId;
+  const userId = req.session.userId;
 
   try {
-    // 1. Load the recipient to get their preferred language
-    const recipient = await User.findById(recipientId);
+    // 1. Load the logged-in user (viewer)
+    const user = await User.findById(userId);
 
-    const to = recipient?.profile?.language || "fr"; // default fallback to French
-    const from = "en"; // You could also detect this dynamically later
+    const to = user?.profile?.language || "fr"; // fallback default
+    const from = "en"; // can be made dynamic later
+
+    console.log("🌐 Translating for:", user?.username || userId, `→ ${to}`);
 
     // 2. Translate the message
     const translated = await translateText(text, from, to);

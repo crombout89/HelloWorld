@@ -1,7 +1,14 @@
+// ========================================
+// services/translate.js
+// AI Translation using Hugging Face Models
+// ========================================
+
 const fetch = require("node-fetch");
-const modelMap = require("../config/translationModels");
 const HF_API_KEY = process.env.HF_API_KEY;
 
+// ----------------------------------------
+// Model Map: Maps language codes to models
+// ----------------------------------------
 const HF_MODEL_MAP = {
   es: "Helsinki-NLP/opus-mt-en-es", // Spanish
   fr: "Helsinki-NLP/opus-mt-en-fr", // French
@@ -10,10 +17,14 @@ const HF_MODEL_MAP = {
   zh: "Helsinki-NLP/opus-mt-en-zh", // Chinese
   ar: "Helsinki-NLP/opus-mt-en-ar", // Arabic
   ru: "Helsinki-NLP/opus-mt-en-ru", // Russian
-  fa: "Helsinki-NLP/opus-mt-en-fa", // Farsi (Persian)
+  fa: "Helsinki-NLP/opus-mt-en-fa", // Farsi
 };
 
+// ----------------------------------------
+// translateText: Sends text to HF API for translation
+// ----------------------------------------
 async function translateText(text, sourceLang = "en", targetLang = "es") {
+  // Skip if source and target languages are the same
   if (sourceLang === targetLang) {
     console.log(
       "⚠️ Skipping translation: source and target languages are the same."
@@ -21,12 +32,12 @@ async function translateText(text, sourceLang = "en", targetLang = "es") {
     return text;
   }
 
-  const modelKey = `${sourceLang}-${targetLang}`;
   const model = HF_MODEL_MAP[targetLang];
-
-  if (!model) throw new Error(`No model available for language: ${targetLang}`);
+  if (!model)
+    throw new Error(`❌ No model available for target language: ${targetLang}`);
 
   const url = `https://api-inference.huggingface.co/models/${model}`;
+  console.log("🌐 Translating:", { sourceLang, targetLang, url });
 
   try {
     const response = await fetch(url, {
@@ -39,6 +50,7 @@ async function translateText(text, sourceLang = "en", targetLang = "es") {
     });
 
     const result = await response.json();
+    console.log("🔍 HF API response:", result);
 
     if (Array.isArray(result) && result[0]?.translation_text) {
       return result[0].translation_text;
@@ -46,9 +58,12 @@ async function translateText(text, sourceLang = "en", targetLang = "es") {
 
     throw new Error("Unexpected response from translation API");
   } catch (error) {
-    console.error("Translation error:", error.message);
+    console.error("❌ Translation error:", error.message);
     return null;
   }
 }
 
+// ----------------------------------------
+// Export
+// ----------------------------------------
 module.exports = { translateText };
