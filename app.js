@@ -79,6 +79,7 @@ const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const communitiesRouter = require('./routes/communities');
 const createEventRoutes = require('./routes/create-event');
+const inviteRoute = require('./routes/inviteRoute');
 const dashboardRouter = require('./routes/dashboard'); 
 const registerRouter = require('./routes/register');
 const locationRoutes = require('./routes/location');
@@ -152,6 +153,7 @@ app.use('/api/location', validateRouter(locationRoutes, 'locationRoutes'));
 app.use('/login', validateRouter(loginRouter, 'loginRouter'));
 app.use('/notifications', notificationsRoute);
 app.use('/users', validateRouter(usersRouter, 'usersRouter'));
+app.use('/', inviteRoute);
 
 // Logout Route
 app.get('/logout', (req, res) => {
