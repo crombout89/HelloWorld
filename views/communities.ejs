@@ -1,34 +1,35 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title><%= title %></title>
-  <link rel='stylesheet' href='/styles.css' />
-  <link rel="stylesheet" href="/css/communities.css" />
-  <link rel='stylesheet' href='css/effects.css' />
-  <link rel="stylesheet" href="https://use.typekit.net/yrl0zql.css">
-</head>
-<body>
-  <div class="communities-wrapper">
-    <h1><%= title %></h1>
+<title><%= title %></title>
+<link rel="stylesheet" href="/css/communities.css" />
 
-    <div class="create-button">
-      <a href="/communities/new">
-        <button>Create New Community</button>
-      </a>
-    </div>
+<div class="page-title">
+  <h1>My Communities</h1>
+</div>
 
-    <% if (communities.length === 0) { %>
-      <p>You are not in any communities yet.</p>
-    <% } else { %>
-      <% communities.forEach(c => { %>
-        <div class="community-card">
-          <h2><%= c.name %></h2>
-          <p><%= c.description %></p>
-          <a href="/communities/<%= c._id %>">
-            <button>View Community</button>
-          </a>
+<div class="community-list">
+  <% if (communities.length === 0) { %>
+    <p>You haven't joined any communities yet.</p>
+  <% } else { %>
+    <% communities.forEach(c => { %>
+      <div class="community-card">
+        <% if (c.coverImage) { %>
+          <img src="<%= c.coverImage %>" alt="<%= c.name %> cover image" class="community-cover">
+        <% } %>
+
+        <h2><%= c.name %></h2>
+        <p><strong>Members:</strong> <%= c.members.length %></p>
+        <p><%= c.description || 'No description yet.' %></p>
+
+        <div class="community-actions">
+          <a href="/communities/<%= c._id %>"><button>View</button></a>
+          <% if (c.owner._id.toString() === userId) { %>
+            <a href="/communities/<%= c._id %>/edit"><button>Edit</button></a>
+          <% } %>
         </div>
-      <% }) %>
-    <% } %>
-  </div>
-</body>
+      </div>
+    <% }) %>
+  <% } %>
+</div>
+
+<div class="page-actions">
+  <a href="/communities/new" class="button">➕ Create New Community</a>
+</div>

@@ -6,9 +6,9 @@
 
 <form action="/communities/<%= community._id %>/update" method="POST" enctype="multipart/form-data">
 
-  <label for="coverImage">Cover Image:</label>
-  <input type="file" name="coverImage" id="coverImage" accept="image/*">
-  
+  <label for="coverImage">Change Cover Image:</label>
+  <input type="file" name="coverImage" id="coverImage" accept="image/*" />
+
   <label for="name">Community Name:</label><br>
   <input type="text" id="name" name="name" value="<%= community.name %>" required><br><br>
 
