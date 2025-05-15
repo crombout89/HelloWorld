@@ -43,22 +43,45 @@ router.post('/create', async (req, res) => {
 });
 
 // 📬 Fetch all notifications for the logged-in user
-router.get('/', isAuthenticated, async (req, res) => {
+router.get("/", isAuthenticated, async (req, res) => {
   try {
     const userId = req.session.userId;
-    const notifications = await Notification.find({ user: userId }).sort({ createdAt: -1 });
 
-    res.render('notifications', {
-      title: 'Your Notifications',
+    const notifications = await Notification.find({ user: userId }).sort({
+      createdAt: -1,
+    });
+
+    res.render("notifications", {
+      title: "Your Notifications",
       notifications,
       user: {
         ...req.session.user,
-        _id: req.session.userId // 👈 Add this manually so EJS has access
-      }
+        _id: userId, // 👈 Needed for layout.ejs logic
+      },
     });
   } catch (err) {
-    console.error('Notification fetch error:', err);
-    res.status(500).json({ error: 'Failed to load notifications' });
+    console.error("Notification fetch error:", err);
+    res.status(500).json({ error: "Failed to load notifications" });
+  }
+});
+
+// ✅ Mark a single notification as read
+router.post("/mark-read/:id", isAuthenticated, async (req, res) => {
+  try {
+    const notificationId = req.params.id;
+    const userId = req.session.userId;
+
+    // Only mark if it belongs to this user
+    await Notification.updateOne(
+      { _id: notificationId, user: userId },
+      { $set: { read: true } }
+    );
+
+    const redirect = req.body.redirect || "/notifications";
+    res.redirect(redirect);
+  } catch (err) {
+    console.error("Mark read error:", err);
+    res.redirect("/notifications");
   }
 });
 
