@@ -12,6 +12,35 @@
 <p><%= community.description %></p>
 <p><strong>Owner:</strong> <%= community.owner.username %></p>
 
+<% if (isMember) { %>
+<section class="new-post-section">
+  <h2>Create a New Post</h2>
+  <form action="/communities/<%= community._id %>/posts" method="POST">
+    <textarea name="content" rows="4" placeholder="What's on your mind?" required></textarea>
+    <button type="submit">Post</button>
+  </form>
+</section>
+<% } else { %>
+<p><em>Join this community to post updates.</em></p>
+<% } %>
+
+<section class="community-posts">
+  <h2>Community Feed</h2>
+  <% if (posts.length === 0) { %>
+  <p>No posts yet. Be the first to post!</p>
+  <% } else { %>
+  <ul class="post-list">
+    <% posts.forEach(post => { %>
+    <li class="post">
+      <strong><%= post.author?.username || 'Unknown' %></strong>
+      <p><%= post.content %></p>
+      <small><%= new Date(post.createdAt).toLocaleString() %></small>
+    </li>
+    <% }) %>
+  </ul>
+  <% } %>
+</section>
+
 <h3>Members:</h3>
 <ul>
   <% community.members.forEach(member => { %>

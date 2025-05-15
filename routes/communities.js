@@ -6,6 +6,7 @@ const router = express.Router();
 const Community = require('../models/community');
 const Notification = require("../models/notification");
 const { getFriendsForUser } = require("../services/friendService");
+const Post = require("../models/post");
 const User = require('../models/user');
 const multer = require("multer");
 const storage = multer.diskStorage({
@@ -89,6 +90,10 @@ router.get("/:id", isAuthenticated, async (req, res) => {
       return res.status(404).send("Community not found");
     }
 
+    const posts = await Post.find({ community: community._id })
+      .populate("author", "username")
+      .sort({ createdAt: -1 });
+
     const isOwner = community.owner._id.toString() === req.session.userId;
     const isMember = community.members.some(
       (m) => m._id.toString() === req.session.userId
@@ -116,6 +121,7 @@ router.get("/:id", isAuthenticated, async (req, res) => {
       isMember,
       friends,
       hasRequested,
+      posts,
     });
   } catch (err) {
     console.error("Error loading community view:", err);
