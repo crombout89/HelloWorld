@@ -23,6 +23,27 @@
   <p><em>You are a member of this community</em></p>
 <% } %>
 
+<section class="community-posts">
+  <h2>Community Feed</h2>
+
+  <% if (posts.length === 0) { %>
+  <p>No posts yet. Be the first to post!</p>
+  <% } else { %>
+  <ul class="community-posts">
+    <% posts.forEach(post => { %>
+    <li class="post">
+      <h3><%= post.title %></h3>
+      <p><%= post.body %></p>
+      <small>
+        Posted by <strong><%= post.author?.username || 'Unknown' %></strong>
+        on <%= new Date(post.createdAt).toLocaleString() %>
+      </small>
+    </li>
+    <% }) %>
+  </ul>
+  <% } %>
+</section>
+
 <% if (isMember) { %>
 <div class="member-section">
   <h3>👋 Welcome back, member!</h3>
