@@ -105,7 +105,7 @@ router.post("/messages/:userId", isAuthenticated, async (req, res) => {
 
 router.post(
   "/messages/:userId/translate",
-  isAuthenticated,
+  //isAuthenticated,
   async (req, res) => {
     const { text, to } = req.body;
 

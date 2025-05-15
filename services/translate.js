@@ -7,20 +7,17 @@ const HF_API_KEY = process.env.HF_API_KEY;
 
 async function translateText(text, sourceLang = "en", targetLang = "fr") {
   try {
-    const response = await fetch(HF_API_URL, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${HF_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        inputs: text,
-        parameters: {
-          src_lang: sourceLang,
-          tgt_lang: targetLang,
+    const response = await fetch(
+      "https://api-inference.huggingface.co/models/Helsinki-NLP/opus-mt-en-ROMANCE",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${process.env.HF_API_KEY}`,
+          "Content-Type": "application/json",
         },
-      }),
-    });
+        body: JSON.stringify({ inputs: text }),
+      }
+    );
 
     const result = await response.json();
 
