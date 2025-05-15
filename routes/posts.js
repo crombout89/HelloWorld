@@ -50,34 +50,6 @@ router.post("/communities/:id/posts", isLoggedIn, async (req, res) => {
   }
 });
 
-// 📝 Create a new post in a community
-router.post("/communities/:id/posts", isLoggedIn, async (req, res) => {
-  try {
-    const { content } = req.body;
-    if (!content || !content.trim()) {
-      return res.redirect(`/communities/${req.params.id}`);
-    }
-
-    const community = await Community.findById(req.params.id);
-    if (!community) return res.status(404).send("Community not found");
-
-    const isMember = community.members.includes(req.session.userId);
-    if (!isMember) return res.status(403).send("Only members can post");
-
-    const newPost = new Post({
-      content,
-      community: community._id,
-      author: req.session.userId,
-    });
-
-    await newPost.save();
-    res.redirect(`/communities/${req.params.id}`);
-  } catch (err) {
-    console.error("Error creating post:", err);
-    res.status(500).send("Something went wrong");
-  }
-});
-
 // DELETE a post (only post author or community owner)
 router.post(
   "/communities/:communityId/posts/:postId/delete",
@@ -115,25 +87,24 @@ router.post(
   }
 );
 
-// PATCH /posts/:postId/edit
-router.post("/:postId/edit", isLoggedIn, async (req, res) => {
-  const { postId } = req.params;
-  const { title, body } = req.body;
-
+// ✅ Final: POST /posts/:id/edit — Update an existing post
+router.post("/:id/edit", isLoggedIn, async (req, res) => {
   try {
-    const post = await Post.findById(postId)
+    const { id } = req.params;
+    const { title, body } = req.body;
+
+    const post = await Post.findById(id)
       .populate("author")
       .populate("community");
 
-    if (!post) {
-      return res.status(404).send("Post not found");
-    }
+    if (!post) return res.status(404).send("Post not found");
 
-    const isAuthor = post.author._id.toString() === req.session.userId;
-    const isOwner = post.community.owner.toString() === req.session.userId;
+    const userId = req.session.userId;
+    const isOwner = post.author._id.toString() === userId;
+    const isAdmin = post.community.owner.toString() === userId;
 
-    if (!isAuthor && !isOwner) {
-      return res.status(403).send("You are not authorized to edit this post");
+    if (!isOwner && !isAdmin) {
+      return res.status(403).send("Unauthorized to edit this post");
     }
 
     post.title = title;
@@ -143,7 +114,7 @@ router.post("/:postId/edit", isLoggedIn, async (req, res) => {
     res.redirect(`/communities/${post.community._id}`);
   } catch (err) {
     console.error("Post update error:", err);
-    res.status(500).send("Something went wrong while editing the post");
+    res.status(500).send("Something went wrong updating the post");
   }
 });
 

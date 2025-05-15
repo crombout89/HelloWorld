@@ -143,7 +143,7 @@ app.use('/', validateRouter(indexRouter, 'indexRouter'));
 app.use('/', validateRouter(registerRouter, 'registerRouter'));
 app.use('/', validateRouter(profileRouter, 'profileRouter'));
 app.use('/', messagesRoute); 
-app.use("/", postRoutes);
+app.use("/posts", postRoutes);
 app.use('/api/translate', translateRoute);
 app.use('/communities', validateRouter(communitiesRouter, 'communitiesRouter'));
 app.use('/create-event', createEventRoutes);
