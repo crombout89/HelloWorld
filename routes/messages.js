@@ -103,28 +103,31 @@ router.post("/messages/:userId", isAuthenticated, async (req, res) => {
   }
 });
 
-router.post(
-  "/messages/:userId/translate",
-  //isAuthenticated,
-  async (req, res) => {
-    const { text, to } = req.body;
+// 🌍 Translate a message to recipient's preferred language
+router.post("/messages/:userId/translate", isAuthenticated, async (req, res) => {
+  const { text } = req.body;
+  const senderId = req.session.userId;
+  const recipientId = req.params.userId;
 
-    if (!text || !to) {
-      return res.status(400).json({ error: "Missing text or target language" });
+  try {
+    // 1. Load the recipient to get their preferred language
+    const recipient = await User.findById(recipientId);
+
+    const to = recipient?.profile?.language || "fr"; // default fallback to French
+    const from = "en"; // You could also detect this dynamically later
+
+    // 2. Translate the message
+    const translated = await translateText(text, from, to);
+
+    if (!translated) {
+      return res.status(500).json({ error: "Translation failed" });
     }
 
-    try {
-      const translated = await translateText(text, "en", to); // assuming source language is English
-      if (translated) {
-        res.json({ translated });
-      } else {
-        res.status(500).json({ error: "Translation failed" });
-      }
-    } catch (err) {
-      console.error("Translation error:", err);
-      res.status(500).json({ error: "Server error" });
-    }
+    res.json({ translated });
+  } catch (err) {
+    console.error("❌ Translation route error:", err.message);
+    res.status(500).json({ error: "Translation failed" });
   }
-);
+});
 
 module.exports = router;

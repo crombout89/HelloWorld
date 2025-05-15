@@ -1,23 +1,25 @@
-// services/translate.js
 const fetch = require("node-fetch");
-
-const HF_API_URL =
-  "https://api-inference.huggingface.co/models/deepseek-ai/deepseek-moe-translate";
+const modelMap = require("../config/translationModels");
 const HF_API_KEY = process.env.HF_API_KEY;
 
 async function translateText(text, sourceLang = "en", targetLang = "fr") {
+  const model = modelMap[targetLang];
+
+  if (!model) {
+    throw new Error(`No model available for language: ${targetLang}`);
+  }
+
+  const url = `https://api-inference.huggingface.co/models/${model}`;
+
   try {
-    const response = await fetch(
-      "https://api-inference.huggingface.co/models/Helsinki-NLP/opus-mt-en-ROMANCE",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.HF_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ inputs: text }),
-      }
-    );
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${HF_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ inputs: text }),
+    });
 
     const result = await response.json();
 
@@ -25,7 +27,7 @@ async function translateText(text, sourceLang = "en", targetLang = "fr") {
       return result[0].translation_text;
     }
 
-    throw new Error("Unexpected API response format");
+    throw new Error("Unexpected response from translation API");
   } catch (error) {
     console.error("Translation error:", error.message);
     return null;

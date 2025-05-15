@@ -52,19 +52,20 @@ router.get("/profile", isLoggedIn, async (req, res) => {
   }
 });
 
-// ========================
-// POST: Update Name, Bio, and Profile Picture
-// ========================
+// ===================================================
+// POST: Update Name, Bio, Language and Profile Picture
+// ===================================================
 router.post("/profile/update", upload.single("photo"), async (req, res) => {
   if (!req.session.user) return res.redirect("/login");
 
-  const { firstName, lastName, bio } = req.body;
+  const { firstName, lastName, bio, language } = req.body;
   const userId = req.session.user._id;
 
   try {
     const update = {
       "profile.firstName": firstName?.trim() || "",
       "profile.lastName": lastName?.trim() || "",
+      "profile.language": language?.trim(),
       "profile.bio": bio?.trim() || "",
     };
 

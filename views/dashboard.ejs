@@ -1,5 +1,17 @@
 <link rel='stylesheet' href='css/dashboard.css' />
 
+<% const languageMap = {
+    en: "🇺🇸 English",
+    es: "🇪🇸 Spanish",
+    fr: "🇫🇷 French",
+    fa: "🇮🇷 Farsi",
+    de: "🇩🇪 German",
+    it: "🇮🇹 Italian",
+    zh: "🇨🇳 Chinese",
+    ar: "🇸🇦 Arabic",
+    ru: "🇷🇺 Russian"
+  }; %>
+
 <div id="dashboard">
     <div id="dashboard-header">
 
@@ -47,6 +59,8 @@
                 <%= user.profile.firstName || 'First' %>
                 <%= user.profile.lastName || 'Last' %>
             </p>
+
+            <p><strong>Language:</strong> <%= languageMap[user.profile.language] || "Not specified" %></p>
 
             <p><strong>Bio:</strong> <%= user.profile.bio || 'No bio yet.' %></p>
             
