@@ -3,6 +3,12 @@ const express = require('express');
 const router = express.Router();
 const Community = require('../models/community');
 const User = require('../models/user');
+const multer = require("multer");
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, "public/uploads"),
+  filename: (req, file, cb) => cb(null, Date.now() + "-" + file.originalname),
+});
+const upload = multer({ storage });
 
 // Simple middleware to confirm login
 function isAuthenticated(req, res, next) {
@@ -39,25 +45,33 @@ router.get('/new', isAuthenticated, (req, res) => {
 });
 
 // Handle form submission to create community
-router.post('/create', isAuthenticated, async (req, res) => {
-  try {
-    const { name, description } = req.body;
-    const userId = req.session.userId;
+router.post(
+  "/create",
+  isAuthenticated,
+  upload.single("coverImage"),
+  async (req, res) => {
+    const { name, description, category, tags } = req.body;
+    const coverImage = req.file ? `/uploads/${req.file.filename}` : null;
 
-    const community = new Community({
-      name,
-      description,
-      owner: userId,
-      members: [userId]
-    });
+    try {
+      const community = new Community({
+        name,
+        description,
+        category,
+        tags: tags?.split(",").map((t) => t.trim()),
+        coverImage,
+        owner: req.session.userId,
+        members: [req.session.userId],
+      });
 
-    await community.save();
-    res.redirect('/communities');
-  } catch (err) {
-    console.error('Error creating community:', err);
-    res.status(500).send('Failed to create community');
+      await community.save();
+      res.redirect(`/communities/${community._id}`);
+    } catch (err) {
+      console.error("Error creating community:", err);
+      res.status(500).send("Something went wrong");
+    }
   }
-});
+);
 
 
 // View a single community
