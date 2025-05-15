@@ -38,9 +38,10 @@
 
   <!-- Preferred Language logic -->
   <% if (typeof targetLanguage !== 'undefined') { %>
-  <script>
-    window.targetLanguage = "<%= targetLanguage %>";
-  </script>
+    <script>
+      window.userId = "<%= user?._id || '' %>";
+      window.targetLanguage = "<%= user?.profile?.language || 'en' %>";
+    </script>
   <% } %>
 
   <!-- Socket + modular client-side logic -->
