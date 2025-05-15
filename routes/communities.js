@@ -281,6 +281,75 @@ router.post('/:id/respond', isAuthenticated, async (req, res) => {
   }
 });
 
+// ✅ Approve or decline a join request (owner only)
+router.post("/:id/manage/respond", isAuthenticated, async (req, res) => {
+  const { userId, decision } = req.body;
+
+  console.log("🔄 Respond route hit with:", { userId, decision });
+
+  try {
+    const community = await Community.findById(req.params.id);
+    if (!community) {
+      console.error("❌ Community not found");
+      return res.status(404).send("Community not found");
+    }
+
+    const isOwner = community.owner.toString() === req.session.userId;
+    if (!isOwner) {
+      console.warn("⚠️ Unauthorized access");
+      return res.status(403).send("Only the owner can manage requests");
+    }
+
+    const wasPending = community.pendingRequests.some(
+      (id) => id.toString() === userId
+    );
+    console.log("📋 Was in pendingRequests:", wasPending);
+
+    // Always remove from pendingRequests
+    community.pendingRequests = community.pendingRequests.filter(
+      (id) => id.toString() !== userId
+    );
+
+    if (decision === "accept") {
+      const alreadyMember = community.members.some(
+        (id) => id.toString() === userId
+      );
+      if (!alreadyMember) {
+        community.members.push(userId);
+        console.log("✅ User added to members:", userId);
+      } else {
+        console.log("⚠️ User already a member");
+      }
+    } else {
+      console.log("❌ Request declined");
+    }
+
+    await community.save();
+    console.log("💾 Community saved");
+
+    // Optional: notify requester
+    await Notification.create({
+      user: userId,
+      message:
+        decision === "accept"
+          ? `You were approved to join "${community.name}"`
+          : `Your join request for "${community.name}" was declined`,
+      link: `/communities/${community._id}/public`,
+      meta: {
+        type: "join_response",
+        status: decision,
+        communityId: community._id,
+      },
+    });
+
+    console.log("📩 Notification sent to user:", userId);
+    res.redirect(`/communities/${community._id}/manage`);
+  } catch (err) {
+    console.error("🔥 Error in join approval:", err);
+    res.status(500).send("Something went wrong");
+  }
+});
+
 // 🧭 Public view of a community (read-only)
 router.get('/:id/public', async (req, res) => {
   try {

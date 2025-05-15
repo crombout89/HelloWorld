@@ -14,15 +14,21 @@
           <p><%= note.message %></p>
 
           <% if (note.link && note.link.includes('/communities/')) { %>
-            <button 
-              class="btn open-invite-modal" 
-              data-notification-id="<%= note._id %>" 
-              data-message="<%= note.message %>" 
-              data-link="<%= note.link %>">
+            <a 
+            href="<%= note.link %>?notif=<%= note._id %>"
+            class="btn open-invite-modal"
+            data-community-id="<%= note.link.split('/').pop() %>" 
+            data-notification-id="<%= note._id %>"
+            data-message="<%= note.message %>"
+            data-link="<%= note.link %>">
               View Invite
-            </button>
+            </a>
           <% } else if (note.link) { %>
-            <a href="<%= note.link %>" class="btn">View</a>
+            <% if (note.meta?.type === "join_request") { %>
+              <a href="/communities/<%= note.meta.communityId %>/manage" class="btn">View Invite</a>
+            <% } else { %>
+              <a href="<%= note.link %>" class="btn">View</a>
+            <% } %>
           <% } %>
         </div>
       </li>

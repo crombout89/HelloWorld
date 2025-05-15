@@ -15,7 +15,7 @@ function updateBadge() {
   badge.style.display = unreadCount > 0 ? "flex" : "none";
 }
 
-// ====== Toast Handler ======
+// ====== Toast Notification Handler ======
 function showToast(message) {
   const container = document.getElementById("toast-container");
   const toast = document.createElement("div");
@@ -38,7 +38,7 @@ function showToast(message) {
   }, 4000);
 }
 
-// ====== Socket Listener ======
+// ====== Socket Listener (Real-Time Notifications) ======
 const appSocket = window.appSocket;
 appSocket?.on("notification", (data) => {
   showToast(data.message);
@@ -48,15 +48,11 @@ appSocket?.on("notification", (data) => {
   updateBadge();
 });
 
-// ====== Reset on Click ======
-/* document.getElementById("alerts")?.addEventListener("click", () => {
-  unreadCount = 0;
-  updateBadge();
-}); */
-
-// ====== Modal Logic ======
+// ====== Modal Functions ======
 function openModal(contentHtml) {
   const modal = document.getElementById("generic-modal");
+  if (!modal) return;
+
   const body = modal.querySelector(".modal-body");
   body.innerHTML = contentHtml;
 
@@ -64,7 +60,7 @@ function openModal(contentHtml) {
   modal.style.display = "block";
 
   const close = modal.querySelector(".modal-close");
-  close?.addEventListener("click", () => closeModal());
+  close?.addEventListener("click", closeModal);
 }
 
 function closeModal() {
@@ -73,21 +69,21 @@ function closeModal() {
   modal.style.display = "none";
 }
 
-// Invitation modal logic
+// ====== Handle Invite Notification Button Click ======
 document.querySelectorAll(".open-invite-modal")?.forEach((button) => {
   button.addEventListener("click", async () => {
     const notificationId = button.dataset.notificationId;
     const message = button.dataset.message;
     const link = button.dataset.link;
 
-    // ✅ Mark notification as read before showing modal
+    // ✅ Attempt to mark notification as read
     try {
-      await fetch(`/notifications/mark-read/${notificationId}`, {
+      const res = await fetch(`/notifications/mark-read/${notificationId}`, {
         method: "POST",
       });
 
       if (res.ok) {
-        // Remove the notification from the list
+        // Remove from DOM
         const row = document.getElementById(`notif-${notificationId}`);
         if (row) row.remove();
 
@@ -101,7 +97,7 @@ document.querySelectorAll(".open-invite-modal")?.forEach((button) => {
       console.error("⚠️ Error marking notification as read:", err);
     }
 
-    // 📨 Show modal with Accept/Decline logic
+    // 📨 Show invitation modal
     const html = `
       <p>${message}</p>
       <div class="modal-actions">
@@ -120,5 +116,5 @@ document.querySelectorAll(".open-invite-modal")?.forEach((button) => {
   });
 });
 
-// Initial badge draw
+// ====== Draw Badge on Load ======
 updateBadge();
