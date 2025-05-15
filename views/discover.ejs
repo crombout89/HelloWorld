@@ -1,33 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta name="viewport" content="width=device-width,
-  initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title><%= title %></title>
-  <link rel='stylesheet' href='/styles.css' />
-  <link rel='stylesheet' href='css/discover.css' />
-  <link rel='stylesheet' href='css/effects.css' />
-  <link rel="stylesheet" href="https://use.typekit.net/yrl0zql.css">
-</head>
-<body>
-    <div id="discover" class="container">
-        <h1 class="section-title">Discover Your World</h1>
-        
-        <div class="discovery-grid" id="discoveryGrid">
-            <% discoveryOptions.forEach(option => { %>
-                <div class="discovery-card">
-                    <img src="<%= option.icon %>" alt="<%= option.title %>" class="icon">
-                    <h3><%= option.title %></h3>
-                    <p><%= option.description %></p>
-                </div>
-            <% }); %>
-        </div>
-    </div>
-    
-    <%- include('partials/search-modal') %>
+<h1 class="page-title">Discover</h1>
 
-    <%- include('partials/navbar') %>
+<div id="discoveryGrid" class="discovery-grid">
+  <% discoveryOptions.forEach(option => { %>
+  <div class="discovery-card" data-search-type="<%= option.title.toLowerCase().replace(/\s+/g, '-') %>">
+    <img src="/<%= option.icon %>" alt="<%= option.title %> icon" />
+    <h2><%= option.title %></h2>
+    <p><%= option.description %></p>
+  </div>
+  <% }) %>
+</div>
 
-    <script type="module" src="/js/disocver.js" defer></script>
-</body>
-</html>
+<script src="/js/discover.js"></script>
