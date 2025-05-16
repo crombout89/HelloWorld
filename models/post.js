@@ -23,7 +23,7 @@ const postSchema = new mongoose.Schema({
     trim: true,
   },
   tags: [String],
-  image: String, // Optional: URL or path to an uploaded image
+  likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   visibility: {
     type: String,
     enum: ["public", "members"],

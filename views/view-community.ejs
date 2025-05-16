@@ -36,6 +36,14 @@
     <li class="post-item">
       <h3><%= post.title %></h3>
       <p><%= post.body %></p>
+      <form method="POST" action="/posts/<%= post._id %>/like" style="display:inline;">
+        <button type="submit">
+          ❤️ <%= post.likes.length %>
+          <% if (post.likes.some(like => like.toString() === userId)) { %>
+          (Liked)
+          <% } %>
+        </button>
+      </form>
       <p class="post-meta">
         Posted by <strong><%= post.author.username %></strong> on <%= new Date(post.createdAt).toLocaleString() %>
       </p>

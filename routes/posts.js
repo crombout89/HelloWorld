@@ -115,4 +115,28 @@ router.post("/:postId/edit", isLoggedIn, async (req, res) => {
   }
 });
 
+// ❤️ Upvote/Like a post
+router.post("/posts/:postId/like", isLoggedIn, async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const userId = req.session.userId;
+
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).send("Post not found");
+
+    const hasLiked = post.likes.includes(userId);
+    if (hasLiked) {
+      post.likes.pull(userId); // unlike
+    } else {
+      post.likes.push(userId); // like
+    }
+
+    await post.save();
+    res.redirect("back"); // or `/communities/${post.community}`
+  } catch (err) {
+    console.error("Like toggle error:", err);
+    res.status(500).send("Error toggling like.");
+  }
+});
+
 module.exports = router;
