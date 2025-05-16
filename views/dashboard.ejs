@@ -20,10 +20,9 @@
 
             <section class="location-section">
               <h3>📍 Set Your Location</h3>
-
-              <input id="city-input" placeholder="Type a city..." />
-
+              <input id="city-input" type="text" placeholder="Type your city..." />
               <button id="save-city">Save Location</button>
+              <button id="use-my-location">📍 Use My Current Location</button>
 
               <% if (user.profile.location?.city) { %>
               <p class="location-display">
@@ -95,5 +94,4 @@
 </div>
 
 <!-- Load scripts at the end of body -->
-<script src="/js/location.js"></script>
 <script src="/js/dashboard.js"></script>
