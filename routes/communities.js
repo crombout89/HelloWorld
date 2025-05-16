@@ -91,7 +91,7 @@ router.get("/:id", isAuthenticated, async (req, res) => {
     }
 
     const posts = await Post.find({ community: community._id })
-      .sort({ createdAt: -1 })
+      .sort({ likedBy: -1, createdAt: -1 })
       .populate("author", "username")
       .populate("likes", "_id");
 

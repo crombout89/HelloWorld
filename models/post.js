@@ -24,6 +24,7 @@ const postSchema = new mongoose.Schema({
   },
   tags: [String],
   likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+  likedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   visibility: {
     type: String,
     enum: ["public", "members"],

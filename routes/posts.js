@@ -115,27 +115,29 @@ router.post("/:postId/edit", isLoggedIn, async (req, res) => {
   }
 });
 
-// ❤️ Upvote/Like a post
+// ❤️ Like a post
 router.post("/posts/:postId/like", isLoggedIn, async (req, res) => {
-  try {
-    const { postId } = req.params;
-    const userId = req.session.userId;
+  const userId = req.session.userId;
+  const { postId } = req.params;
 
+  try {
     const post = await Post.findById(postId);
     if (!post) return res.status(404).send("Post not found");
 
-    const hasLiked = post.likes.includes(userId);
-    if (hasLiked) {
-      post.likes.pull(userId); // unlike
+    const alreadyLiked = post.likedBy.includes(userId);
+    if (alreadyLiked) {
+      post.likedBy.pull(userId);
     } else {
-      post.likes.push(userId); // like
+      post.likedBy.push(userId);
     }
 
     await post.save();
-    res.redirect("back"); // or `/communities/${post.community}`
+
+    const redirectTo = req.get("referer") || `/communities/${post.community}`;
+    res.redirect(redirectTo);
   } catch (err) {
     console.error("Like toggle error:", err);
-    res.status(500).send("Error toggling like.");
+    res.status(500).send("Something went wrong.");
   }
 });
 
