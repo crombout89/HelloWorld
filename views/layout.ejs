@@ -46,6 +46,7 @@
 
   <!-- Socket + modular client-side logic -->
   <script>
+    const GEOAPIFY_AUTOCOMPLETE_KEY = "<%= geoapifyAutocompleteKey %>";
     const notifications = <%- JSON.stringify(locals.notifications || []) %>;
     window.notifications = notifications;
     window.userId = "<%= userId || '' %>";
@@ -53,6 +54,9 @@
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/socket.js"></script>
   <script src="/js/notifications.js"></script>
+  <% if (typeof includeLocationClient !== 'undefined' && includeLocationClient) { %>
+  <script src="/js/location-client.js"></script>
+  <% } %>
   <script src="/js/messages.js"></script>
   <script src="/js/modal.js"></script>
 </body>

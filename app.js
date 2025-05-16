@@ -15,6 +15,8 @@ const User = require('./models/user');
 
 const app = express();
 
+app.locals.geoapifyAutocompleteKey = process.env.GEOAPIFY_AUTOCOMPLETE_KEY;
+
 // Body parsers
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -81,7 +83,7 @@ const communitiesRouter = require('./routes/communities');
 const createEventRoutes = require('./routes/create-event');
 const dashboardRouter = require('./routes/dashboard'); 
 const registerRouter = require('./routes/register');
-const locationRoutes = require('./routes/location');
+const locationRoutes = require("./routes/location");
 const friendsRoute = require('./routes/friends');
 const loginRouter = require('./routes/login');
 const messagesRoute = require('./routes/messages');
@@ -134,6 +136,12 @@ const validateRouter = (router, routeName) => {
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
   res.locals.userId = req.session.userId || null;
+
+  // 🌍 Always define these so EJS doesn’t explode
+  res.locals.includeLocationClient = false;
+  res.locals.geoapifyAutocompleteKey =
+    process.env.GEOAPIFY_AUTOCOMPLETE_KEY || "";
+
   next();
 });
 
@@ -149,10 +157,10 @@ app.use('/create-event', createEventRoutes);
 app.use('/dashboard', dashboardRouter);
 app.use('/discover', validateRouter(discoverRoutes, 'discoverRoutes'));
 app.use("/friends", friendsRoute);
+app.use("/location", locationRoutes);
+app.use("/login", validateRouter(loginRouter, "loginRouter"));
+app.use("/notifications", notificationsRoute);
 app.use("/rss", rssRoutes);
-app.use('/api/location', validateRouter(locationRoutes, 'locationRoutes'));
-app.use('/login', validateRouter(loginRouter, 'loginRouter'));
-app.use('/notifications', notificationsRoute);
 app.use('/users', validateRouter(usersRouter, 'usersRouter'));
 
 // Logout Route

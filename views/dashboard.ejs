@@ -17,16 +17,22 @@
 
         <section id="current-location">
             <h2>Your Current Location</h2>
-            <button onclick="updateMyLocation()">📍 Update My Location</button>
-            <% if (locationDetails.city && locationDetails.country) { %>
-            <div class="location-display">
-              📍 You’re in <strong><%= locationDetails.city %>, <%= locationDetails.country %></strong>
-            </div>
-            <% } else { %>
-            <div class="location-display">
-              📍 Location not set
-            </div>
-            <% } %>
+
+            <section class="location-section">
+              <h3>📍 Set Your Location</h3>
+
+              <input id="city-input" placeholder="Type a city..." />
+
+              <button id="save-city">Save Location</button>
+
+              <% if (user.profile.location?.city) { %>
+              <p class="location-display">
+                Current location: <strong><%= user.profile.location.city %>, <%= user.profile.location.country %></strong>
+              </p>
+              <% } else { %>
+              <p class="location-display">No location set yet.</p>
+              <% } %>
+            </section>
         </section>
 
         <nav>

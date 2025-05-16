@@ -49,31 +49,11 @@ const UserSchema = new mongoose.Schema(
       },
       location: {
         address: {
-          type: String,
-          trim: true,
-          maxlength: 200,
-        },
-        city: {
-          type: String,
-          trim: true,
-          maxlength: 100,
-        },
-        country: {
-          type: String,
-          trim: true,
-          maxlength: 100,
-        },
-        coordinates: {
-          latitude: {
-            type: Number,
-            min: -90,
-            max: 90,
-          },
-          longitude: {
-            type: Number,
-            min: -180,
-            max: 180,
-          },
+          city: { type: String, trim: true, maxlength: 100 },
+          country: { type: String, trim: true, maxlength: 100 },
+          latitude: { type: Number, min: -90, max: 90 },
+          longitude: { type: Number, min: -180, max: 180 },
+          public: { type: Boolean, default: true },
         },
       },
       interests: {
@@ -147,18 +127,16 @@ UserSchema.pre('save', async function (next) {
   }
 
   if (
-    this.profile &&
-    this.profile.location &&
-    this.profile.location.coordinates &&
-    typeof this.profile.location.coordinates.latitude === "number" &&
-    typeof this.profile.location.coordinates.longitude === "number"
+    this.profile?.location &&
+    typeof this.profile.location.latitude === "number" &&
+    typeof this.profile.location.longitude === "number"
   ) {
     this.geolocation = {
       type: "Point",
       coordinates: [
-        this.profile.location.coordinates.longitude,
-        this.profile.location.coordinates.latitude
-      ]
+        this.profile.location.longitude,
+        this.profile.location.latitude,
+      ],
     };
   } else {
     this.geolocation = undefined;
