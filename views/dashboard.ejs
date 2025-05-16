@@ -17,23 +17,15 @@
 
         <section id="current-location">
             <h2>Your Current Location</h2>
-            
-            <% if (user.geolocation && user.geolocation.coordinates) { %>
-                <div id="location-details">
-                    <p><strong>Latitude:</strong> <%= user.geolocation.coordinates[1] %></p>
-                    <p><strong>Longitude:</strong> <%= user.geolocation.coordinates[0] %></p>
-                    
-                    <% if (user.profile.location && user.profile.location.city) { %>
-                    <p><strong>City:</strong> <%= user.profile.location.city %></p>
-                    <% } %>
-                    
-                    <% if (user.profile.location && user.profile.location.country) { %>
-                    <p><strong>Country:</strong> <%= user.profile.location.country %></p>
-                    <% } %>
-                </div>
+            <button onclick="updateMyLocation()">📍 Update My Location</button>
+            <% if (locationDetails.city && locationDetails.country) { %>
+            <div class="location-display">
+              📍 You’re in <strong><%= locationDetails.city %>, <%= locationDetails.country %></strong>
+            </div>
             <% } else { %>
-                <p id="location-status">Location not set</p>
-                <button id="get-location-btn" type="button" class="button">Get Current Location</button>
+            <div class="location-display">
+              📍 Location not set
+            </div>
             <% } %>
         </section>
 
