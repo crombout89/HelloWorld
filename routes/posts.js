@@ -115,4 +115,30 @@ router.post("/:postId/edit", isLoggedIn, async (req, res) => {
   }
 });
 
+// ❤️ Like a post
+router.post("/posts/:postId/like", isLoggedIn, async (req, res) => {
+  const userId = req.session.userId;
+  const { postId } = req.params;
+
+  try {
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).send("Post not found");
+
+    const alreadyLiked = post.likedBy.includes(userId);
+    if (alreadyLiked) {
+      post.likedBy.pull(userId);
+    } else {
+      post.likedBy.push(userId);
+    }
+
+    await post.save();
+
+    const redirectTo = req.get("referer") || `/communities/${post.community}`;
+    res.redirect(redirectTo);
+  } catch (err) {
+    console.error("Like toggle error:", err);
+    res.status(500).send("Something went wrong.");
+  }
+});
+
 module.exports = router;
