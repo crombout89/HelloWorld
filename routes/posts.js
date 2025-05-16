@@ -51,49 +51,46 @@ router.post("/communities/:id/posts", isLoggedIn, async (req, res) => {
 });
 
 // DELETE a post (only post author or community owner)
-router.post(
-  "/communities/:communityId/posts/:postId/delete",
-  isLoggedIn,
-  async (req, res) => {
-    const { communityId, postId } = req.params;
-    const userId = req.session.userId;
+router.post("/posts/:postId/delete", isLoggedIn, async (req, res) => {
+  const { postId } = req.params;
+  const { communityId } = req.body;
+  const userId = req.session.userId;
 
-    try {
-      const post = await Post.findById(postId).populate("author", "_id");
-      const community = await Community.findById(communityId).populate(
-        "owner",
-        "_id"
-      );
+  try {
+    const post = await Post.findById(postId).populate("author", "_id");
+    const community = await Community.findById(communityId).populate(
+      "owner",
+      "_id"
+    );
 
-      if (!post || !community) {
-        return res.status(404).send("Post or community not found");
-      }
-
-      const isOwner = community.owner._id.toString() === userId;
-      const isAuthor = post.author._id.toString() === userId;
-
-      if (!isOwner && !isAuthor) {
-        return res
-          .status(403)
-          .send("You do not have permission to delete this post.");
-      }
-
-      await Post.findByIdAndDelete(postId);
-      res.redirect(`/communities/${communityId}`);
-    } catch (err) {
-      console.error("Post delete error:", err);
-      res.status(500).send("Something went wrong while deleting the post.");
+    if (!post || !community) {
+      return res.status(404).send("Post or community not found");
     }
+
+    const isOwner = community.owner._id.toString() === userId;
+    const isAuthor = post.author._id.toString() === userId;
+
+    if (!isOwner && !isAuthor) {
+      return res
+        .status(403)
+        .send("You do not have permission to delete this post.");
+    }
+
+    await Post.findByIdAndDelete(postId);
+    res.redirect(`/communities/${communityId}`);
+  } catch (err) {
+    console.error("Post delete error:", err);
+    res.status(500).send("Something went wrong while deleting the post.");
   }
-);
+});
 
 // ✅ Final: POST /posts/:id/edit — Update an existing post
-router.post("/:id/edit", isLoggedIn, async (req, res) => {
+router.post("/:postId/edit", isLoggedIn, async (req, res) => {
   try {
-    const { id } = req.params;
+    const { postId } = req.params;
     const { title, body } = req.body;
 
-    const post = await Post.findById(id)
+    const post = await Post.findById(postId)
       .populate("author")
       .populate("community");
 
