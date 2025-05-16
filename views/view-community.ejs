@@ -33,38 +33,34 @@
   <% } else { %>
   <ul class="post-list">
     <% posts.forEach(post => { %>
-    <li class="post-item">
-      <h3><%= post.title %></h3>
-      <p><%= post.body %></p>
-      <!-- Like Button -->
-      <form action="/posts/<%= post._id %>/like" method="POST" style="display:inline;">
-        <button type="submit">❤️ <%= post.likedBy.length %></button>
-      </form>
+      <li class="post-item">
+        <h3><%= post.title %></h3>
+        <p><%= post.body %></p>
 
-      <!-- Report Button -->
-      <button type="button" onclick="toggleReport('<%= post._id %>')">🚩 Report</button>
-      <form id="report-form-<%= post._id %>" action="/reports" method="POST" style="display:none;">
-        <input type="hidden" name="contentType" value="Post">
-        <input type="hidden" name="contentId" value="<%= post._id %>">
-        <label for="reason">Reason for report:</label>
-        <textarea name="reason" required></textarea>
-        <button type="submit">Submit</button>
-      </form>
+        <!-- Like Button -->
+        <form action="/posts/<%= post._id %>/like" method="POST" style="display:inline;">
+          <button type="submit">❤️ <%= post.likedBy.length %></button>
+        </form>
 
-      <!-- Hidden Report Form -->
-      <form id="report-form-<%= post._id %>" action="/reports" method="POST" style="display:none; margin-top: 5px;">
-        <input type="hidden" name="contentType" value="Post">
-        <input type="hidden" name="contentId" value="<%= post._id %>">
-        <label for="reason">Reason for report:</label>
-        <textarea name="reason" required rows="2" cols="30" placeholder="Enter reason..."></textarea>
-        <br />
-        <button type="submit">Submit</button>
-        <button type="button" onclick="toggleReport('<%= post._id %>')">Cancel</button>
-      </form>
+        <!-- 🚩 Report toggle -->
+        <button type="button" onclick="toggleReport('<%= post._id %>')">🚩 Report</button>
+
+        <!-- 🔒 Standalone Report Form -->
+        <div id="report-wrapper-<%= post._id %>" style="display:none; margin-top: 8px;">
+          <form action="/moderation/report" method="POST">
+            <input type="hidden" name="contentType" value="Post" />
+            <input type="hidden" name="contentId" value="<%= post._id %>" />
+            <textarea name="reason" rows="2" placeholder="Reason..." required></textarea>
+            <br />
+            <button type="submit">Submit</button>
+            <button type="button" onclick="toggleReport('<%= post._id %>')">Cancel</button>
+          </form>
+        </div>
 
       <p class="post-meta">
         Posted by <strong><%= post.author.username %></strong> on <%= new Date(post.createdAt).toLocaleString() %>
       </p>
+    </li>
 
       <% if (user && (user._id.toString() === post.author._id.toString() || isOwner)) { %>
       <!-- Delete Button -->
@@ -128,6 +124,14 @@
 </form>
 <% } %>
 
+<h2>🔬 Manual Report Test</h2>
+<form action="/moderation/report" method="POST">
+  <input type="hidden" name="contentType" value="Post" />
+  <input type="hidden" name="contentId" value="123456789012345678901234" />
+  <textarea name="reason" required>testing test</textarea>
+  <button type="submit">Submit</button>
+</form>
+
 <p><a href="/communities">← Back to My Communities</a></p>
 
 <!-- ✅ Make sure this script comes AFTER the HTML -->
@@ -142,11 +146,7 @@
 
 <script>
   function toggleReport(postId) {
-    const form = document.getElementById(`report-form-${postId}`);
-    if (form.style.display === 'none' || form.style.display === '') {
-      form.style.display = 'block';
-    } else {
-      form.style.display = 'none';
-    }
+    const wrapper = document.getElementById(`report-wrapper-${postId}`);
+    wrapper.style.display = wrapper.style.display === "none" || !wrapper.style.display ? "block" : "none";
   }
 </script>

@@ -169,6 +169,10 @@ app.get('/logout', (req, res) => {
   });
 });
 
+app.use("*", (req, res) => {
+  res.status(404).send(`🔍 404: No route for ${req.method} ${req.originalUrl}`);
+});
+
 // Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
