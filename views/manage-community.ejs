@@ -22,3 +22,26 @@
 <% } else { %>
 <p>No pending requests.</p>
 <% } %>
+
+<!-- ▓▓▓ UNRESOLVED REPORTS ▓▓▓ -->
+<h2>Unresolved Reports</h2>
+
+<% if (typeof reports !== 'undefined' && reports.length > 0) { %>
+<ul class="report-list">
+  <% reports.forEach(report => { %>
+  <li class="report-item">
+    <p><strong>Reported by:</strong> <%= report.reportedBy.username %></p>
+    <p><strong>Reason:</strong> <%= report.reason %></p>
+    <p><strong>Type:</strong> <%= report.contentType %></p>
+    <p><strong>Submitted:</strong> <%= report.createdAt.toLocaleString() %></p>
+
+    <form method="POST" action="/moderation/reports/<%= report._id %>/resolve">
+      <button type="submit">Mark as Resolved</button>
+    </form>
+  </li>
+  <hr />
+  <% }) %>
+</ul>
+<% } else { %>
+<p>No unresolved reports.</p>
+<% } %>

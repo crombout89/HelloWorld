@@ -22,4 +22,18 @@ router.post("/", isLoggedIn, async (req, res) => {
   }
 });
 
+// Pass in reports
+router.get("/reports", isLoggedIn, async (req, res) => {
+  try {
+    const reports = await Report.find({ resolved: false })
+      .populate("reportedBy", "username")
+      .sort({ createdAt: -1 });
+
+    res.render("manage-community", { reports }); // reuse dashboard
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error loading reports");
+  }
+});
+
 export default router;
