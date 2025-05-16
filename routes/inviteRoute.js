@@ -3,12 +3,12 @@ const router = express.Router();
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-// ✅ GET route to render the invite form
+// GET route to render the invite form
 router.get('/invite', (req, res) => {
-  res.render('invite', { query: req.query });
+  res.render('invite', { query: req.query , title: 'Invite a Friend' });
 });
 
-// ✅ POST route to handle invite email sending
+// POST route to handle invite email sending
 router.post('/invite', async (req, res) => {
   const { email } = req.body;
 
