@@ -12,6 +12,60 @@
 <p><%= community.description %></p>
 <p><strong>Owner:</strong> <%= community.owner.username %></p>
 
+<% if (isMember) { %>
+<section class="new-post-section">
+  <h2>Create a New Post</h2>
+  <form action="/communities/<%= community._id %>/posts" method="POST">
+    <input type="text" name="title" placeholder="Post title" required><br>
+    <textarea name="body" placeholder="What's on your mind?" required></textarea>
+    <button type="submit">Post</button>
+  </form>
+</section>
+<% } else { %>
+<p><em>Join this community to post updates.</em></p>
+<% } %>
+
+<section class="community-posts">
+  <h2>Community Feed</h2>
+  <% if (posts.length === 0) { %>
+  <p>No posts yet. Be the first to post!</p>
+  <% } else { %>
+  <ul class="post-list">
+    <% posts.forEach(post => { %>
+    <li class="post-item">
+      <h3><%= post.title %></h3>
+      <p><%= post.body %></p>
+      <p class="post-meta">
+        Posted by <strong><%= post.author.username %></strong> on <%= new Date(post.createdAt).toLocaleString() %>
+      </p>
+
+      <% if (userId === post.author._id.toString() || userId === community.owner._id.toString()) { %>
+      <!-- Delete -->
+      <form action="/communities/<%= community._id %>/posts/<%= post._id %>/delete" method="POST" style="display:inline;">
+        <button type="submit" class="btn-delete">🗑 Delete</button>
+      </form>
+      <% } %>
+
+      <% if (user && (user._id.toString() === post.author._id.toString() || isOwner)) { %>
+      <!-- Edit Toggle Button -->
+      <button type="button" onclick="toggleEditForm('<%= post._id %>')">✏️ Edit</button>
+
+      <!-- Edit Form (Initially Hidden) -->
+      <form id="editForm-<%= post._id %>" method="POST" action="/posts/<%= post._id %>/edit" style="display: none; margin-top: 10px;">
+        <input type="text" name="title" value="<%= post.title %>" required />
+        <br />
+        <textarea name="body" rows="3" required><%= post.body %></textarea>
+        <br />
+        <button type="submit">✅ Save</button>
+        <button type="button" onclick="toggleEditForm('<%= post._id %>')">❌ Cancel</button>
+      </form>
+      <% } %>
+    </li>
+    <% }) %>
+  </ul>
+  <% } %>
+</section>
+
 <h3>Members:</h3>
 <ul>
   <% community.members.forEach(member => { %>
@@ -49,3 +103,15 @@
 <% } %>
 
 <p><a href="/communities">← Back to My Communities</a></p>
+
+<!-- ✅ Make sure this script comes AFTER the HTML -->
+<script>
+  function toggleEditForm(postId) {
+    const form = document.getElementById(`editForm-${postId}`);
+    if (form) {
+      form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    } else {
+      console.warn("Edit form not found for post:", postId);
+    }
+  }
+</script>
