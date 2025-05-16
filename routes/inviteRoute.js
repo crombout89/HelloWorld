@@ -24,7 +24,7 @@ router.post('/invite', async (req, res) => {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to: email,
-      subject: 'You’re Invited!',
+      subject: 'You are Invited!',
       text: `Hi! You've been invited to join HelloWorld.app. Click here to sign up: https://your-app-url/signup`,
     };
 
