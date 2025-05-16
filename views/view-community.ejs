@@ -6,7 +6,7 @@
 </div>
 
 <% if (community.coverImage) { %>
-  <img src="<%= community.coverImage %>" alt="Community Cover" class="community-cover">
+<img src="<%= community.coverImage %>" alt="Community Cover" class="community-cover">
 <% } %>
 
 <p><%= community.description %></p>
@@ -39,6 +39,8 @@
       <form action="/posts/<%= post._id %>/like" method="POST" style="display:inline;">
         <button type="submit">❤️ <%= post.likedBy.length %></button>
       </form>
+      <!-- ▓▓▓ CLEAN REPORT BUTTON ▓▓▓ -->
+      <button type="button" onclick="openReport('<%= post._id %>', 'Post')">Report</button>
       <p class="post-meta">
         Posted by <strong><%= post.author.username %></strong> on <%= new Date(post.createdAt).toLocaleString() %>
       </p>
@@ -72,40 +74,54 @@
 <h3>Members:</h3>
 <ul>
   <% community.members.forEach(member => { %>
-    <li><%= member.username %></li>
+  <li><%= member.username %></li>
   <% }) %>
 </ul>
 
 <% if (isOwner) { %>
-  <p><a href="/communities/<%= community._id %>/edit">Edit this community</a></p>
+<p><a href="/communities/<%= community._id %>/edit">Edit this community</a></p>
 <% } %>
 
 <% if (community.owner._id.toString() !== user._id.toString()) { %>
-  <% const isMember = community.members.some(m => m._id.toString() === user._id.toString()); %>
-  
-  <form action="/communities/<%= community._id %>/<%= isMember ? 'leave' : 'join' %>" method="POST">
-    <button type="submit">
-      <%= isMember ? "Leave Community" : "Join Community" %>
-    </button>
-  </form>
+<% const isMember = community.members.some(m => m._id.toString() === user._id.toString()); %>
+
+<form action="/communities/<%= community._id %>/<%= isMember ? 'leave' : 'join' %>" method="POST">
+  <button type="submit">
+    <%= isMember ? "Leave Community" : "Join Community" %>
+  </button>
+</form>
 <% } %>
 
 <% if (community.members.some(m => m._id.toString() === user._id.toString())) { %>
-  <form action="/communities/<%= community._id %>/invite" method="POST">
-    <label for="friendId">Invite a friend:</label>
-    <select name="friendId" id="friendId">
-      <% friends.forEach(friend => { %>
-        <% const alreadyMember = community.members.some(m => m._id.toString() === friend._id.toString()); %>
-        <% if (!alreadyMember) { %>
-          <option value="<%= friend._id %>"><%= friend.username %></option>
-        <% } %>
-      <% }) %>
-    </select>
-    <button type="submit">Send Invite</button>
-  </form>
+<form action="/communities/<%= community._id %>/invite" method="POST">
+  <label for="friendId">Invite a friend:</label>
+  <select name="friendId" id="friendId">
+    <% friends.forEach(friend => { %>
+    <% const alreadyMember = community.members.some(m => m._id.toString() === friend._id.toString()); %>
+    <% if (!alreadyMember) { %>
+    <option value="<%= friend._id %>"><%= friend.username %></option>
+    <% } %>
+    <% }) %>
+  </select>
+  <button type="submit">Send Invite</button>
+</form>
 <% } %>
 
 <p><a href="/communities">← Back to My Communities</a></p>
+
+<!-- Report Modal Logic -->
+<div id="reportModal" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+  <form id="reportForm" method="POST" action="/reports" class="bg-white p-4 rounded w-96 shadow">
+    <input type="hidden" name="contentType" value="Post">
+    <input type="hidden" name="contentId" id="modalContentId">
+    <label for="reason" class="block mb-1 font-bold">Reason for report:</label>
+    <textarea name="reason" required rows="4" class="w-full border border-gray-300 rounded mb-3 p-2"></textarea>
+    <div class="flex justify-end space-x-2">
+      <button type="button" onclick="closeReportModal()" class="text-gray-500">Cancel</button>
+      <button type="submit" class="bg-red-500 text-white px-3 py-1 rounded">Submit</button>
+    </div>
+  </form>
+</div>
 
 <!-- ✅ Make sure this script comes AFTER the HTML -->
 <script>
