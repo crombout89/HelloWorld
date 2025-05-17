@@ -1,0 +1,23 @@
+<!-- views/events/manage.ejs -->
+<h2>Manage Event: <%= event.title %></h2>
+
+<p><strong>Hosted by:</strong> <%= event.hostType %> - <%= event.host?.username || event.host?.name %></p>
+<p><strong>Visibility:</strong> <%= event.visibility %></p>
+<p><strong>When:</strong> <%= new Date(event.startTime).toLocaleString() %> to <%= new Date(event.endTime).toLocaleString() %></p>
+<p><strong>Location:</strong> <%= event.location?.name %> - <%= event.location?.address %></p>
+
+<hr />
+
+<h3>Attendees</h3>
+<ul>
+  <% event.rsvp.forEach(r => { %>
+  <li><%= r.user.username || r.user %>: <strong><%= r.status %></strong></li>
+  <% }) %>
+</ul>
+
+<hr />
+
+<a href="/events/<%= event._id %>/edit">Edit Event</a>
+<form action="/events/<%= event._id %>/delete" method="POST" style="display:inline;">
+  <button type="submit" onclick="return confirm('Are you sure you want to delete this event?')">Delete Event</button>
+</form>
