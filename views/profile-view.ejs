@@ -124,22 +124,26 @@
     <% if (wallPosts && wallPosts.length > 0) { %>
     <ul class="wall-posts">
       <% wallPosts.forEach(post => { %>
+      <% const emojiMap = {
+    like: "👍",
+    love: "❤️",
+    laugh: "😂",
+    wow: "😮",
+    sad: "😢",
+    dislike: "👎"
+  }; %>
       <% const usersById = {}; %>
       <% post.reactions?.forEach(r => {
-          usersById[r.user._id?.toString() || r.user] = r.user.username || r.user;
-        }); %>
-      <% const reactionMap = {}; post.reactions?.forEach(r => {
-        const username = r.user?.username || r.user; // handles populated + raw
-        if (!reactionMap[r.type]) reactionMap[r.type] = [];
-        reactionMap[r.type].push(username);
-      }); %>
-
-      <% function getUsernamesByReaction(type) {
-          const matched = post.reactions.filter(r => r.type === type)
-            .map(r => usersById[r.user._id?.toString() || r.user])
-            .filter(Boolean);
-          return matched.join(", ");
-        } %>
+    usersById[r.user._id?.toString() || r.user] = r.user.username || r.user;
+  }); %>
+      <% const reactionMap = {}; %>
+      <% post.reactions?.forEach(r => {
+    const username = r.user?.username || usersById[r.user._id?.toString() || r.user] || r.user;
+    if (!reactionMap[r.type]) reactionMap[r.type] = [];
+    if (!reactionMap[r.type].includes(username)) {
+      reactionMap[r.type].push(username);
+    }
+  }); %>
       <li style="margin-bottom: 1rem;">
         <strong>
           <a href="/u/<%= post.author.username %>">
@@ -158,24 +162,15 @@
         </form>
         <div style="font-size: 0.9rem;">
           Reactions:
-          <% const grouped = {}; post.reactions?.forEach(r => grouped[r.type] = (grouped[r.type] || 0) + 1); %>
-          <% for (let [reactionType, usersList] of Object.entries(reactionMap)) { %>
+          <% Object.entries(reactionMap).forEach(([reactionType, usersList]) => { %>
           <span class="emoji-hover">
             <%= emojiMap[reactionType] %> <%= usersList.length %>
             <div class="reaction-popup">
               <%= usersList.join(", ") %>
             </div>
           </span>
-          <% } %>
+          <% }) %>
         </div>
-        <% for (let [reactionType, users] of Object.entries(reactionMap)) { %>
-        <span class="emoji-hover">
-          <%= emojiMap[reactionType] %> <%= users.length %>
-          <div class="reaction-popup">
-            <%= users.join(", ") %>
-          </div>
-        </span>
-        <% } %>
       </li>
       <% }) %>
     </ul>
