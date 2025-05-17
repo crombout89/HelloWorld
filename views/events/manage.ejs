@@ -1,23 +1,31 @@
 <!-- views/events/manage.ejs -->
-<h2>Manage Event: <%= event.title %></h2>
+<h2>Manage Invites for <%= event.title %></h2>
 
-<p><strong>Hosted by:</strong> <%= event.hostType %> - <%= event.host?.username || event.host?.name %></p>
-<p><strong>Visibility:</strong> <%= event.visibility %></p>
-<p><strong>When:</strong> <%= new Date(event.startTime).toLocaleString() %> to <%= new Date(event.endTime).toLocaleString() %></p>
-<p><strong>Location:</strong> <%= event.location?.name %> - <%= event.location?.address %></p>
+<!-- Invite Form -->
+<form action="/events/<%= event._id %>/invite" method="POST">
+  <label for="userId">Invite User by ID:</label>
+  <input type="text" name="userId" id="userId" required />
+  <button type="submit">Invite</button>
+</form>
 
-<hr />
+<hr>
 
-<h3>Attendees</h3>
+<!-- Current Invitees -->
+<h3>Invitees</h3>
 <ul>
-  <% event.rsvp.forEach(r => { %>
-  <li><%= r.user.username || r.user %>: <strong><%= r.status %></strong></li>
+  <% if (event.invitees.length > 0) { %>
+  <% invitees.forEach(user => { %>
+  <li>
+    <strong><%= user.username %></strong>
+    <form action="/events/<%= event._id %>/remove" method="POST" style="display:inline;">
+      <input type="hidden" name="userId" value="<%= user._id %>" />
+      <button type="submit" style="margin-left: 0.5rem;">Remove</button>
+    </form>
+  </li>
   <% }) %>
+  <% } else { %>
+  <li>No invitees yet.</li>
+  <% } %>
 </ul>
 
-<hr />
-
-<a href="/events/<%= event._id %>/edit">Edit Event</a>
-<form action="/events/<%= event._id %>/delete" method="POST" style="display:inline;">
-  <button type="submit" onclick="return confirm('Are you sure you want to delete this event?')">Delete Event</button>
-</form>
+<a href="/events/<%= event._id %>">Back to Event</a>

@@ -104,6 +104,30 @@ router.get("/events/:id", isLoggedIn, async (req, res) => {
   });
 });
 
+// GET: Manage events
+router.get("/events/:id/manage", isLoggedIn, async (req, res) => {
+  const event = await Event.findById(req.params.id)
+    .populate("invitees")
+    .populate("attendees")
+    .lean();
+  if (!event) return res.status(404).render("404");
+
+  const isHost =
+    event.hostType === "User" && event.host.toString() === req.session.userId;
+  if (!isHost) return res.status(403).render("403", { title: "Access Denied" });
+
+  const User = require("../models/user");
+  const allUsers = await User.find({ _id: { $nin: event.invitees } }).lean();
+
+  res.render("events/manage", {
+    event,
+    invitees: event.invitees,
+    attendees: event.attendees,
+    users: allUsers,
+    title: `Manage Invites for ${event.title}`,
+  });
+});
+
 // POST: RSVP to an event
 router.post("/events/:id/rsvp", isLoggedIn, async (req, res) => {
   const { status } = req.body;
@@ -119,6 +143,40 @@ router.post("/events/:id/rsvp", isLoggedIn, async (req, res) => {
   if (status === "going" && !event.attendees.includes(userId)) {
     event.attendees.push(userId);
   }
+
+  await event.save();
+  res.redirect("back");
+});
+
+// POST: Invite a user to an event
+router.post("/events/:id/invite", isLoggedIn, async (req, res) => {
+  const event = await Event.findById(req.params.id);
+  if (!event) return res.status(404).send("Event not found");
+
+  const isHost = event.hostType === "User" && event.host.toString() === req.session.userId;
+  if (!isHost) return res.status(403).send("Not authorized");
+
+  const userId = req.body.userId;
+  if (!event.invitees.includes(userId)) {
+    event.invitees.push(userId);
+  }
+
+  await event.save();
+  res.redirect("back");
+});
+
+// POST: Remove a user from invitees
+router.post("/events/:id/remove", isLoggedIn, async (req, res) => {
+  const event = await Event.findById(req.params.id);
+  if (!event) return res.status(404).send("Event not found");
+
+  const isHost = event.hostType === "User" && event.host.toString() === req.session.userId;
+  if (!isHost) return res.status(403).send("Not authorized");
+
+  const userId = req.body.userId;
+  event.invitees = event.invitees.filter(id => id.toString() !== userId);
+  event.attendees = event.attendees.filter(id => id.toString() !== userId);
+  event.rsvp = event.rsvp.filter(r => r.user.toString() !== userId);
 
   await event.save();
   res.redirect("back");
