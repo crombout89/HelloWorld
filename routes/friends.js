@@ -39,7 +39,8 @@ router.post("/request/:userId", isAuthenticated, async (req, res) => {
 
     await Friendship.create({ requester, recipient, status: "pending" });
     console.log(`Friend request sent from ${requester} to ${recipient}`);
-    res.redirect(`/profile/${recipient}`);
+    const targetUser = await User.findById(recipient).lean();
+    res.redirect(`/u/${targetUser.username}`);
   } catch (err) {
     console.error("Error sending friend request:", err);
     res.redirect(`/profile/${recipient}`);
