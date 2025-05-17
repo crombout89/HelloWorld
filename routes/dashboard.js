@@ -39,11 +39,11 @@ router.get("/", async (req, res) => {
 
     // 📍 Location Info
     const location = user.profile.location || {};
+
     const locationDetails = {
       city: location.city || null,
       country: location.country || null,
-      full: location.full || null,
-      hasLocation: !!(location.city || location.country),
+      hasLocation: !!(location.city && location.country),
     };
 
     // 🎯 Render Dashboard
@@ -54,6 +54,8 @@ router.get("/", async (req, res) => {
       friendCount: friends.length,
       notifications,
       locationDetails,
+      includeLocationClient: true, // explicitly on
+      geoapifyAutocompleteKey: process.env.GEOAPIFY_AUTOCOMPLETE_KEY,
     });
   } catch (error) {
     console.error("Dashboard Error:", error);

@@ -1,23 +1,21 @@
 // services/locationService.js
-const axios = require("axios");
+const User = require("../models/user");
 
 class LocationService {
-  static async getReverseGeocoding(lat, lon) {
-    const { data } = await axios.get("https://us1.locationiq.com/v1/reverse", {
-      params: {
-        key: process.env.LOCATIONIQ_API_KEY,
-        lat,
-        lon,
-        format: "json",
-      },
-    });
+  static async saveUserLocation(userId, data) {
+    const user = await User.findById(userId);
+    if (!user) throw new Error("User not found");
 
-    return {
-      city:
-        data.address.city || data.address.town || data.address.village || "",
-      country: data.address.country || "",
-      full: data.display_name || "",
+    user.profile.location = {
+      city: data.city,
+      country: data.country,
+      latitude: data.latitude,
+      longitude: data.longitude,
+      public: true,
     };
+
+    await user.save();
+    return user.profile.location;
   }
 }
 
