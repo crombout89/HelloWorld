@@ -163,54 +163,50 @@ router.post("/profile/preferences", isLoggedIn, async (req, res) => {
 // ========================
 // GET: Public Read-Only Profile
 // ========================
-router.get("/profile/:userId", async (req, res) => {
+
+// Legacy redirect: /profile/:userId/public → /u/:username
+router.get("/profile/:userId/public", async (req, res) => {
   try {
-    const viewingUser = await User.findById(req.params.userId).select(
-      "username profile"
-    );
-    if (!viewingUser) return res.status(404).render("404");
+    const user = await User.findById(req.params.userId).lean();
+    if (!user) return res.status(404).render("404");
+    res.redirect(`/u/${user.username}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).render("error");
+  }
+});
 
-    const isOwner =
-      req.session.user && req.session.user._id === viewingUser._id.toString();
+// Clean user profile route: /u/:username
+router.get("/u/:username", async (req, res) => {
+  try {
+    const viewedUser = await User.findOne({ username: req.params.username }).lean();
+    if (!viewedUser) return res.status(404).render("404");
 
-    let friendStatus = "none"; // default
+    const currentUserId = req.session.userId;
+    const currentUser = await User.findById(currentUserId).lean();
 
-    if (!isOwner && req.session.user) {
-      const currentUserId = req.session.user._id;
+    const userFriends = viewedUser.friends || [];
+    const myFriends = currentUser?.friends || [];
 
-      const friendship = await Friendship.findOne({
-        $or: [
-          { sender: currentUserId, receiver: viewingUser._id },
-          { sender: viewingUser._id, receiver: currentUserId },
-        ],
-      });
+    const friends = await User.find({ _id: { $in: userFriends } }).lean();
+    const mutualFriends = await User.find({
+      _id: { $in: userFriends.filter(id => myFriends.includes(id.toString())) }
+    }).lean();
 
-      if (friendship) {
-        if (friendship.status === "accepted") {
-          friendStatus = "friends";
-        } else if (friendship.status === "pending") {
-          friendStatus = "pending";
-        }
-      }
-    }
+    const canPostToWall =
+      viewedUser.profile?.preferences?.allowWallPosts &&
+      myFriends.includes(viewedUser._id.toString());
 
-    res.render("public-profile", {
-      user: {
-        _id: viewingUser._id,
-        username: viewingUser.username,
-        bio: viewingUser.profile?.bio || "",
-        interests: viewingUser.profile?.interests || [],
-        profilePicture:
-          viewingUser.profile?.profilePicture ||
-          "/assets/imgs/demo-profile-1.png",
-      },
-      isOwner,
-      friendStatus,
-      title: `${viewingUser.username}'s Profile`,
+    res.render("profile-view", {
+      user: viewedUser,
+      friends,
+      mutualFriends,
+      canPostToWall,
+      title: `@${viewedUser.username}'s Profile`,
     });
   } catch (err) {
-    console.error("Public profile error:", err);
-    res.redirect("/dashboard");
+    console.error(err);
+    res.status(500).render("error");
   }
 });
 

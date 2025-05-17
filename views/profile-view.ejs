@@ -1,0 +1,114 @@
+<!-- 🔍 User Profile View (Public or Logged-In) -->
+<link rel="stylesheet" href="/css/profile.css">
+
+<div class="profile-page" style="max-width: 700px; margin: auto; padding: 1rem;">
+  <!-- 🧑 Avatar + Name -->
+  <div class="profile-header" style="display: flex; align-items: center; gap: 1rem;">
+    <img src="<%= user.profile.profilePicture || '/default-profile.png' %>" alt="Avatar" width="100" style="border-radius: 50%; border: 2px solid #ccc;">
+    <div>
+      <h2 style="margin: 0;">
+        <%= user.fullName || user.username %>
+      </h2>
+      <% if (user.profile?.pronouns) { %>
+        <p style="margin: 0; font-size: 0.9rem; color: #666;">
+          (<%= user.profile.pronouns %>)
+        </p>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- 🌍 Location & Language -->
+  <div class="profile-meta" style="margin-top: 1rem;">
+    <% if (user.profile?.location?.address?.city && user.profile?.location?.address?.country) { %>
+      <p>
+        <strong>Location:</strong>
+        <%= user.profile.location.address.city %>, <%= user.profile.location.address.country %>
+      </p>
+    <% } %>
+    <% if (user.profile?.language) { %>
+      <p><strong>Preferred Language:</strong> <%= user.profile.language %></p>
+    <% } %>
+    <% if (user.profile?.age) { %>
+      <p><strong>Age:</strong> <%= user.profile.age %></p>
+    <% } %>
+    <% if (user.profile?.gender && user.profile.gender !== 'prefer_not_to_say') { %>
+      <p><strong>Gender:</strong> <%= user.profile.gender %></p>
+    <% } %>
+  </div>
+
+  <!-- 📝 Bio -->
+  <% if (user.profile?.bio) { %>
+    <div class="profile-bio" style="margin-top: 1rem;">
+      <p><%= user.profile.bio %></p>
+    </div>
+  <% } %>
+
+  <!-- 💬 Tags & Interests -->
+  <% if (user.profile?.tags?.length || user.profile?.interests?.length) { %>
+    <div class="profile-tags" style="margin-top: 1rem;">
+      <% if (user.profile.tags?.length) { %>
+        <p><strong>Tags:</strong> 
+          <% user.profile.tags.forEach(tag => { %>
+            <span class="tag"><%= tag %></span>
+          <% }) %>
+        </p>
+      <% } %>
+
+      <% if (user.profile.interests?.length) { %>
+        <p><strong>Interests:</strong> 
+          <% user.profile.interests.forEach(interest => { %>
+            <span class="interest"><%= interest %></span>
+          <% }) %>
+        </p>
+      <% } %>
+    </div>
+  <% } %>
+
+  <!-- 🧑‍🤝‍🧑 Friends List -->
+  <% if (friends?.length) { %>
+    <div class="profile-friends" style="margin-top: 2rem;">
+      <h3>Friends</h3>
+      <ul style="list-style: none; padding: 0;">
+        <% friends.forEach(friend => { %>
+          <li style="margin-bottom: 0.5rem;">
+            <a href="/users/<%= friend.username %>">
+              <img src="<%= friend.profile?.profilePicture || '/default-profile.png' %>" alt="Friend Avatar" width="30" style="border-radius: 50%; margin-right: 0.5rem;">
+              <%= friend.fullName || friend.username %>
+            </a>
+          </li>
+        <% }) %>
+      </ul>
+    </div>
+  <% } %>
+
+  <!-- 🤝 Mutual Friends -->
+  <% if (mutualFriends?.length) { %>
+    <div class="profile-mutual-friends" style="margin-top: 2rem;">
+      <h3>Mutual Friends</h3>
+      <ul style="list-style: none; padding: 0;">
+        <% mutualFriends.forEach(friend => { %>
+          <li style="margin-bottom: 0.5rem;">
+            <a href="/users/<%= friend.username %>">
+              <img src="<%= friend.profile?.profilePicture || '/default-profile.png' %>" alt="Friend Avatar" width="30" style="border-radius: 50%; margin-right: 0.5rem;">
+              <%= friend.fullName || friend.username %>
+            </a>
+          </li>
+        <% }) %>
+      </ul>
+    </div>
+  <% } %>
+
+  <!-- 🧱 Wall/Feed Placeholder -->
+  <div class="profile-wall" style="margin-top: 2rem;">
+    <% if (canPostToWall) { %>
+      <form action="/wall/post" method="POST">
+        <textarea name="message" rows="3" placeholder="Write something on their wall..." style="width: 100%;"></textarea>
+        <button type="submit">Post</button>
+      </form>
+    <% } else { %>
+      <p><em>You cannot post on this user's wall.</em></p>
+    <% } %>
+
+    <!-- Wall posts will go here -->
+  </div>
+</div>
