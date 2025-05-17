@@ -6,11 +6,17 @@
 </div>
 
 <% if (community.coverImage) { %>
-  <img src="<%= community.coverImage %>" alt="Community Cover" class="community-cover">
+<img src="<%= community.coverImage %>" alt="Community Cover" class="community-cover">
 <% } %>
 
 <p><%= community.description %></p>
 <p><strong>Owner:</strong> <%= community.owner.username %></p>
+
+<% if (isOwner) { %>
+<!-- 🔧 Show manage modal trigger -->
+<button onclick="openModalFromURL('/communities/<%= community._id %>/manage/modal')">⚙️ Manage Community</button>
+<p><a href="/communities/<%= community._id %>/edit">Edit this community</a></p>
+<% } %>
 
 <% if (isMember) { %>
 <section class="new-post-section">
@@ -72,42 +78,36 @@
 <h3>Members:</h3>
 <ul>
   <% community.members.forEach(member => { %>
-    <li><%= member.username %></li>
+  <li><%= member.username %></li>
   <% }) %>
 </ul>
 
-<% if (isOwner) { %>
-  <p><a href="/communities/<%= community._id %>/edit">Edit this community</a></p>
-<% } %>
-
 <% if (community.owner._id.toString() !== user._id.toString()) { %>
-  <% const isMember = community.members.some(m => m._id.toString() === user._id.toString()); %>
-  
-  <form action="/communities/<%= community._id %>/<%= isMember ? 'leave' : 'join' %>" method="POST">
-    <button type="submit">
-      <%= isMember ? "Leave Community" : "Join Community" %>
-    </button>
-  </form>
+<% const isMember = community.members.some(m => m._id.toString() === user._id.toString()); %>
+<form action="/communities/<%= community._id %>/<%= isMember ? 'leave' : 'join' %>" method="POST">
+  <button type="submit">
+    <%= isMember ? "Leave Community" : "Join Community" %>
+  </button>
+</form>
 <% } %>
 
 <% if (community.members.some(m => m._id.toString() === user._id.toString())) { %>
-  <form action="/communities/<%= community._id %>/invite" method="POST">
-    <label for="friendId">Invite a friend:</label>
-    <select name="friendId" id="friendId">
-      <% friends.forEach(friend => { %>
-        <% const alreadyMember = community.members.some(m => m._id.toString() === friend._id.toString()); %>
-        <% if (!alreadyMember) { %>
-          <option value="<%= friend._id %>"><%= friend.username %></option>
-        <% } %>
-      <% }) %>
-    </select>
-    <button type="submit">Send Invite</button>
-  </form>
+<form action="/communities/<%= community._id %>/invite" method="POST">
+  <label for="friendId">Invite a friend:</label>
+  <select name="friendId" id="friendId">
+    <% friends.forEach(friend => { %>
+    <% const alreadyMember = community.members.some(m => m._id.toString() === friend._id.toString()); %>
+    <% if (!alreadyMember) { %>
+    <option value="<%= friend._id %>"><%= friend.username %></option>
+    <% } %>
+    <% }) %>
+  </select>
+  <button type="submit">Send Invite</button>
+</form>
 <% } %>
 
 <p><a href="/communities">← Back to My Communities</a></p>
 
-<!-- ✅ Make sure this script comes AFTER the HTML -->
 <script>
   function toggleEditForm(postId) {
     const form = document.getElementById("editForm-" + postId);
