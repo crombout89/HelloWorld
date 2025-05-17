@@ -105,6 +105,8 @@
   <div class="profile-wall" style="margin-top: 2rem;">
     <% if (canPostToWall) { %>
       <form action="/wall/post" method="POST">
+        <input type="hidden" name="recipientId" value="<%= user._id %>">
+        <input type="hidden" name="recipientUsername" value="<%= user.username %>">
         <textarea name="message" rows="3" placeholder="Write something on their wall..." style="width: 100%;"></textarea>
         <button type="submit">Post</button>
       </form>
