@@ -1,3 +1,7 @@
+<% const emojiMap = {
+  like: "👍", love: "❤️", laugh: "😂", wow: "😮", sad: "😢", dislike: "👎"
+}; %>
+
 <!-- 🔍 User Profile View (Public or Logged-In) -->
 <link rel="stylesheet" href="/css/profile.css">
 
@@ -128,6 +132,21 @@
         </strong>
         <small style="color: gray;"> - <%= new Date(post.createdAt).toLocaleString() %></small>
         <p><%= post.message %></p>
+        <form action="/wall/react/<%= post._id %>" method="POST" style="display: inline;">
+          <button type="submit" name="type" value="like">👍</button>
+          <button type="submit" name="type" value="love">❤️</button>
+          <button type="submit" name="type" value="laugh">😂</button>
+          <button type="submit" name="type" value="wow">😮</button>
+          <button type="submit" name="type" value="sad">😢</button>
+          <button type="submit" name="type" value="dislike">👎</button>
+        </form>
+        <div style="font-size: 0.9rem;">
+          Reactions:
+          <% const grouped = {}; post.reactions?.forEach(r => grouped[r.type] = (grouped[r.type] || 0) + 1); %>
+          <% for (let [emoji, count] of Object.entries(grouped)) { %>
+          <%= emojiMap[emoji] %> <%= count %>
+          <% } %>
+        </div>
         <% if (post.author._id.toString() === session.userId || user._id.toString() === session.userId) { %>
         <form action="/wall/delete/<%= post._id %>" method="POST" style="display:inline;">
           <button type="submit" style="color: red; font-size: 0.8rem;">🗑️</button>

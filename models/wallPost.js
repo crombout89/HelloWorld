@@ -8,6 +8,15 @@ const wallPostSchema = new mongoose.Schema({
     required: true,
   },
   message: { type: String, required: true, trim: true },
+  reactions: [
+    {
+      user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+      type: {
+        type: String,
+        enum: ["like", "love", "laugh", "wow", "sad", "dislike"],
+      },
+    },
+  ],
   createdAt: { type: Date, default: Date.now },
 });
 

@@ -46,4 +46,25 @@ router.post("/wall/delete/:postId", isLoggedIn, async (req, res) => {
   }
 });
 
+router.post("/wall/react/:postId", isLoggedIn, async (req, res) => {
+  const { type } = req.body;
+  const userId = req.session.userId;
+
+  if (!["like", "love", "laugh", "wow", "sad", "dislike"].includes(type)) {
+    return res.status(400).send("Invalid reaction type");
+  }
+
+  const post = await WallPost.findById(req.params.postId);
+  if (!post) return res.status(404).send("Post not found");
+
+  // Remove existing reaction by this user (if any)
+  post.reactions = post.reactions.filter((r) => r.user.toString() !== userId);
+
+  // Add new reaction
+  post.reactions.push({ user: userId, type });
+  await post.save();
+
+  res.redirect("back");
+});
+
 module.exports = router;
