@@ -179,23 +179,56 @@ router.get("/profile/:userId/public", async (req, res) => {
 // Clean user profile route: /u/:username
 router.get("/u/:username", async (req, res) => {
   try {
-    const viewedUser = await User.findOne({ username: req.params.username }).lean();
-    if (!viewedUser) return res.status(404).render("404");
+    const viewedUser = await User.findOne({
+      username: req.params.username,
+    }).lean();
+    if (!viewedUser)
+      return res.status(404).render("404", { title: "User Not Found" });
 
     const currentUserId = req.session.userId;
     const currentUser = await User.findById(currentUserId).lean();
 
-    const userFriends = viewedUser.friends || [];
-    const myFriends = currentUser?.friends || [];
-
-    const friends = await User.find({ _id: { $in: userFriends } }).lean();
-    const mutualFriends = await User.find({
-      _id: { $in: userFriends.filter(id => myFriends.includes(id.toString())) }
+    // Get friends of viewedUser
+    const friendDocs = await Friendship.find({
+      $or: [
+        { requester: viewedUser._id, status: "accepted" },
+        { recipient: viewedUser._id, status: "accepted" },
+      ],
     }).lean();
 
-    const canPostToWall =
-      viewedUser.profile?.preferences?.allowWallPosts &&
-      myFriends.includes(viewedUser._id.toString());
+    const friendIds = friendDocs.map((doc) =>
+      doc.requester.toString() === viewedUser._id.toString()
+        ? doc.recipient
+        : doc.requester
+    );
+
+    const friends = await User.find({ _id: { $in: friendIds } }).lean();
+
+    // Get friends of currentUser (for mutual match)
+    const myFriendDocs = await Friendship.find({
+      $or: [
+        { requester: currentUserId, status: "accepted" },
+        { recipient: currentUserId, status: "accepted" },
+      ],
+    }).lean();
+
+    const myFriendIds = myFriendDocs.map((doc) =>
+      doc.requester.toString() === currentUserId.toString()
+        ? doc.recipient
+        : doc.requester
+    );
+
+    const mutualFriends = await User.find({
+      _id: {
+        $in: friendIds.filter((id) =>
+          myFriendIds.map(String).includes(id.toString())
+        ),
+      },
+    }).lean();
+
+    const canPostToWall = myFriendIds
+      .map(String)
+      .includes(viewedUser._id.toString());
 
     res.render("profile-view", {
       user: viewedUser,
@@ -206,7 +239,7 @@ router.get("/u/:username", async (req, res) => {
     });
   } catch (err) {
     console.error(err);
-    res.status(500).render("error");
+    res.status(500).render("error", { title: "Server Error" });
   }
 });
 

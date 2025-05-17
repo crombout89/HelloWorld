@@ -68,16 +68,19 @@
   <% if (friends?.length) { %>
     <div class="profile-friends" style="margin-top: 2rem;">
       <h3>Friends</h3>
-      <ul style="list-style: none; padding: 0;">
+      <% if (friends.length === 0) { %>
+      <p>No friends yet.</p>
+      <% } else { %>
+      <ul>
         <% friends.forEach(friend => { %>
-          <li style="margin-bottom: 0.5rem;">
-            <a href="/users/<%= friend.username %>">
-              <img src="<%= friend.profile?.profilePicture || '/default-profile.png' %>" alt="Friend Avatar" width="30" style="border-radius: 50%; margin-right: 0.5rem;">
-              <%= friend.fullName || friend.username %>
-            </a>
-          </li>
+        <li>
+          <a href="/profile/<%= friend._id %>">
+            <%= friend.profile?.firstName || friend.username %>
+          </a>
+        </li>
         <% }) %>
       </ul>
+      <% } %>
     </div>
   <% } %>
 
