@@ -1,5 +1,10 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+const mongoose = require("mongoose");
+const bcrypt = require("bcryptjs");
+
+const arrayLimit = (max) =>
+  function (val) {
+    return val.length <= max;
+  };
 
 const UserSchema = new mongoose.Schema(
   {
@@ -28,25 +33,18 @@ const UserSchema = new mongoose.Schema(
       minlength: 6,
     },
     profile: {
-      firstName: {
+      firstName: { type: String, trim: true, maxlength: 50 },
+      lastName: { type: String, trim: true, maxlength: 50 },
+      usernameColor: { type: String, default: "#000000" },
+      bio: { type: String, maxlength: 500 },
+      language: { type: String, trim: true, maxlength: 50 },
+      age: { type: Number, min: 13, max: 120 },
+      gender: {
         type: String,
-        trim: true,
-        maxlength: 50,
+        enum: ["male", "female", "non-binary", "prefer_not_to_say", "other"],
+        default: "prefer_not_to_say",
       },
-      lastName: {
-        type: String,
-        trim: true,
-        maxlength: 50,
-      },
-      language: {
-        type: String,
-        trim: true,
-        maxlength: 50,
-      },
-      bio: {
-        type: String,
-        maxlength: 500,
-      },
+      pronouns: { type: String, maxlength: 50 },
       location: {
         address: {
           city: { type: String, trim: true, maxlength: 100 },
@@ -58,24 +56,26 @@ const UserSchema = new mongoose.Schema(
       },
       interests: {
         type: [String],
-        validate: {
-          validator: function (v) {
-            return v.length <= 10;
-          },
-          message: "Interests cannot exceed 10",
-        },
+        validate: [arrayLimit(10), "Interests cannot exceed 10"],
       },
-      preferences: {
+      tags: {
         type: [String],
         default: [],
-        validate: {
-          validator: function (prefs) {
-            return prefs.every(
-              (p) => typeof p === "string" && p.trim().length > 0
-            );
-          },
-          message: "Preferences must be non-empty strings",
+      },
+      preferences: {
+        theme: {
+          type: String,
+          enum: ["light", "dark", "system"],
+          default: "system",
         },
+        allowWallPosts: { type: Boolean, default: true },
+        allowMessages: { type: Boolean, default: true },
+        visibility: {
+          type: String,
+          enum: ["public", "friends", "private"],
+          default: "public",
+        },
+        timezone: { type: String },
       },
       profilePicture: {
         type: String,
@@ -98,27 +98,17 @@ const UserSchema = new mongoose.Schema(
       enum: ["active", "suspended", "deleted"],
       default: "active",
     },
-    lastLogin: {
-      type: Date,
-    },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-      immutable: true,
-    },
-    updatedAt: {
-      type: Date,
-      default: Date.now,
-    },
+    lastLogin: { type: Date },
+    createdAt: { type: Date, default: Date.now, immutable: true },
+    updatedAt: { type: Date, default: Date.now },
   },
   {
     timestamps: true,
   }
 );
 
-// Password hashing middleware
-UserSchema.pre('save', async function (next) {
-  if (this.isModified('password')) {
+UserSchema.pre("save", async function (next) {
+  if (this.isModified("password")) {
     try {
       this.password = await bcrypt.hash(this.password, 12);
     } catch (error) {
@@ -127,15 +117,15 @@ UserSchema.pre('save', async function (next) {
   }
 
   if (
-    this.profile?.location &&
-    typeof this.profile.location.latitude === "number" &&
-    typeof this.profile.location.longitude === "number"
+    this.profile?.location?.address &&
+    typeof this.profile.location.address.latitude === "number" &&
+    typeof this.profile.location.address.longitude === "number"
   ) {
     this.geolocation = {
       type: "Point",
       coordinates: [
-        this.profile.location.longitude,
-        this.profile.location.latitude,
+        this.profile.location.address.longitude,
+        this.profile.location.address.latitude,
       ],
     };
   } else {
@@ -146,8 +136,7 @@ UserSchema.pre('save', async function (next) {
   next();
 });
 
-// Method to update location
-UserSchema.methods.updateLocation = function(locationData) {
+UserSchema.methods.updateLocation = function (locationData) {
   if (locationData.address) {
     this.profile.location.address = locationData.address;
   }
@@ -160,74 +149,64 @@ UserSchema.methods.updateLocation = function(locationData) {
   if (locationData.latitude && locationData.longitude) {
     this.profile.location.coordinates = {
       latitude: locationData.latitude,
-      longitude: locationData.longitude
+      longitude: locationData.longitude,
     };
     this.geolocation = {
-      type: 'Point',
-      coordinates: [locationData.longitude, locationData.latitude]
+      type: "Point",
+      coordinates: [locationData.longitude, locationData.latitude],
     };
   }
   return this.save();
 };
 
-// Add geospatial index
-UserSchema.index({ geolocation: '2dsphere' });
+UserSchema.index({ geolocation: "2dsphere" });
 
-// Method to check password
-UserSchema.methods.comparePassword = async function(candidatePassword) {
+UserSchema.methods.comparePassword = async function (candidatePassword) {
   return bcrypt.compare(candidatePassword, this.password);
 };
 
-// Method to update last login
-UserSchema.methods.updateLastLogin = function() {
+UserSchema.methods.updateLastLogin = function () {
   this.lastLogin = new Date();
   return this.save();
 };
 
-// Static method to find by email
-UserSchema.statics.findByEmail = function(email) {
+UserSchema.statics.findByEmail = function (email) {
   return this.findOne({ email: email.toLowerCase() });
 };
 
-// Validation for interests
-UserSchema.path('profile.interests').validate(function(interests) {
-  return interests.every(interest => interest.trim().length > 0);
-}, 'Interests cannot be empty strings');
+UserSchema.path("profile.interests").validate(function (interests) {
+  return interests.every((interest) => interest.trim().length > 0);
+}, "Interests cannot be empty strings");
 
-// Validation for preferences
-UserSchema.path('profile.preferences').validate(function(prefs) {
-  return prefs.every(p => p.trim().length > 0);
-}, 'Preferences must be non-empty strings');
-
-// Virtual for full name
-UserSchema.virtual('fullName').get(function() {
-  return `${this.profile.firstName || ''} ${this.profile.lastName || ''}`.trim();
+UserSchema.virtual("fullName").get(function () {
+  return `${this.profile.firstName || ""} ${this.profile.lastName || ""}`.trim();
 });
 
-// Privacy method to return safe user object
-UserSchema.methods.toSafeObject = function() {
+UserSchema.methods.toSafeObject = function () {
   const userObject = this.toObject();
   delete userObject.password;
   return userObject;
 };
 
-// Method to find nearby users
-UserSchema.statics.findNearbyUsers = function(latitude, longitude, maxDistance = 10) {
+UserSchema.statics.findNearbyUsers = function (
+  latitude,
+  longitude,
+  maxDistance = 10
+) {
   const distanceInMeters = maxDistance * 1000;
   return this.find({
     geolocation: {
       $near: {
         $geometry: {
-          type: 'Point',
-          coordinates: [longitude, latitude]
+          type: "Point",
+          coordinates: [longitude, latitude],
         },
-        $maxDistance: distanceInMeters
-      }
-    }
+        $maxDistance: distanceInMeters,
+      },
+    },
   });
 };
 
-// Compound index
 UserSchema.index({ username: 1, email: 1 });
 
-module.exports = mongoose.models.User || mongoose.model('User', UserSchema);
+module.exports = mongoose.models.User || mongoose.model("User", UserSchema);
