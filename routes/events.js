@@ -139,6 +139,7 @@ router.get("/events/:id/manage", isLoggedIn, async (req, res) => {
     attendees: event.attendees,
     users: allUsers,
     title: `Manage Invites for ${event.title}`,
+    layout: false,
   });
 });
 

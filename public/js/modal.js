@@ -1,24 +1,42 @@
 // public/js/modal.js
-function showModal(contentHtml) {
-  let modal = document.getElementById("app-modal");
+function openModal(content) {
+  const modal = document.getElementById("global-modal");
+  const body = document.getElementById("modal-body");
 
-  if (!modal) {
-    modal = document.createElement("div");
-    modal.id = "app-modal";
-    modal.className = "modal-backdrop";
-    modal.innerHTML = `
-        <div class="modal">
-          <div class="modal-content" id="modal-content"></div>
-          <button id="modal-close" class="modal-close">×</button>
-        </div>
-      `;
-    document.body.appendChild(modal);
+  body.innerHTML = content;
+  modal.classList.remove("inactive", "animate__fadeOut");
+  modal.classList.add("animate__animated", "animate__fadeIn");
 
-    modal.querySelector("#modal-close").addEventListener("click", () => {
-      modal.remove();
-    });
+  // Re-bind close button click listener
+  const closeBtn = modal.querySelector(".modal-close");
+  if (closeBtn) {
+    closeBtn.addEventListener("click", closeModal);
   }
+}
 
-  modal.querySelector("#modal-content").innerHTML = contentHtml;
-  modal.style.display = "flex";
+function openModalFromURL(url) {
+  fetch(url)
+    .then((res) => res.text())
+    .then((html) => openModal(html))
+    .catch((err) => {
+      openModal(`<p class="error">Failed to load modal content.</p>`);
+      console.error(err);
+    });
+}
+
+function closeModal() {
+  const modal = document.getElementById("global-modal");
+
+  modal.classList.remove("animate__fadeIn");
+  modal.classList.add("animate__fadeOut");
+
+  modal.addEventListener(
+    "animationend",
+    () => {
+      modal.classList.add("inactive");
+      modal.classList.remove("animate__animated", "animate__fadeOut");
+      document.getElementById("modal-body").innerHTML = "";
+    },
+    { once: true }
+  );
 }
