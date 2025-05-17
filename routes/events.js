@@ -83,4 +83,42 @@ router.post("/events/:id/rsvp", isLoggedIn, async (req, res) => {
   res.redirect("back");
 });
 
+// GET: Edit Event Form
+router.get("/events/:id/edit", isLoggedIn, async (req, res) => {
+  const event = await Event.findById(req.params.id).lean();
+  if (!event) return res.status(404).render("404");
+  res.render("events/edit", { event, title: `Edit ${event.title}` });
+});
+
+// POST: Update Event
+router.post("/events/:id/edit", isLoggedIn, async (req, res) => {
+  try {
+    const { title, description, startTime, endTime, location, visibility } =
+      req.body;
+    await Event.findByIdAndUpdate(req.params.id, {
+      title,
+      description,
+      startTime,
+      endTime,
+      location,
+      visibility,
+    });
+    res.redirect(`/events/${req.params.id}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Failed to update event");
+  }
+});
+
+// POST: Delete Event
+router.post("/events/:id/delete", isLoggedIn, async (req, res) => {
+  try {
+    await Event.findByIdAndDelete(req.params.id);
+    res.redirect("/events");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Failed to delete event");
+  }
+});
+
 module.exports = router;
