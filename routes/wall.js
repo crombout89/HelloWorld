@@ -54,17 +54,17 @@ router.post("/wall/react/:postId", isLoggedIn, async (req, res) => {
     return res.status(400).send("Invalid reaction type");
   }
 
-  const post = await WallPost.findById(req.params.postId);
+  const post = await WallPost.findById(req.params.postId).populate("recipient");
   if (!post) return res.status(404).send("Post not found");
 
-  // Remove existing reaction by this user (if any)
+  // Remove old reaction
   post.reactions = post.reactions.filter((r) => r.user.toString() !== userId);
 
-  // Add new reaction
+  // Add new one
   post.reactions.push({ user: userId, type });
   await post.save();
 
-  res.redirect("back");
+  res.redirect(`/u/${post.recipient.username}`);
 });
 
 module.exports = router;
