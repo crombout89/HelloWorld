@@ -38,9 +38,12 @@ router.post("/events/create", isLoggedIn, async (req, res) => {
     const newEvent = await Event.create({
       title,
       description,
-      hostType,
-      host: hostId,
-      location,
+      hostType: "User",
+      host: req.session.userId, // use the logged-in user as the host
+      location: {
+        name: req.body.locationName,
+        address: req.body.locationAddress,
+      },
       startTime,
       endTime,
       visibility,

@@ -1,24 +1,22 @@
 <!-- views/events/view.ejs -->
-<h2><%= event.name %></h2>
-<p><%= event.description %></p>
-<p><strong>Hosted By:</strong>
-  <% if (event.hostType === 'user') { %>
-  <a href="/u/<%= event.host.username %>">@<%= event.host.username %></a>
-  <% } else if (event.hostType === 'community') { %>
-  <a href="/communities/<%= event.host._id %>"><%= event.host.name %></a>
-  <% } %>
-</p>
-<p><strong>Date:</strong> <%= new Date(event.startTime).toLocaleString() %> - <%= new Date(event.endTime).toLocaleString() %></p>
-<p><strong>Location:</strong> <%= event.location %></p>
-<p><strong>Visibility:</strong> <%= event.privacy %></p>
-
-<% if (canEdit) { %>
-<a href="/events/<%= event._id %>/edit">Edit</a>
+<% if (isHost) { %>
+<a href="/events/<%= event._id %>/edit">Edit Event</a>
 <% } %>
 
 <% if (canManage) { %>
 <a href="/events/<%= event._id %>/manage">Manage Invites</a>
+<form action="/events/<%= event._id %>/delete" method="POST" style="margin-top: 1rem;">
+  <button type="submit" onclick="return confirm('Are you sure you want to delete this event?')">🗑️ Delete Event</button>
+</form>
 <% } %>
+
+<h2><%= event.title %></h2>
+<p><%= event.description %></p>
+
+<p><strong>Hosted By:</strong> <%= event.host?.username || event.host?.name || 'Unknown' %></p>
+<p><strong>Date:</strong> <%= new Date(event.startTime).toLocaleString() %> - <%= new Date(event.endTime).toLocaleString() %></p>
+<p><strong>Location:</strong> <%= event.location %></p>
+
 
 <h3>Wall</h3>
 <% if (canPost) { %>
