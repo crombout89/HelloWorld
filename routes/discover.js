@@ -3,6 +3,7 @@ const router = express.Router();
 const Community = require("../models/community");
 const Event = require("../models/event");
 const User = require("../models/user");
+const { calculateMatchScore } = require("../services/matchService");
 const { getFriendsForUser } = require("../services/friendService");
 const { isLoggedIn } = require("../middleware/auth");
 
@@ -76,10 +77,6 @@ router.get("/friends", isLoggedIn, async (req, res) => {
   const userId = req.session.userId;
   const me = await User.findById(userId).lean();
 
-  const myInterests = new Set(me.profile?.interests || []);
-  const myPreferences = new Set(me.profile?.preferences || []);
-  const myLanguage = me.profile?.language;
-
   const friends = await getFriendsForUser(userId);
   const excludedIds = new Set([
     userId,
@@ -92,32 +89,10 @@ router.get("/friends", isLoggedIn, async (req, res) => {
   }).lean();
 
   const matches = candidates
-    .map((u) => {
-      const interestOverlap =
-        u.profile?.interests?.filter((i) => myInterests.has(i)) || [];
-
-      const preferenceOverlap =
-        u.profile?.preferences?.filter((p) => myPreferences.has(p)) || [];
-
-      const languageMatch = u.profile?.language === myLanguage;
-
-      const score =
-        interestOverlap.length * 2 +
-        preferenceOverlap.length +
-        (languageMatch ? 2 : 0);
-
-      return {
-        _id: u._id,
-        username: u.username,
-        profilePicture: u.profile?.profilePicture?.startsWith("/uploads")
-          ? u.profile.profilePicture
-          : "/default-profile.png",
-        interests: u.profile?.interests || [],
-        preferences: u.profile?.preferences || [],
-        language: u.profile?.language || "N/A",
-        score,
-      };
-    })
+    .map((u) => ({
+      ...u,
+      score: calculateMatchScore(me, u),
+    }))
     .filter((m) => m.score > 0)
     .sort((a, b) => b.score - a.score);
 
