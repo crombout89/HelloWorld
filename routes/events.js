@@ -145,41 +145,60 @@ router.post("/events/:id/rsvp", isLoggedIn, async (req, res) => {
   }
 
   await event.save();
-  res.redirect("back");
+  res.redirect(`/events/${req.params.id}`);
 });
 
 // POST: Invite a user to an event
 router.post("/events/:id/invite", isLoggedIn, async (req, res) => {
-  const event = await Event.findById(req.params.id);
-  if (!event) return res.status(404).send("Event not found");
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) return res.status(404).send("Event not found");
 
-  const isHost = event.hostType === "User" && event.host.toString() === req.session.userId;
-  if (!isHost) return res.status(403).send("Not authorized");
+    const userId = req.body.userId;
 
-  const userId = req.body.userId;
-  if (!event.invitees.includes(userId)) {
-    event.invitees.push(userId);
+    // Only user-hosted events are editable right now
+    const isHost =
+      event.hostType === "User" && event.host.toString() === req.session.userId;
+
+    if (!isHost) return res.status(403).send("Not authorized");
+
+    if (!event.invitees.includes(userId)) {
+      event.invitees.push(userId);
+      await event.save();
+    }
+
+    res.redirect(`/events/${req.params.id}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error inviting user");
   }
-
-  await event.save();
-  res.redirect("back");
 });
 
-// POST: Remove a user from invitees
+// Remove invitee from event
 router.post("/events/:id/remove", isLoggedIn, async (req, res) => {
-  const event = await Event.findById(req.params.id);
-  if (!event) return res.status(404).send("Event not found");
+  const { userId } = req.body;
 
-  const isHost = event.hostType === "User" && event.host.toString() === req.session.userId;
-  if (!isHost) return res.status(403).send("Not authorized");
+  try {
+    const event = await Event.findById(req.params.id);
+    if (!event) return res.status(404).send("Event not found");
 
-  const userId = req.body.userId;
-  event.invitees = event.invitees.filter(id => id.toString() !== userId);
-  event.attendees = event.attendees.filter(id => id.toString() !== userId);
-  event.rsvp = event.rsvp.filter(r => r.user.toString() !== userId);
+    event.invitees = event.invitees.filter(
+      id => id.toString() !== userId.toString()
+    );
+    event.attendees = event.attendees.filter(
+      id => id.toString() !== userId.toString()
+    );
 
-  await event.save();
-  res.redirect("back");
+    event.rsvp = event.rsvp.filter(
+      r => r.user.toString() !== userId.toString()
+    );
+
+    await event.save();
+    res.redirect(`/events/${req.params.id}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error removing user");
+  }
 });
 
 // GET: Edit Event Form

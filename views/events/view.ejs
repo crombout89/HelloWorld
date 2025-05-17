@@ -13,6 +13,21 @@
 <h2><%= event.title %></h2>
 <p><%= event.description %></p>
 
+<% if (event.visibility === "public" || isInvited) { %>
+<form action="/events/<%= event._id %>/rsvp" method="POST" style="margin-top: 1rem;">
+  <label><strong>RSVP:</strong></label>
+  <select name="status" required>
+    <option value="">-- Select --</option>
+    <option value="going" <%= isAttending ? "selected" : "" %>>Going</option>
+    <option value="interested">Interested</option>
+    <option value="not going">Not Going</option>
+  </select>
+  <button type="submit">Submit</button>
+</form>
+<% } else if (!isInvited && event.visibility === "private") { %>
+<p><em>This is a private event. You must be invited to RSVP.</em></p>
+<% } %>
+
 <p><strong>Hosted By:</strong> <%= event.host?.username || event.host?.name || 'Unknown' %></p>
 <p><strong>Date:</strong> <%= new Date(event.startTime).toLocaleString() %> - <%= new Date(event.endTime).toLocaleString() %></p>
 <p><strong>Location:</strong> <%= event.location %></p>
