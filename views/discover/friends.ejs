@@ -1,0 +1,30 @@
+<h2>🔍 Discover New Friends</h2>
+
+<!-- If no matches were found, show fallback message -->
+<% if (matches.length === 0) { %>
+<p>No matches found yet. Try updating your profile with more interests and preferences!</p>
+
+<% } else { %>
+<!-- Loop through each suggested user match -->
+<ul class="friend-suggestions">
+  <% matches.forEach(match => { %>
+  <li style="margin-bottom: 2rem; border-bottom: 1px solid #ccc; padding-bottom: 1rem;">
+
+    <!-- Profile Picture + Username -->
+    <img src="<%= match.profilePicture %>" alt="Profile Pic" width="60" style="border-radius: 50%; margin-right: 1rem;">
+    <strong>@<%= match.username %></strong>
+
+    <!-- Display shared profile traits -->
+    <p><strong>Shared Interests:</strong> <%= match.interests.join(", ") %></p>
+    <p><strong>Preferences:</strong> <%= match.preferences.join(", ") %></p>
+    <p><strong>Language:</strong> <%= match.language %></p>
+
+    <!-- Add Friend button (POST to friends/request/:id) -->
+    <form action="/friends/request/<%= match._id %>" method="POST" style="margin-top: 0.5rem;">
+      <button type="submit">➕ Add Friend</button>
+    </form>
+
+  </li>
+  <% }) %>
+</ul>
+<% } %>
