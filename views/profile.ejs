@@ -3,20 +3,22 @@
 <div class="profile-edit-container page-title" style="max-width: 600px; margin: auto; padding: 1rem;">
   <h2 style="margin-bottom: 1.5rem;">Update Your Profile</h2>
 
-  <!-- FORM: Update name, photo, bio -->
+  <!-- 🖼️ FORM: Upload Photo / Basic Info -->
   <form action="/profile/update" method="POST" enctype="multipart/form-data" style="margin-bottom: 2rem;">
+    <!-- Profile Picture -->
     <div style="margin-bottom: 1rem;">
       <label for="photo">Upload Profile Photo:</label><br>
       <input type="file" name="photo" id="photo">
     </div>
 
     <% if (user.profile?.profilePicture) { %>
-      <div style="margin-bottom: 1rem;">
-        <p>Current Photo:</p>
-        <img src="<%= user.profile.profilePicture %>" alt="Profile Photo" width="100" style="border-radius: 8px;">
-      </div>
+    <div style="margin-bottom: 1rem;">
+      <p>Current Photo:</p>
+      <img src="<%= user.profile.profilePicture %>" alt="Profile Photo" width="100" style="border-radius: 8px;">
+    </div>
     <% } %>
 
+    <!-- First & Last Name -->
     <div style="margin-bottom: 1rem;">
       <label for="firstName">First Name:</label><br>
       <input type="text" name="firstName" id="firstName" value="<%= user.profile?.firstName || '' %>" style="width: 100%;">
@@ -27,77 +29,101 @@
       <input type="text" name="lastName" id="lastName" value="<%= user.profile?.lastName || '' %>" style="width: 100%;">
     </div>
 
+    <!-- Age / Gender / Pronouns -->
     <div style="margin-bottom: 1rem;">
-      <label for="language">Preferred Language:</label>
-      <select name="language" id="language">
-        <option value="">Select a language</option>
-        <option value="en" <%= user.profile.language === "en" ? "selected" : "" %>>🇺🇸 English</option>
-        <option value="es" <%= user.profile.language === "es" ? "selected" : "" %>>🇪🇸 Spanish</option>
-        <option value="fr" <%= user.profile.language === "fr" ? "selected" : "" %>>🇫🇷 French</option>
-        <option value="fa" <%= user.profile.language === "fa" ? "selected" : "" %>>🇮🇷 Farsi</option>
-        <option value="de" <%= user.profile.language === "de" ? "selected" : "" %>>🇩🇪 German</option>
-        <option value="it" <%= user.profile.language === "it" ? "selected" : "" %>>🇮🇹 Italian</option>
-        <option value="zh" <%= user.profile.language === "zh" ? "selected" : "" %>>🇨🇳 Chinese</option>
-        <option value="ar" <%= user.profile.language === "ar" ? "selected" : "" %>>🇸🇦 Arabic</option>
-        <option value="ru" <%= user.profile.language === "ru" ? "selected" : "" %>>🇷🇺 Russian</option>
+      <label for="age">Age:</label><br>
+      <input type="number" name="age" id="age" min="13" max="120" value="<%= user.profile?.age || '' %>" style="width: 100%;">
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <label for="gender">Gender:</label><br>
+      <select name="gender" id="gender" style="width: 100%;">
+        <option value="prefer_not_to_say">Prefer not to say</option>
+        <option value="female" <%= user.profile?.gender === "female" ? "selected" : "" %>>Female</option>
+        <option value="male" <%= user.profile?.gender === "male" ? "selected" : "" %>>Male</option>
+        <option value="non-binary" <%= user.profile?.gender === "non-binary" ? "selected" : "" %>>Non-binary</option>
+        <option value="other" <%= user.profile?.gender === "other" ? "selected" : "" %>>Other</option>
       </select>
     </div>
 
+    <div style="margin-bottom: 1rem;">
+      <label for="pronouns">Pronouns:</label><br>
+      <input type="text" name="pronouns" id="pronouns" value="<%= user.profile?.pronouns || '' %>" style="width: 100%;">
+    </div>
+
+    <!-- Preferred Language -->
+    <div style="margin-bottom: 1rem;">
+      <label for="language">Preferred Language:</label>
+      <select name="language" id="language" style="width: 100%;">
+        <option value="">Select a language</option>
+        <% const languages = [
+          { code: "en", flag: "🇺🇸", name: "English" },
+          { code: "es", flag: "🇪🇸", name: "Spanish" },
+          { code: "fr", flag: "🇫🇷", name: "French" },
+          { code: "fa", flag: "🇮🇷", name: "Farsi" },
+          { code: "de", flag: "🇩🇪", name: "German" },
+          { code: "it", flag: "🇮🇹", name: "Italian" },
+          { code: "zh", flag: "🇨🇳", name: "Chinese" },
+          { code: "ar", flag: "🇸🇦", name: "Arabic" },
+          { code: "ru", flag: "🇷🇺", name: "Russian" }
+        ]; %>
+        <% languages.forEach(lang => { %>
+        <option value="<%= lang.code %>" <%= user.profile?.language === lang.code ? "selected" : "" %>>
+          <%= lang.flag %> <%= lang.name %>
+        </option>
+        <% }) %>
+      </select>
+    </div>
+
+    <!-- Bio -->
     <div style="margin-bottom: 1rem;">
       <label for="bio">Bio:</label><br>
       <textarea name="bio" id="bio" rows="4" style="width: 100%; resize: vertical;"><%= user.profile?.bio || '' %></textarea>
     </div>
 
+    <!-- Visibility & Theme -->
+    <div style="margin-bottom: 1rem;">
+      <label for="visibility">Profile Visibility:</label>
+      <select name="visibility" id="visibility" style="width: 100%;">
+        <option value="public" <%= user.profile?.preferences?.visibility === 'public' ? "selected" : "" %>>Public</option>
+        <option value="friends" <%= user.profile?.preferences?.visibility === 'friends' ? "selected" : "" %>>Friends Only</option>
+        <option value="private" <%= user.profile?.preferences?.visibility === 'private' ? "selected" : "" %>>Private</option>
+      </select>
+    </div>
+
+    <div style="margin-bottom: 1rem;">
+      <label for="theme">Theme:</label>
+      <select name="theme" id="theme" style="width: 100%;">
+        <option value="system" <%= user.profile?.preferences?.theme === 'system' ? "selected" : "" %>>System Default</option>
+        <option value="light" <%= user.profile?.preferences?.theme === 'light' ? "selected" : "" %>>Light</option>
+        <option value="dark" <%= user.profile?.preferences?.theme === 'dark' ? "selected" : "" %>>Dark</option>
+      </select>
+    </div>
+
+    <!-- Permissions -->
+    <div style="margin-bottom: 1rem;">
+      <label><input type="checkbox" name="allowWallPosts" <%= user.profile?.preferences?.allowWallPosts ? 'checked' : '' %>> Allow others to post on my wall</label><br>
+      <label><input type="checkbox" name="allowMessages" <%= user.profile?.preferences?.allowMessages ? 'checked' : '' %>> Allow messages from other users</label>
+    </div>
+
     <button type="submit" style="margin-top: 1rem;">Save Profile</button>
   </form>
 
-  <!-- FORM: Interests -->
+  <!-- ❤️ FORM: Add Interests -->
   <h2 style="margin-bottom: 1rem;">Interests</h2>
-
-  <% if (user.profile?.interests && user.profile.interests.length > 0) { %>
-    <ul style="margin-bottom: 1rem;">
-      <% user.profile.interests.forEach(interest => { %>
-        <li><%= interest %></li>
-      <% }); %>
-    </ul>
+  <% if (user.profile?.interests?.length > 0) { %>
+  <ul style="margin-bottom: 1rem;">
+    <% user.profile.interests.forEach(interest => { %>
+    <li><%= interest %></li>
+    <% }); %>
+  </ul>
   <% } else { %>
-    <p style="margin-bottom: 1rem;">No interests added yet.</p>
+  <p style="margin-bottom: 1rem;">No interests added yet.</p>
   <% } %>
 
   <form action="/profile/interests" method="POST" style="margin-bottom: 2rem;">
     <label for="interest">Add New Interest:</label><br>
     <input type="text" name="interest" id="interest" required style="width: 100%; margin-bottom: 0.5rem;">
     <button type="submit">Add Interest</button>
-  </form>
-
-  <!-- FORM: Preferences -->
-  <h2 style="margin-bottom: 1rem;">Preferences</h2>
-
-  <form action="/profile/preferences" method="POST">
-    <div style="margin-bottom: 0.5rem;">
-      <label>
-        <input type="checkbox" name="preferences" value="friendship"
-          <%= user.profile?.preferences?.includes("friendship") ? "checked" : "" %> />
-        Friendship
-      </label>
-    </div>
-
-    <div style="margin-bottom: 0.5rem;">
-      <label>
-        <input type="checkbox" name="preferences" value="language exchange"
-          <%= user.profile?.preferences?.includes("language exchange") ? "checked" : "" %> />
-        Language Exchange
-      </label>
-    </div>
-
-    <div style="margin-bottom: 1rem;">
-      <label>
-        <input type="checkbox" name="preferences" value="get info about your destination"
-          <%= user.profile?.preferences?.includes("get info about your destination") ? "checked" : "" %> />
-        Get Info About Your Destination
-      </label>
-    </div>
-
-    <button type="submit">Save Preferences</button>
   </form>
 </div>

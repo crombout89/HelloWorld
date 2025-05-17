@@ -4,6 +4,7 @@ const path = require("path");
 const multer = require("multer");
 const User = require("../models/user");
 const Friendship = require("../models/friendship");
+const WallPost = require("../models/wallPost");
 const { isLoggedIn } = require("../middleware/auth");
 
 // ========================
@@ -140,7 +141,9 @@ router.post("/profile/preferences", isLoggedIn, async (req, res) => {
   const selectedPrefs = req.body.preferences;
 
   // Normalize to array (in case only one checkbox is selected)
-  const preferences = Array.isArray(selectedPrefs) ? selectedPrefs : [selectedPrefs];
+  const preferences = Array.isArray(selectedPrefs)
+    ? selectedPrefs
+    : [selectedPrefs];
 
   try {
     const user = await User.findById(userId);
@@ -163,54 +166,97 @@ router.post("/profile/preferences", isLoggedIn, async (req, res) => {
 // ========================
 // GET: Public Read-Only Profile
 // ========================
-router.get("/profile/:userId", async (req, res) => {
+
+// Legacy redirect: /profile/:userId/public → /u/:username
+router.get("/profile/:userId/public", async (req, res) => {
   try {
-    const viewingUser = await User.findById(req.params.userId).select(
-      "username profile"
+    const user = await User.findById(req.params.userId).lean();
+    if (!user) return res.status(404).render("404");
+    res.redirect(`/u/${user.username}`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).render("error");
+  }
+});
+
+// Clean user profile route: /u/:username
+router.get("/u/:username", async (req, res) => {
+  try {
+    const viewedUser = await User.findOne({
+      username: req.params.username,
+    }).lean();
+    if (!viewedUser)
+      return res.status(404).render("404", { title: "User Not Found" });
+
+    const currentUserId = req.session.userId;
+    const currentUser = await User.findById(currentUserId).lean();
+
+    // Get friends of viewedUser
+    const friendDocs = await Friendship.find({
+      $or: [
+        { requester: viewedUser._id, status: "accepted" },
+        { recipient: viewedUser._id, status: "accepted" },
+      ],
+    }).lean();
+
+    const friendIds = friendDocs.map((doc) =>
+      doc.requester.toString() === viewedUser._id.toString()
+        ? doc.recipient
+        : doc.requester
     );
-    if (!viewingUser) return res.status(404).render("404");
 
-    const isOwner =
-      req.session.user && req.session.user._id === viewingUser._id.toString();
+    const friends = await User.find({ _id: { $in: friendIds } }).lean();
 
-    let friendStatus = "none"; // default
+    // Get friends of currentUser (for mutual match)
+    const myFriendDocs = await Friendship.find({
+      $or: [
+        { requester: currentUserId, status: "accepted" },
+        { recipient: currentUserId, status: "accepted" },
+      ],
+    }).lean();
 
-    if (!isOwner && req.session.user) {
-      const currentUserId = req.session.user._id;
+    const myFriendIds = myFriendDocs.map((doc) =>
+      doc.requester.toString() === currentUserId.toString()
+        ? doc.recipient
+        : doc.requester
+    );
 
-      const friendship = await Friendship.findOne({
-        $or: [
-          { sender: currentUserId, receiver: viewingUser._id },
-          { sender: viewingUser._id, receiver: currentUserId },
-        ],
-      });
-
-      if (friendship) {
-        if (friendship.status === "accepted") {
-          friendStatus = "friends";
-        } else if (friendship.status === "pending") {
-          friendStatus = "pending";
-        }
-      }
-    }
-
-    res.render("public-profile", {
-      user: {
-        _id: viewingUser._id,
-        username: viewingUser.username,
-        bio: viewingUser.profile?.bio || "",
-        interests: viewingUser.profile?.interests || [],
-        profilePicture:
-          viewingUser.profile?.profilePicture ||
-          "/assets/imgs/demo-profile-1.png",
+    const mutualFriends = await User.find({
+      _id: {
+        $in: friendIds.filter((id) =>
+          myFriendIds.map(String).includes(id.toString())
+        ),
       },
-      isOwner,
-      friendStatus,
-      title: `${viewingUser.username}'s Profile`,
+    }).lean();
+
+    const canPostToWall = myFriendIds
+      .map(String)
+      .includes(viewedUser._id.toString());
+
+    const wallPosts = await WallPost.find({ recipient: viewedUser._id })
+      .populate({
+        path: "author",
+        select: "username profile.profilePicture",
+      })
+      .populate({
+        path: "reactions.user", // <- populate user field inside reactions[]
+        select: "username",
+      })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.render("profile-view", {
+      user: viewedUser,
+      friends,
+      mutualFriends,
+      canPostToWall,
+      wallPosts,
+      session: req.session,
+      title: `@${viewedUser.username}'s Profile`,
     });
   } catch (err) {
-    console.error("Public profile error:", err);
-    res.redirect("/dashboard");
+    console.error(err);
+    res.status(500).render("error", { title: "Server Error" });
   }
 });
 

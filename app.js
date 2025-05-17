@@ -93,6 +93,7 @@ const profileRouter = require('./routes/profile');
 const rssRoutes = require("./routes/rss");
 const discoverRoutes = require('./routes/discover');
 const translateRoute = require('./routes/api/translate');
+const wallRouter = require("./routes/wall");
 
 // View engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -162,6 +163,7 @@ app.use("/login", validateRouter(loginRouter, "loginRouter"));
 app.use("/notifications", notificationsRoute);
 app.use("/rss", rssRoutes);
 app.use('/users', validateRouter(usersRouter, 'usersRouter'));
+app.use("/", validateRouter(wallRouter));
 
 // Logout Route
 app.get('/logout', (req, res) => {
