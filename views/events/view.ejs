@@ -1,0 +1,71 @@
+<!-- views/events/view.ejs -->
+<% if (isHost) { %>
+<a href="/events/<%= event._id %>/edit">Edit Event</a>
+<% } %>
+
+<% if (canManage) { %>
+<a href="/events/<%= event._id %>/manage">Manage Invites</a>
+<form action="/events/<%= event._id %>/delete" method="POST" style="margin-top: 1rem;">
+  <button type="submit" onclick="return confirm('Are you sure you want to delete this event?')">🗑️ Delete Event</button>
+</form>
+<% } %>
+
+<h2><%= event.title %></h2>
+<p><%= event.description %></p>
+
+<% if (groupedAttendees && Object.keys(groupedAttendees).length > 0) { %>
+<div style="margin-top: 2rem;">
+  <h3>Attendees</h3>
+  <% for (let status in groupedAttendees) { %>
+  <strong><%= status.charAt(0).toUpperCase() + status.slice(1) %>:</strong>
+  <ul style="margin-bottom: 1rem;">
+    <% groupedAttendees[status].forEach(user => { %>
+    <li>
+      <a href="/u/<%= user.username %>"><%= user.username %></a>
+    </li>
+    <% }) %>
+  </ul>
+  <% } %>
+</div>
+<% } %>
+
+<% if (event.visibility === "public" || isInvited) { %>
+<form action="/events/<%= event._id %>/rsvp" method="POST" style="margin-top: 1rem;">
+  <label><strong>RSVP:</strong></label>
+  <select name="status" required>
+    <option value="">-- Select --</option>
+    <option value="going" <%= isAttending ? "selected" : "" %>>Going</option>
+    <option value="interested">Interested</option>
+    <option value="not going">Not Going</option>
+  </select>
+  <button type="submit">Submit</button>
+</form>
+<% } else if (!isInvited && event.visibility === "private") { %>
+<p><em>This is a private event. You must be invited to RSVP.</em></p>
+<% } %>
+
+<p><strong>Hosted By:</strong> <%= event.host?.username || event.host?.name || 'Unknown' %></p>
+<p><strong>Date:</strong> <%= new Date(event.startTime).toLocaleString() %> - <%= new Date(event.endTime).toLocaleString() %></p>
+<p><strong>Location:</strong> <%= event.location %></p>
+
+
+<h3>Wall</h3>
+<% if (canPost) { %>
+<form action="/events/<%= event._id %>/wall/post" method="POST">
+  <textarea name="message" required></textarea>
+  <button type="submit">Post</button>
+</form>
+<% } %>
+
+<% if (wallPosts.length > 0) { %>
+<ul>
+  <% wallPosts.forEach(post => { %>
+  <li>
+    <strong><%= post.author.username %></strong>: <%= post.message %>
+    <br><small><%= new Date(post.createdAt).toLocaleString() %></small>
+  </li>
+  <% }) %>
+</ul>
+<% } else { %>
+<p>No wall posts yet.</p>
+<% } %>

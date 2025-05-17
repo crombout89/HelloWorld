@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Community = require("../models/community");
+const Event = require("../models/event");
 const { isLoggedIn } = require("../middleware/auth");
 
 router.get("/", (req, res) => {
@@ -40,12 +41,30 @@ router.get("/", (req, res) => {
 router.get("/communities", isLoggedIn, async (req, res) => {
   try {
     const communities = await Community.find().populate("owner", "username");
-    res.render("directory-communities", {
+    res.render("discover/communities", {
       title: "Community Directory",
       communities,
     });
   } catch (err) {
     console.error("Error loading community directory:", err);
+    res.status(500).send("Something went wrong");
+  }
+});
+
+// GET /discover/events
+router.get("/events", isLoggedIn, async (req, res) => {
+  try {
+    const events = await Event.find({ visibility: "public" })
+      .sort({ startTime: 1 })
+      .populate("host")
+      .lean();
+
+    res.render("discover/events", {
+      title: "Discover Events",
+      events,
+    });
+  } catch (err) {
+    console.error("Error loading events:", err);
     res.status(500).send("Something went wrong");
   }
 });

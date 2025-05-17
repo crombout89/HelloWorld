@@ -1,0 +1,26 @@
+<div class="page-title">
+  <h1>Discover Events</h1>
+  <p>Browse upcoming events hosted by users and communities.</p>
+</div>
+
+<% if (events && events.length > 0) { %>
+<div class="event-list">
+  <% events.forEach(event => { %>
+  <div class="event-card">
+    <h3><a href="/events/<%= event._id %>"><%= event.title %></a></h3>
+    <p><%= event.description %></p>
+    <%= new Date(event.startTime).toLocaleString() %> - <%= new Date(event.endTime).toLocaleString() %>
+    <% if (event.location?.city) { %>
+    <p><strong>Location:</strong> <%= event.location.city %>, <%= event.location.country %></p>
+    <% } %>
+    <% if (event.visibility === "private") { %>
+    <p class="tag private">Invite Only</p>
+    <% } else { %>
+    <p class="tag public">Open to Public</p>
+    <% } %>
+  </div>
+  <% }) %>
+</div>
+<% } else { %>
+<p>No upcoming events found.</p>
+<% } %>
