@@ -13,6 +13,17 @@
       <h2 style="margin: 0;">
         <%= user.fullName || user.username %>
       </h2>
+      <% if (currentUser && currentUser._id.toString() !== user._id.toString()) { %>
+      <% if (friendStatus === "none") { %>
+      <form action="/friends/request/<%= user._id %>" method="POST" style="margin-top: 1rem;">
+        <button type="submit">➕ Add Friend</button>
+      </form>
+      <% } else if (friendStatus === "pending") { %>
+      <p>⏳ Friend request sent</p>
+      <% } else if (friendStatus === "friends") { %>
+      <p>✅ You’re friends</p>
+      <% } %>
+      <% } %>
       <% if (user.profile?.pronouns) { %>
       <p style="margin: 0; font-size: 0.9rem; color: #666;">
         (<%= user.profile.pronouns %>)

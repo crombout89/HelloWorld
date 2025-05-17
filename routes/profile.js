@@ -191,6 +191,18 @@ router.get("/u/:username", async (req, res) => {
     const currentUserId = req.session.userId;
     const currentUser = await User.findById(currentUserId).lean();
 
+    let friendStatus = "none";
+    const friendship = await Friendship.findOne({
+      $or: [
+        { requester: currentUserId, recipient: viewedUser._id },
+        { requester: viewedUser._id, recipient: currentUserId },
+      ],
+    });
+
+    if (friendship) {
+      friendStatus = friendship.status === "accepted" ? "friends" : "pending";
+    }
+
     // Get friends of viewedUser
     const friendDocs = await Friendship.find({
       $or: [
@@ -248,6 +260,7 @@ router.get("/u/:username", async (req, res) => {
     res.render("profile-view", {
       user: viewedUser,
       friends,
+      friendStatus,
       mutualFriends,
       canPostToWall,
       wallPosts,
