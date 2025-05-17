@@ -84,11 +84,17 @@
 
 <% if (community.owner._id.toString() !== user._id.toString()) { %>
 <% const isMember = community.members.some(m => m._id.toString() === user._id.toString()); %>
-<form action="/communities/<%= community._id %>/<%= isMember ? 'leave' : 'join' %>" method="POST">
+<% if (isMember) { %>
+<form action="/communities/<%= community._id %>/leave" method="POST">
+  <button type="submit">Leave Community</button>
+</form>
+<% } else { %>
+<form action="/communities/<%= community._id %>/request" method="POST">
   <button type="submit">
-    <%= isMember ? "Leave Community" : "Join Community" %>
+    <%= hasRequested ? "⏳ Request Sent" : "Request to Join" %>
   </button>
 </form>
+<% } %>
 <% } %>
 
 <% if (community.members.some(m => m._id.toString() === user._id.toString())) { %>

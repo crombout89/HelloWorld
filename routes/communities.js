@@ -188,6 +188,59 @@ router.get("/:id/manage", isAuthenticated, async (req, res) => {
   }
 });
 
+// ✅ Respond to a join request (accept or decline)
+router.post("/:id/manage/respond", isAuthenticated, async (req, res) => {
+  const { userId, decision } = req.body;
+
+  try {
+    const community = await Community.findById(req.params.id);
+    if (!community) return res.status(404).send("Community not found");
+
+    // Only the owner can approve/decline requests
+    const isOwner = community.owner.toString() === req.session.userId;
+    if (!isOwner) return res.status(403).send("Not authorized");
+
+    // Always remove from pendingRequests
+    community.pendingRequests = community.pendingRequests.filter(
+      (id) => id.toString() !== userId
+    );
+
+    if (decision === "accept") {
+      const alreadyMember = community.members.some(
+        (id) => id.toString() === userId
+      );
+      if (!alreadyMember) {
+        community.members.push(userId);
+      }
+    }
+
+    await community.save();
+
+    // Notify the user of the decision
+    await sendNotification(
+      {
+        userId,
+        message:
+          decision === "accept"
+            ? `You were approved to join "${community.name}"`
+            : `Your request to join "${community.name}" was declined.`,
+        link: `/communities/${community._id}`,
+        meta: {
+          type: "join_response",
+          communityId: community._id,
+          status: decision,
+        },
+      },
+      req.app.get("io")
+    );
+
+    res.redirect(`/communities/${req.params.id}/manage`);
+  } catch (err) {
+    console.error("Join request response error:", err);
+    res.status(500).send("Something went wrong.");
+  }
+});
+
 // Manage community [modal logic]
 router.get("/:id/manage/modal", isAuthenticated, async (req, res) => {
   const community = await Community.findById(req.params.id)
@@ -205,6 +258,54 @@ router.get("/:id/manage/modal", isAuthenticated, async (req, res) => {
     pendingRequests: community.pendingRequests,
     layout: false, // ✅ modal-friendly
   });
+});
+
+// ✅ Request to Join a Community
+router.post('/:id/request', isAuthenticated, async (req, res) => {
+  try {
+    const community = await Community.findById(req.params.id);
+    if (!community) return res.status(404).send("Community not found");
+
+    const userId = req.session.userId;
+
+    const alreadyMember = community.members.includes(userId);
+    const alreadyRequested = community.pendingRequests?.includes(userId);
+    if (alreadyMember || alreadyRequested) {
+      return res.redirect(`/communities/${community._id}`);
+    }
+
+    community.pendingRequests.push(userId);
+    await community.save();
+
+    await sendNotification({
+      userId: community.owner,
+      message: `${req.user.username} has requested to join "${community.name}"`,
+      link: `/communities/${community._id}/manage`,
+      meta: {
+        type: "join_request",
+        communityId: community._id,
+        requestedBy: userId
+      }
+    }, req.app.get("io"));
+
+    res.redirect(`/communities/${community._id}`);
+  } catch (err) {
+    console.error("Join request error:", err);
+    res.redirect("/communities");
+  }
+});
+
+// ✅ Leave Community
+router.post('/:id/leave', isAuthenticated, async (req, res) => {
+  try {
+    await Community.findByIdAndUpdate(req.params.id, {
+      $pull: { members: req.session.userId }
+    });
+    res.redirect(`/communities/${req.params.id}`);
+  } catch (err) {
+    console.error("Leave error:", err);
+    res.redirect("/communities");
+  }
 });
 
 module.exports = router;
