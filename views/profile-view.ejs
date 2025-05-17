@@ -74,7 +74,7 @@
       <ul>
         <% friends.forEach(friend => { %>
         <li>
-          <a href="/profile/<%= friend._id %>">
+          <a href="/u/<%= friend.username %>">
             <%= friend.profile?.firstName || friend.username %>
           </a>
         </li>
@@ -91,7 +91,7 @@
       <ul style="list-style: none; padding: 0;">
         <% mutualFriends.forEach(friend => { %>
           <li style="margin-bottom: 0.5rem;">
-            <a href="/users/<%= friend.username %>">
+            <a href="/u/<%= friend.username %>">
               <img src="<%= friend.profile?.profilePicture || '/default-profile.png' %>" alt="Friend Avatar" width="30" style="border-radius: 50%; margin-right: 0.5rem;">
               <%= friend.fullName || friend.username %>
             </a>
@@ -128,6 +128,11 @@
         </strong>
         <small style="color: gray;"> - <%= new Date(post.createdAt).toLocaleString() %></small>
         <p><%= post.message %></p>
+        <% if (post.author._id.toString() === session.userId || user._id.toString() === session.userId) { %>
+        <form action="/wall/delete/<%= post._id %>" method="POST" style="display:inline;">
+          <button type="submit" style="color: red; font-size: 0.8rem;">🗑️</button>
+        </form>
+        <% } %>
       </li>
       <% }) %>
     </ul>
