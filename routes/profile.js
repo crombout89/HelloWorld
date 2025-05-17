@@ -252,6 +252,7 @@ router.get("/u/:username", async (req, res) => {
       canPostToWall,
       wallPosts,
       session: req.session,
+      currentUser,
       title: `@${viewedUser.username}'s Profile`,
     });
   } catch (err) {

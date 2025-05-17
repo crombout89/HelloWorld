@@ -14,9 +14,9 @@
         <%= user.fullName || user.username %>
       </h2>
       <% if (user.profile?.pronouns) { %>
-        <p style="margin: 0; font-size: 0.9rem; color: #666;">
-          (<%= user.profile.pronouns %>)
-        </p>
+      <p style="margin: 0; font-size: 0.9rem; color: #666;">
+        (<%= user.profile.pronouns %>)
+      </p>
       <% } %>
     </div>
   </div>
@@ -24,98 +24,98 @@
   <!-- 🌍 Location & Language -->
   <div class="profile-meta" style="margin-top: 1rem;">
     <% if (user.profile?.location?.address?.city && user.profile?.location?.address?.country) { %>
-      <p>
-        <strong>Location:</strong>
-        <%= user.profile.location.address.city %>, <%= user.profile.location.address.country %>
-      </p>
+    <p>
+      <strong>Location:</strong>
+      <%= user.profile.location.address.city %>, <%= user.profile.location.address.country %>
+    </p>
     <% } %>
     <% if (user.profile?.language) { %>
-      <p><strong>Preferred Language:</strong> <%= user.profile.language %></p>
+    <p><strong>Preferred Language:</strong> <%= user.profile.language %></p>
     <% } %>
     <% if (user.profile?.age) { %>
-      <p><strong>Age:</strong> <%= user.profile.age %></p>
+    <p><strong>Age:</strong> <%= user.profile.age %></p>
     <% } %>
     <% if (user.profile?.gender && user.profile.gender !== 'prefer_not_to_say') { %>
-      <p><strong>Gender:</strong> <%= user.profile.gender %></p>
+    <p><strong>Gender:</strong> <%= user.profile.gender %></p>
     <% } %>
   </div>
 
   <!-- 📝 Bio -->
   <% if (user.profile?.bio) { %>
-    <div class="profile-bio" style="margin-top: 1rem;">
-      <p><%= user.profile.bio %></p>
-    </div>
+  <div class="profile-bio" style="margin-top: 1rem;">
+    <p><%= user.profile.bio %></p>
+  </div>
   <% } %>
 
   <!-- 💬 Tags & Interests -->
   <% if (user.profile?.tags?.length || user.profile?.interests?.length) { %>
-    <div class="profile-tags" style="margin-top: 1rem;">
-      <% if (user.profile.tags?.length) { %>
-        <p><strong>Tags:</strong> 
-          <% user.profile.tags.forEach(tag => { %>
-            <span class="tag"><%= tag %></span>
-          <% }) %>
-        </p>
-      <% } %>
+  <div class="profile-tags" style="margin-top: 1rem;">
+    <% if (user.profile.tags?.length) { %>
+    <p><strong>Tags:</strong>
+      <% user.profile.tags.forEach(tag => { %>
+      <span class="tag"><%= tag %></span>
+      <% }) %>
+    </p>
+    <% } %>
 
-      <% if (user.profile.interests?.length) { %>
-        <p><strong>Interests:</strong> 
-          <% user.profile.interests.forEach(interest => { %>
-            <span class="interest"><%= interest %></span>
-          <% }) %>
-        </p>
-      <% } %>
-    </div>
+    <% if (user.profile.interests?.length) { %>
+    <p><strong>Interests:</strong>
+      <% user.profile.interests.forEach(interest => { %>
+      <span class="interest"><%= interest %></span>
+      <% }) %>
+    </p>
+    <% } %>
+  </div>
   <% } %>
 
   <!-- 🧑‍🤝‍🧑 Friends List -->
   <% if (friends?.length) { %>
-    <div class="profile-friends" style="margin-top: 2rem;">
-      <h3>Friends</h3>
-      <% if (friends.length === 0) { %>
-      <p>No friends yet.</p>
-      <% } else { %>
-      <ul>
-        <% friends.forEach(friend => { %>
-        <li>
-          <a href="/u/<%= friend.username %>">
-            <%= friend.profile?.firstName || friend.username %>
-          </a>
-        </li>
-        <% }) %>
-      </ul>
-      <% } %>
-    </div>
+  <div class="profile-friends" style="margin-top: 2rem;">
+    <h3>Friends</h3>
+    <% if (friends.length === 0) { %>
+    <p>No friends yet.</p>
+    <% } else { %>
+    <ul>
+      <% friends.forEach(friend => { %>
+      <li>
+        <a href="/u/<%= friend.username %>">
+          <%= friend.profile?.firstName || friend.username %>
+        </a>
+      </li>
+      <% }) %>
+    </ul>
+    <% } %>
+  </div>
   <% } %>
 
   <!-- 🤝 Mutual Friends -->
   <% if (mutualFriends?.length) { %>
-    <div class="profile-mutual-friends" style="margin-top: 2rem;">
-      <h3>Mutual Friends</h3>
-      <ul style="list-style: none; padding: 0;">
-        <% mutualFriends.forEach(friend => { %>
-          <li style="margin-bottom: 0.5rem;">
-            <a href="/u/<%= friend.username %>">
-              <img src="<%= friend.profile?.profilePicture || '/default-profile.png' %>" alt="Friend Avatar" width="30" style="border-radius: 50%; margin-right: 0.5rem;">
-              <%= friend.fullName || friend.username %>
-            </a>
-          </li>
-        <% }) %>
-      </ul>
-    </div>
+  <div class="profile-mutual-friends" style="margin-top: 2rem;">
+    <h3>Mutual Friends</h3>
+    <ul style="list-style: none; padding: 0;">
+      <% mutualFriends.forEach(friend => { %>
+      <li style="margin-bottom: 0.5rem;">
+        <a href="/u/<%= friend.username %>">
+          <img src="<%= friend.profile?.profilePicture || '/default-profile.png' %>" alt="Friend Avatar" width="30" style="border-radius: 50%; margin-right: 0.5rem;">
+          <%= friend.fullName || friend.username %>
+        </a>
+      </li>
+      <% }) %>
+    </ul>
+  </div>
   <% } %>
 
   <!-- 🧱 Wall/Feed Placeholder -->
   <div class="profile-wall" style="margin-top: 2rem;">
     <% if (canPostToWall) { %>
-      <form action="/wall/post" method="POST">
-        <input type="hidden" name="recipientId" value="<%= user._id %>">
-        <input type="hidden" name="recipientUsername" value="<%= user.username %>">
-        <textarea name="message" rows="3" placeholder="Write something on their wall..." style="width: 100%;"></textarea>
-        <button type="submit">Post</button>
-      </form>
+    <form action="/wall/post" method="POST">
+      <input type="hidden" name="recipientId" value="<%= user._id %>">
+      <input type="hidden" name="recipientUsername" value="<%= user.username %>">
+      <textarea name="message" rows="3" placeholder="Write something on their wall..." style="width: 100%;"></textarea>
+      <button type="submit">Post</button>
+    </form>
     <% } else { %>
-      <p><em>You cannot post on this user's wall.</em></p>
+    <p><em>You cannot post on this user's wall.</em></p>
     <% } %>
 
     <!-- Wall RSS Feed -->
@@ -124,17 +124,26 @@
     <% if (wallPosts && wallPosts.length > 0) { %>
     <ul class="wall-posts">
       <% wallPosts.forEach(post => { %>
+      <% const emojiMap = {
+    like: "👍",
+    love: "❤️",
+    laugh: "😂",
+    wow: "😮",
+    sad: "😢",
+    dislike: "👎"
+  }; %>
       <% const usersById = {}; %>
       <% post.reactions?.forEach(r => {
-          usersById[r.user._id?.toString() || r.user] = r.user.username || r.user;
-        }); %>
-
-      <% function getUsernamesByReaction(type) {
-          const matched = post.reactions.filter(r => r.type === type)
-            .map(r => usersById[r.user._id?.toString() || r.user])
-            .filter(Boolean);
-          return matched.join(", ");
-        } %>
+    usersById[r.user._id?.toString() || r.user] = r.user.username || r.user;
+  }); %>
+      <% const reactionMap = {}; %>
+      <% post.reactions?.forEach(r => {
+    const username = r.user?.username || usersById[r.user._id?.toString() || r.user] || r.user;
+    if (!reactionMap[r.type]) reactionMap[r.type] = [];
+    if (!reactionMap[r.type].includes(username)) {
+      reactionMap[r.type].push(username);
+    }
+  }); %>
       <li style="margin-bottom: 1rem;">
         <strong>
           <a href="/u/<%= post.author.username %>">
@@ -153,21 +162,15 @@
         </form>
         <div style="font-size: 0.9rem;">
           Reactions:
-          <% const grouped = {}; post.reactions?.forEach(r => grouped[r.type] = (grouped[r.type] || 0) + 1); %>
-          <% for (let [emoji, count] of Object.entries(grouped)) { %>
-            <span class="emoji-hover" data-react-type="<%= emoji %>">
-              <%= emojiMap[emoji] %> <%= count %>
-              <div class="reaction-popup">
-                <%= getUsernamesByReaction(emoji) %>
-              </div>
-            </span>
-          <% } %>
+          <% Object.entries(reactionMap).forEach(([reactionType, usersList]) => { %>
+          <span class="emoji-hover">
+            <%= emojiMap[reactionType] %> <%= usersList.length %>
+            <div class="reaction-popup">
+              <%= usersList.join(", ") %>
+            </div>
+          </span>
+          <% }) %>
         </div>
-        <% if (post.author._id.toString() === session.userId || user._id.toString() === session.userId) { %>
-        <form action="/wall/delete/<%= post._id %>" method="POST" style="display:inline;">
-          <button type="submit" style="color: red; font-size: 0.8rem;">🗑️</button>
-        </form>
-        <% } %>
       </li>
       <% }) %>
     </ul>
