@@ -1,0 +1,42 @@
+<!-- views/events/view.ejs -->
+<h2><%= event.name %></h2>
+<p><%= event.description %></p>
+<p><strong>Hosted By:</strong>
+  <% if (event.hostType === 'user') { %>
+  <a href="/u/<%= event.host.username %>">@<%= event.host.username %></a>
+  <% } else if (event.hostType === 'community') { %>
+  <a href="/communities/<%= event.host._id %>"><%= event.host.name %></a>
+  <% } %>
+</p>
+<p><strong>Date:</strong> <%= new Date(event.startTime).toLocaleString() %> - <%= new Date(event.endTime).toLocaleString() %></p>
+<p><strong>Location:</strong> <%= event.location %></p>
+<p><strong>Visibility:</strong> <%= event.privacy %></p>
+
+<% if (canEdit) { %>
+<a href="/events/<%= event._id %>/edit">Edit</a>
+<% } %>
+
+<% if (canManage) { %>
+<a href="/events/<%= event._id %>/manage">Manage Invites</a>
+<% } %>
+
+<h3>Wall</h3>
+<% if (canPost) { %>
+<form action="/events/<%= event._id %>/wall/post" method="POST">
+  <textarea name="message" required></textarea>
+  <button type="submit">Post</button>
+</form>
+<% } %>
+
+<% if (wallPosts.length > 0) { %>
+<ul>
+  <% wallPosts.forEach(post => { %>
+  <li>
+    <strong><%= post.author.username %></strong>: <%= post.message %>
+    <br><small><%= new Date(post.createdAt).toLocaleString() %></small>
+  </li>
+  <% }) %>
+</ul>
+<% } else { %>
+<p>No wall posts yet.</p>
+<% } %>

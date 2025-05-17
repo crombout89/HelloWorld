@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Event = require("../models/event");
+const WallPost = require("../models/post");
 const { isLoggedIn } = require("../middleware/auth");
 
 // GET: All events you're hosting or invited to
@@ -57,10 +58,47 @@ router.post("/events/create", isLoggedIn, async (req, res) => {
 
 // GET: Single Event View
 router.get("/events/:id", isLoggedIn, async (req, res) => {
-  const event = await Event.findById(req.params.id).populate("host").lean();
-  if (!event) return res.status(404).render("404");
+  const userId = req.session.userId;
+  const rawEvent = await Event.findById(req.params.id).lean();
+  if (!rawEvent) return res.status(404).render("404");
 
-  res.render("events/view", { event, title: event.title });
+  // Manually fetch the host based on type
+  let populatedHost = null;
+  if (rawEvent.hostType === "User") {
+    const User = require("../models/user");
+    populatedHost = await User.findById(rawEvent.host).lean();
+  } else if (rawEvent.hostType === "Community") {
+    const Community = require("../models/community");
+    populatedHost = await Community.findById(rawEvent.host).lean();
+  }
+
+  // Attach host manually
+  rawEvent.host = populatedHost;
+
+  const isInvited = rawEvent.invitees?.some(id => id.toString() === userId);
+  const isAttending = rawEvent.attendees?.some(id => id.toString() === userId);
+  const isHost = rawEvent.host?._id?.toString() === userId;
+  const canManage = isHost || isInvited || isAttending;
+  const canPost = isHost || isAttending;
+  const isVisible =
+    rawEvent.visibility === "public" || isInvited || isHost || isAttending;
+
+  if (!isVisible)
+    return res.status(403).render("403", { title: "Access Denied" });
+
+  const wallPosts = await WallPost.find({ event: rawEvent._id }).lean();
+
+  res.render("events/view", {
+    event: rawEvent,
+    title: rawEvent.title,
+    wallPosts,
+    isHost,
+    isInvited,
+    isAttending,
+    canManage,
+    canPost,
+    canEdit: isHost,
+  });
 });
 
 // POST: RSVP to an event
