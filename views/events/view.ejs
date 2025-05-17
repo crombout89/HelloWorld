@@ -13,6 +13,22 @@
 <h2><%= event.title %></h2>
 <p><%= event.description %></p>
 
+<% if (groupedAttendees && Object.keys(groupedAttendees).length > 0) { %>
+<div style="margin-top: 2rem;">
+  <h3>Attendees</h3>
+  <% for (let status in groupedAttendees) { %>
+  <strong><%= status.charAt(0).toUpperCase() + status.slice(1) %>:</strong>
+  <ul style="margin-bottom: 1rem;">
+    <% groupedAttendees[status].forEach(user => { %>
+    <li>
+      <a href="/u/<%= user.username %>"><%= user.username %></a>
+    </li>
+    <% }) %>
+  </ul>
+  <% } %>
+</div>
+<% } %>
+
 <% if (event.visibility === "public" || isInvited) { %>
 <form action="/events/<%= event._id %>/rsvp" method="POST" style="margin-top: 1rem;">
   <label><strong>RSVP:</strong></label>

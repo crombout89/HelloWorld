@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Event = require("../models/event");
 const WallPost = require("../models/post");
+const User = require("../models/user");
 const { isLoggedIn } = require("../middleware/auth");
 
 // GET: All events you're hosting or invited to
@@ -91,6 +92,18 @@ router.get("/events/:id", isLoggedIn, async (req, res) => {
 
   const wallPosts = await WallPost.find({ event: rawEvent._id }).lean();
 
+  // Group RSVP attendees by status
+  const usersInRSVP = rawEvent.rsvp?.map(r => r.user) || [];
+  const allUsers = await User.find({ _id: { $in: usersInRSVP } }).lean();
+
+  const groupedAttendees = {};
+  rawEvent.rsvp?.forEach(r => {
+    const user = allUsers.find(u => u._id.toString() === r.user.toString());
+    if (!user) return;
+    if (!groupedAttendees[r.status]) groupedAttendees[r.status] = [];
+    groupedAttendees[r.status].push(user);
+  });
+
   res.render("events/view", {
     event: rawEvent,
     title: rawEvent.title,
@@ -101,6 +114,7 @@ router.get("/events/:id", isLoggedIn, async (req, res) => {
     canManage,
     canPost,
     canEdit: isHost,
+    groupedAttendees,
   });
 });
 
