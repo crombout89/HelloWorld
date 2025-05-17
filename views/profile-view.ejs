@@ -114,6 +114,25 @@
       <p><em>You cannot post on this user's wall.</em></p>
     <% } %>
 
-    <!-- Wall posts will go here -->
+    <!-- Wall RSS Feed -->
+    <h3>Wall Posts</h3>
+
+    <% if (wallPosts && wallPosts.length > 0) { %>
+    <ul class="wall-posts">
+      <% wallPosts.forEach(post => { %>
+      <li style="margin-bottom: 1rem;">
+        <strong>
+          <a href="/u/<%= post.author.username %>">
+            <%= post.author.username %>
+          </a>
+        </strong>
+        <small style="color: gray;"> - <%= new Date(post.createdAt).toLocaleString() %></small>
+        <p><%= post.message %></p>
+      </li>
+      <% }) %>
+    </ul>
+    <% } else { %>
+    <p>No wall posts yet.</p>
+    <% } %>
   </div>
 </div>

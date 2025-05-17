@@ -4,6 +4,7 @@ const path = require("path");
 const multer = require("multer");
 const User = require("../models/user");
 const Friendship = require("../models/friendship");
+const WallPost = require("../models/wallPost");
 const { isLoggedIn } = require("../middleware/auth");
 
 // ========================
@@ -140,7 +141,9 @@ router.post("/profile/preferences", isLoggedIn, async (req, res) => {
   const selectedPrefs = req.body.preferences;
 
   // Normalize to array (in case only one checkbox is selected)
-  const preferences = Array.isArray(selectedPrefs) ? selectedPrefs : [selectedPrefs];
+  const preferences = Array.isArray(selectedPrefs)
+    ? selectedPrefs
+    : [selectedPrefs];
 
   try {
     const user = await User.findById(userId);
@@ -230,11 +233,17 @@ router.get("/u/:username", async (req, res) => {
       .map(String)
       .includes(viewedUser._id.toString());
 
+    const wallPosts = await WallPost.find({ recipient: viewedUser._id })
+      .populate("author", "username profile.profilePicture")
+      .sort({ createdAt: -1 }) // newest first
+      .lean();
+
     res.render("profile-view", {
       user: viewedUser,
       friends,
       mutualFriends,
       canPostToWall,
+      wallPosts,
       title: `@${viewedUser.username}'s Profile`,
     });
   } catch (err) {
