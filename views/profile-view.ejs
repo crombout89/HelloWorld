@@ -124,6 +124,17 @@
     <% if (wallPosts && wallPosts.length > 0) { %>
     <ul class="wall-posts">
       <% wallPosts.forEach(post => { %>
+      <% const usersById = {}; %>
+      <% post.reactions?.forEach(r => {
+          usersById[r.user._id?.toString() || r.user] = r.user.username || r.user;
+        }); %>
+
+      <% function getUsernamesByReaction(type) {
+          const matched = post.reactions.filter(r => r.type === type)
+            .map(r => usersById[r.user._id?.toString() || r.user])
+            .filter(Boolean);
+          return matched.join(", ");
+        } %>
       <li style="margin-bottom: 1rem;">
         <strong>
           <a href="/u/<%= post.author.username %>">
@@ -144,7 +155,12 @@
           Reactions:
           <% const grouped = {}; post.reactions?.forEach(r => grouped[r.type] = (grouped[r.type] || 0) + 1); %>
           <% for (let [emoji, count] of Object.entries(grouped)) { %>
-          <%= emojiMap[emoji] %> <%= count %>
+            <span class="emoji-hover" data-react-type="<%= emoji %>">
+              <%= emojiMap[emoji] %> <%= count %>
+              <div class="reaction-popup">
+                <%= getUsernamesByReaction(emoji) %>
+              </div>
+            </span>
           <% } %>
         </div>
         <% if (post.author._id.toString() === session.userId || user._id.toString() === session.userId) { %>

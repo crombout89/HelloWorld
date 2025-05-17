@@ -234,8 +234,15 @@ router.get("/u/:username", async (req, res) => {
       .includes(viewedUser._id.toString());
 
     const wallPosts = await WallPost.find({ recipient: viewedUser._id })
-      .populate("author", "username profile.profilePicture")
-      .sort({ createdAt: -1 }) // newest first
+      .populate({
+        path: "author",
+        select: "username profile.profilePicture",
+      })
+      .populate({
+        path: "reactions.user", // <- populate user field inside reactions[]
+        select: "username",
+      })
+      .sort({ createdAt: -1 })
       .lean();
 
     res.render("profile-view", {
