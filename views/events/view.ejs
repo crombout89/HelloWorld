@@ -1,9 +1,7 @@
 <!-- views/events/view.ejs -->
 <% if (isHost) { %>
-<a href="/events/<%= event._id %>/edit">Edit Event</a>
-<% } %>
+<a href="/events/<%= event._id %>/edit">Edit Event</a>]
 
-<% if (canManage) { %>
 <button type="button" onclick="openModalFromURL('/events/<%= event._id %>/manage')">
   Manage Event
 </button>

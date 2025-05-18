@@ -3,9 +3,16 @@
 
 <!-- Invite Form -->
 <form action="/events/<%= event._id %>/invite" method="POST">
-  <label for="userId">Invite User by ID:</label>
-  <input type="text" name="userId" id="userId" required />
-  <button type="submit">Invite</button>
+  <label for="userId">Select a friend to invite:</label>
+  <select name="userId" id="userId" required>
+    <% friends.forEach(friend => { %>
+    <% const alreadyInvited = event.invitees?.some(id => id.toString() === friend._id.toString()); %>
+    <% if (!alreadyInvited) { %>
+    <option value="<%= friend._id %>"><%= friend.username %></option>
+    <% } %>
+    <% }) %>
+  </select>
+  <button type="submit">Send Invite</button>
 </form>
 
 <hr>

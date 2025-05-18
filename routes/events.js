@@ -5,6 +5,7 @@ const WallPost = require("../models/post");
 const User = require("../models/user");
 const { isLoggedIn } = require("../middleware/auth");
 const { sendNotification } = require("../services/notificationService");
+const { getFriendsForUser } = require("../services/friendService");
 
 // GET: All events you're hosting or invited to
 router.get("/events", isLoggedIn, async (req, res) => {
@@ -125,20 +126,20 @@ router.get("/events/:id/manage", isLoggedIn, async (req, res) => {
     .populate("invitees")
     .populate("attendees")
     .lean();
+
   if (!event) return res.status(404).render("404");
 
   const isHost =
     event.hostType === "User" && event.host.toString() === req.session.userId;
   if (!isHost) return res.status(403).render("403", { title: "Access Denied" });
 
-  const User = require("../models/user");
-  const allUsers = await User.find({ _id: { $nin: event.invitees } }).lean();
+  const friends = await getFriendsForUser(req.session.userId);
 
   res.render("events/manage", {
     event,
     invitees: event.invitees,
     attendees: event.attendees,
-    users: allUsers,
+    friends, // 👈 added for the invite form
     title: `Manage Invites for ${event.title}`,
     layout: false,
   });
@@ -187,20 +188,29 @@ router.post("/events/:id/invite", isLoggedIn, async (req, res) => {
     const event = await Event.findById(req.params.id);
     if (!event) return res.status(404).send("Event not found");
 
-    const userId = req.body.userId;
+    const inviterId = req.session.userId;
+    const inviteeId = req.body.userId;
 
-    // Only user-hosted events are editable right now
+    // 🧠 Confirm inviter is the host
     const isHost =
-      event.hostType === "User" && event.host.toString() === req.session.userId;
-
+      event.hostType === "User" && event.host.toString() === inviterId;
     if (!isHost) return res.status(403).send("Not authorized");
 
-    if (!event.invitees.includes(userId)) {
-      event.invitees.push(userId);
+    // ✅ Load friends list
+    const friends = await getFriendsForUser(inviterId);
+    const isFriend = friends.some((f) => f._id.toString() === inviteeId);
+
+    if (!isFriend) return res.status(403).send("Can only invite friends");
+
+    if (!event.invitees.includes(inviteeId)) {
+      event.invitees.push(inviteeId);
       await event.save();
+
+      const inviter = await User.findById(inviterId);
+
       await sendNotification(
         {
-          userId, // the person being invited
+          userId: inviteeId,
           message: `${inviter.username} invited you to the event "${event.title}"`,
           link: `/events/${event._id}`,
           meta: {
