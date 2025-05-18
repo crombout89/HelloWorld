@@ -43,10 +43,10 @@ router.post("/", async (req, res) => {
       profile: user.profile || {},
     };
 
-    res.redirect("/dashboard");
+    res.redirect("/home");
   } catch (error) {
     console.error("Login Error:", error);
-    res.render("login", {
+    res.render("user/login", {
       title: "Login",
       error: "An unexpected error occurred",
     });

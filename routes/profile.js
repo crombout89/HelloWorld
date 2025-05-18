@@ -49,7 +49,7 @@ router.get("/profile", isLoggedIn, async (req, res) => {
     });
   } catch (err) {
     console.error("Error loading profile:", err);
-    res.redirect("/dashboard");
+    res.redirect("/home");
   }
 });
 

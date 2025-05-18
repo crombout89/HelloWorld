@@ -47,7 +47,7 @@ router.get("/", async (req, res) => {
     };
 
     // 🎯 Render Dashboard
-    res.render("dashboard", {
+    res.render("user/home", {
       title: "Dashboard",
       user,
       friends,
@@ -71,7 +71,7 @@ router.get("/profile/edit", isAuthenticated, async (req, res) => {
     const userId = req.user._id;
     const user = await User.findById(userId).select("-password");
 
-    res.render("edit-profile", {
+    res.render("user/edit-profile", {
       title: "Edit Profile",
       user,
     });
