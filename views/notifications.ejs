@@ -1,37 +1,63 @@
-<h1>Your Notifications</h1>
+<h1>🔔 Your Notifications</h1>
+
+<form action="/notifications/mark-all-read" method="POST">
+  <button type="submit">📭 Mark All as Read</button>
+</form>
 
 <% if (notifications.length === 0) { %>
-  <p>You have no notifications at the moment.</p>
+<p>No notifications yet!</p>
 <% } else { %>
-  <form method="POST" action="/notifications/mark-all-read">
-    <button class="btn btn-secondary" type="submit">✅ Mark All as Read</button>
-  </form>
+<ul>
+  <% notifications.forEach(note => { %>
+  <li style="margin-bottom: 1.5rem;">
+    <p><%= note.message %></p>
 
-  <ul class="notification-list">
-    <% notifications.forEach(note => { %>
-      <li class="notification-item" id="notif-<%= note._id %>">
-        <div class="notification-content">
-          <p><%= note.message %></p>
+    <!-- Only show if not already read -->
+    <% if (!note.read) { %>
+    <form method="POST" action="/notifications/read/<%= note._id %>" style="display:inline;">
+      <button type="submit">👁️ Mark as Read</button>
+    </form>
+    <% } %>
 
-          <% if (note.link && note.link.includes('/communities/')) { %>
-            <a 
-            href="<%= note.link %>?notif=<%= note._id %>"
-            class="btn open-invite-modal"
-            data-community-id="<%= note.link.split('/').pop() %>" 
-            data-notification-id="<%= note._id %>"
-            data-message="<%= note.message %>"
-            data-link="<%= note.link %>">
-              View Invite
-            </a>
-          <% } else if (note.link) { %>
-            <% if (note.meta?.type === "join_request") { %>
-              <a href="/communities/<%= note.meta.communityId %>/manage" class="btn">View Invite</a>
-            <% } else { %>
-              <a href="<%= note.link %>" class="btn">View</a>
-            <% } %>
-          <% } %>
-        </div>
-      </li>
-    <% }) %>
-  </ul>
+    <!-- ✅ FRIEND REQUEST (accept or decline) -->
+    <% if (note.meta?.type === "friend_request") { %>
+    <form action="/friends/respond/<%= note.meta.requestId %>" method="POST" style="display:inline;">
+      <input type="hidden" name="decision" value="accept" />
+      <input type="hidden" name="notificationId" value="<%= note._id %>" />
+      <button>✅ Accept</button>
+    </form>
+    <form action="/friends/respond/<%= note.meta.requestId %>" method="POST" style="display:inline;">
+      <input type="hidden" name="decision" value="decline" />
+      <input type="hidden" name="notificationId" value="<%= note._id %>" />
+      <button>❌ Decline</button>
+    </form>
+
+    <!-- 📥 JOIN REQUEST (link to manage page for owner) -->
+    <% } else if (note.meta?.type === "join_request") { %>
+    <a href="/communities/<%= note.meta.communityId %>/manage">🔧 Manage Request</a>
+
+    <!-- 📬 JOIN RESPONSE (user got accepted or rejected) -->
+    <% } else if (note.meta?.type === "join_response") { %>
+    <% if (note.meta.status === "accept") { %>
+    <p>🎉 You were approved to join!</p>
+    <% } else { %>
+    <p>❌ Your join request was declined.</p>
+    <% } %>
+    <a href="/communities/<%= note.meta.communityId %>">View Community</a>
+
+    <!-- 🤝 FRIEND ACCEPTED CONFIRMATION (no action) -->
+    <% } else if (note.meta?.type === "friend_accept") { %>
+    <!-- passive confirmation only -->
+
+    <!-- 📨 COMMUNITY INVITE -->
+    <% } else if (note.meta?.type === "community_invite") { %>
+    <a href="<%= note.link %>" class="btn">🏘️ View Community</a>
+
+    <!-- 🔗 DEFAULT LINK FALLBACK -->
+    <% } else if (note.link) { %>
+    <a href="<%= note.link %>">View</a>
+    <% } %>
+  </li>
+  <% }) %>
+</ul>
 <% } %>

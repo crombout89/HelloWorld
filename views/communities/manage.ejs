@@ -1,0 +1,24 @@
+<h1>Manage <%= community.name %></h1>
+
+<% if (pendingRequests.length > 0) { %>
+<h2>Pending Join Requests</h2>
+<ul>
+  <% pendingRequests.forEach(user => { %>
+  <li>
+    <%= user.username %>
+    <form action="/communities/<%= community._id %>/manage/respond" method="POST">
+      <input type="hidden" name="userId" value="<%= user._id %>">
+      <input type="hidden" name="decision" value="accept">
+      <button type="submit">✅ Accept</button>
+    </form>
+    <form action="/communities/<%= community._id %>/manage/respond" method="POST"></form>
+      <input type="hidden" name="userId" value="<%= user._id %>">
+      <input type="hidden" name="decision" value="decline">
+      <button type="submit">❌ Decline</button>
+    </form>
+  </li>
+  <% }) %>
+</ul>
+<% } else { %>
+<p>No pending requests.</p>
+<% } %>

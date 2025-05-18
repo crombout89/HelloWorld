@@ -75,19 +75,17 @@ document.querySelectorAll(".open-invite-modal")?.forEach((button) => {
     const notificationId = button.dataset.notificationId;
     const message = button.dataset.message;
     const link = button.dataset.link;
+    const type = button.dataset.type; // 👈 make sure this is set in the EJS
 
-    // ✅ Attempt to mark notification as read
     try {
       const res = await fetch(`/notifications/mark-read/${notificationId}`, {
         method: "POST",
       });
 
       if (res.ok) {
-        // Remove from DOM
         const row = document.getElementById(`notif-${notificationId}`);
         if (row) row.remove();
 
-        // Decrease badge count
         unreadCount = Math.max(unreadCount - 1, 0);
         updateBadge();
       } else {
@@ -97,20 +95,29 @@ document.querySelectorAll(".open-invite-modal")?.forEach((button) => {
       console.error("⚠️ Error marking notification as read:", err);
     }
 
-    // 📨 Show invitation modal
-    const html = `
-      <p>${message}</p>
-      <div class="modal-actions">
-        <form action="${link}/accept" method="POST" style="display: inline;">
-          <input type="hidden" name="notificationId" value="${notificationId}">
-          <button class="btn-accept" type="submit">Accept</button>
-        </form>
-        <form action="${link}/decline" method="POST" style="display: inline;">
-          <input type="hidden" name="notificationId" value="${notificationId}">
-          <button class="btn-decline" type="submit">Decline</button>
-        </form>
-      </div>
-    `;
+    let html = `<p>${message}</p>`;
+
+    // 🧠 Type-specific actions
+    if (type === "friend_request") {
+      html += `
+        <div class="modal-actions">
+          <form action="/friends/respond" method="POST">
+            <input type="hidden" name="decision" value="accept">
+            <input type="hidden" name="notificationId" value="${notificationId}">
+            <input type="hidden" name="requestId" value="${button.dataset.requestId}">
+            <button class="btn-accept">✅ Accept</button>
+          </form>
+          <form action="/friends/respond" method="POST">
+            <input type="hidden" name="decision" value="decline">
+            <input type="hidden" name="notificationId" value="${notificationId}">
+            <input type="hidden" name="requestId" value="${button.dataset.requestId}">
+            <button class="btn-decline">❌ Decline</button>
+          </form>
+        </div>`;
+    } else {
+      // Default: just message
+      html += `<div class="modal-actions"><a href="${link}" class="btn">View</a></div>`;
+    }
 
     openModal(html);
   });
