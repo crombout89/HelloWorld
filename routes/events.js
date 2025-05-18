@@ -108,6 +108,7 @@ router.get("/events/:id", isLoggedIn, async (req, res) => {
 
   res.render("events/view", {
     event: rawEvent,
+    currentUserId: req.session.userId,
     title: rawEvent.title,
     wallPosts,
     isHost,
@@ -163,22 +164,28 @@ router.post("/events/:id/rsvp", isLoggedIn, async (req, res) => {
 
   await event.save();
   const user = await User.findById(userId);
-  const hostUser = await User.findById(event.host);
 
-  await sendNotification(
-    {
-      userId: hostUser._id,
-      message: `${user.username} RSVP'd as "${status}" to your event "${event.title}"`,
-      link: `/events/${event._id}`,
-      meta: {
-        type: "event_rsvp",
-        status,
-        eventId: event._id,
-        from: userId,
+  let hostUser = null;
+  if (event.hostType === "User") {
+    hostUser = await User.findById(event.host);
+  }
+
+  if (hostUser) {
+    await sendNotification(
+      {
+        userId: hostUser._id,
+        message: `${user.username} RSVP'd as "${status}" to your event "${event.title}"`,
+        link: `/events/${event._id}`,
+        meta: {
+          type: "event_rsvp",
+          status,
+          eventId: event._id,
+          from: userId,
+        },
       },
-    },
-    req.app.get("io")
-  );
+      req.app.get("io")
+    );
+  }
   res.redirect(`/events/${req.params.id}`);
 });
 
