@@ -42,7 +42,7 @@ router.get("/profile", isLoggedIn, async (req, res) => {
       locationData = { error: "Could not retrieve location" };
     }
 
-    res.render("profile", {
+    res.render("user/edit-profile", {
       title: "Your Profile",
       user,
       location: locationData,
@@ -95,8 +95,6 @@ router.post("/profile/update", upload.single("photo"), async (req, res) => {
 });
 
 // ========================
-// SECTION: Interests (To be refactored)
-// ========================
 // POST: Update Interests
 // ========================
 router.post("/profile/interests", isLoggedIn, async (req, res) => {
@@ -129,11 +127,6 @@ router.post("/profile/interests", isLoggedIn, async (req, res) => {
 });
 
 // ========================
-// Add logic here later for /profile/interests
-
-// ========================
-// SECTION: Preferences (To be refactored)
-// ========================
 // POST: Update Preferences
 // ========================
 router.post("/profile/preferences", isLoggedIn, async (req, res) => {
@@ -159,9 +152,6 @@ router.post("/profile/preferences", isLoggedIn, async (req, res) => {
     res.redirect("/profile");
   }
 });
-
-// ========================
-// Add logic here later for /profile/preferences
 
 // ========================
 // GET: Public Read-Only Profile
@@ -268,7 +258,7 @@ router.get("/u/:username", async (req, res) => {
       .sort({ createdAt: -1 })
       .lean();
 
-    res.render("profile-view", {
+    res.render("user/view-profile", {
       user: viewedUser,
       currentUser,
       friends,
@@ -284,20 +274,5 @@ router.get("/u/:username", async (req, res) => {
     res.status(500).render("error", { title: "Server Error" });
   }
 });
-
-// ========================
-// Mock Location Service
-// ========================
-async function getLocationData() {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve({
-        latitude: 34.0522,
-        longitude: -118.2437,
-        city: "Los Angeles",
-      });
-    }, 500);
-  });
-}
 
 module.exports = router;

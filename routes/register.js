@@ -4,7 +4,7 @@ const router = express.Router();
 const User = require('../models/user');
 
 router.get('/register', (req, res) => {
-    res.render('register', { 
+    res.render('user/git register', { 
         title: 'Register', 
         error: null,
         success: null
@@ -17,7 +17,7 @@ router.post('/register', async (req, res) => {
     try {
         // Validation checks
         if (!username || !email || !password) {
-            return res.render('register', { 
+            return res.render('user/register', { 
                 title: 'Register', 
                 error: 'Username, email, and password are required',
                 success: null
@@ -30,7 +30,7 @@ router.post('/register', async (req, res) => {
         });
 
         if (existingUser) {
-            return res.render('register', { 
+            return res.render('user/register', { 
                 title: 'Register', 
                 error: 'User with this email or username already exists',
                 success: null
@@ -66,15 +66,15 @@ router.post('/register', async (req, res) => {
         await newUser.save();
 
         // Render success page or redirect
-        res.render('register', {
+        res.render('user/register', {
             title: 'Register',
             error: null,
-            success: 'Registration successful! You can now log in.'
+            success: 'Registration successful! You can now <a href="/login">log in.</a>'
         });
 
     } catch (error) {
         console.error('Registration Error:', error);
-        res.render('register', { 
+        res.render('user/register', { 
             title: 'Register', 
             error: 'An error occurred during registration',
             success: null
