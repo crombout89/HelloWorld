@@ -309,4 +309,37 @@ router.post('/:id/leave', isAuthenticated, async (req, res) => {
   }
 });
 
+// ✅ Invite a user to join a community
+router.post("/:id/invite", isAuthenticated, async (req, res) => {
+  const { friendId } = req.body;
+
+  try {
+    const community = await Community.findById(req.params.id);
+    if (!community) return res.status(404).send("Community not found");
+
+    // Only members or owners can invite others
+    const isAllowed = community.members.includes(req.session.userId);
+    if (!isAllowed) return res.status(403).send("Not authorized to invite");
+
+    await sendNotification(
+      {
+        userId: friendId,
+        message: `${req.user.username} invited you to join "${community.name}"`,
+        link: `/communities/${community._id}`,
+        meta: {
+          type: "community_invite",
+          communityId: community._id,
+          invitedBy: req.session.userId,
+        },
+      },
+      req.app.get("io")
+    );
+
+    res.redirect(`/communities/${community._id}`);
+  } catch (err) {
+    console.error("Community invite error:", err);
+    res.redirect("/communities");
+  }
+});
+
 module.exports = router;

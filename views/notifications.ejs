@@ -38,10 +38,9 @@
     <% } else if (note.meta?.type === "friend_accept") { %>
     <!-- passive confirmation only -->
 
-    <!-- 📨 COMMUNITY INVITE (TBD logic, placeholder) -->
+    <!-- 📨 COMMUNITY INVITE -->
     <% } else if (note.meta?.type === "community_invite") { %>
-    <!-- Add modal or accept/reject logic here -->
-    <a href="<%= note.link %>">View Invite</a>
+    <a href="<%= note.link %>" class="btn">🏘️ View Community</a>
 
     <!-- 🔗 DEFAULT LINK FALLBACK -->
     <% } else if (note.link) { %>
