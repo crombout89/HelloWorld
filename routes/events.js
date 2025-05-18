@@ -4,6 +4,7 @@ const Event = require("../models/event");
 const WallPost = require("../models/post");
 const User = require("../models/user");
 const { isLoggedIn } = require("../middleware/auth");
+const { sendNotification } = require("../services/notificationService");
 
 // GET: All events you're hosting or invited to
 router.get("/events", isLoggedIn, async (req, res) => {
@@ -160,6 +161,23 @@ router.post("/events/:id/rsvp", isLoggedIn, async (req, res) => {
   }
 
   await event.save();
+  const user = await User.findById(userId);
+  const hostUser = await User.findById(event.host);
+
+  await sendNotification(
+    {
+      userId: hostUser._id,
+      message: `${user.username} RSVP'd as "${status}" to your event "${event.title}"`,
+      link: `/events/${event._id}`,
+      meta: {
+        type: "event_rsvp",
+        status,
+        eventId: event._id,
+        from: userId,
+      },
+    },
+    req.app.get("io")
+  );
   res.redirect(`/events/${req.params.id}`);
 });
 
@@ -180,6 +198,19 @@ router.post("/events/:id/invite", isLoggedIn, async (req, res) => {
     if (!event.invitees.includes(userId)) {
       event.invitees.push(userId);
       await event.save();
+      await sendNotification(
+        {
+          userId, // the person being invited
+          message: `${inviter.username} invited you to the event "${event.title}"`,
+          link: `/events/${event._id}`,
+          meta: {
+            type: "event_invite",
+            invitedBy: inviter._id,
+            eventId: event._id,
+          },
+        },
+        req.app.get("io")
+      );
     }
 
     res.redirect(`/events/${req.params.id}`);
