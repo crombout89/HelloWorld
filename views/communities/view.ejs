@@ -117,7 +117,6 @@
     <%= isMember ? "Leave Community" : "Join Community" %>
   </button>
 </form>
-<% const isMember = community.members.some(m => m._id.toString() === user._id.toString()); %>
 <% if (isMember) { %>
 <form action="/communities/<%= community._id %>/leave" method="POST">
   <button type="submit">Leave Community</button>
@@ -148,7 +147,6 @@
 
 <p><a href="/communities">← Back to My Communities</a></p>
 
-<<<<<<< HEAD:views/communities/view.ejs
 <!-- Report Modal Logic -->
 <div id="reportModal" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
   <form id="reportForm" method="POST" action="/reports" class="bg-white p-4 rounded w-96 shadow">
@@ -163,9 +161,6 @@
   </form>
 </div>
 
-=======
-<!-- ✅ Make sure this script comes AFTER the HTML -->
->>>>>>> aa5b302 (Debug report form toggle):views/view-community.ejs
 <script>
   function toggleEditForm(postId) {
     const form = document.getElementById("editForm-" + postId);
