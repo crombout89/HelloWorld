@@ -14,9 +14,10 @@
           <p class="translated">[Translated] <%= msg.translatedText %></p>
         <% } else { %>
           <button 
-            class="translate-btn" 
-            data-text="<%= msg.text %>" 
-            data-message-id="<%= msg._id %>">
+          class="translate-btn" 
+          data-message-id="<%= msg._id %>" 
+          data-user-id="<%= otherUser._id %>"
+          >
             Translate
           </button>
         <% } %>

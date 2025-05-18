@@ -142,7 +142,7 @@ router.post("/:userId/translate", isAuthenticated, async (req, res) => {
       return res.status(500).json({ error: "Translation failed" });
     }
 
-    // 🔄 Save translation to the DB
+    // ✅ Persist to DB
     await Message.findByIdAndUpdate(messageId, {
       translatedText: translated,
     });
