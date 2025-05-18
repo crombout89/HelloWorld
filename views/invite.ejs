@@ -1,0 +1,52 @@
+
+<style>
+    .invite-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 80vh;
+      text-align: center;
+    }
+  
+    form {
+      margin-top: 20px;
+    }
+  
+    input[type="email"] {
+      padding: 8px;
+      margin-right: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+  
+    button {
+      padding: 8px 12px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  
+    button:hover {
+      background-color: #45a049;
+    }
+  </style>
+  
+  <div class="invite-container">
+    <h2>Invite Your Friend</h2>
+  
+    <% if (query.success) { %>
+      <p style="color: rgb(61, 155, 61);">Invitation sent!</p>
+    <% } else if (query.error) { %>
+      <p style="color: red;">Failed to send invitation. Please try again.</p>
+    <% } %>
+  
+    <form action="/invite" method="POST">
+      <label for="email">Friend's Email:</label>
+      <input type="email" name="email" required />
+      <button type="submit">Send Invitation</button>
+    </form>
+  </div>
+  

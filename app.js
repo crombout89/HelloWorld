@@ -80,6 +80,7 @@ setupApiProtection(app);
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const communitiesRouter = require('./routes/communities');
+const createEventRoutes = require('./routes/create-event');
 const dashboardRouter = require('./routes/dashboard'); 
 const eventRoutes = require("./routes/events");
 const registerRouter = require('./routes/register');
@@ -164,7 +165,6 @@ app.use("/login", validateRouter(loginRouter, "loginRouter"));
 app.use("/notifications", notificationsRoute);
 app.use("/rss", rssRoutes);
 app.use('/users', validateRouter(usersRouter, 'usersRouter'));
-app.use("/", validateRouter(wallRouter));
 
 // Logout Route
 app.get('/logout', (req, res) => {
