@@ -4,7 +4,7 @@ const User = require("../models/user");
 
 // GET Login Page
 router.get("/", (req, res) => {
-  res.render("login", {
+  res.render("user/login", {
     title: "Login",
     error: null,
   });
@@ -18,7 +18,7 @@ router.post("/", async (req, res) => {
     const user = await User.findOne({ username });
 
     if (!user) {
-      return res.render("login", {
+      return res.render("user/login", {
         title: "Login",
         error: "User not found",
       });
