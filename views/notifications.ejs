@@ -1,37 +1,28 @@
-<h1>Your Notifications</h1>
+<h1>🔔 Your Notifications</h1>
 
 <% if (notifications.length === 0) { %>
-  <p>You have no notifications at the moment.</p>
+<p>No notifications yet!</p>
 <% } else { %>
-  <form method="POST" action="/notifications/mark-all-read">
-    <button class="btn btn-secondary" type="submit">✅ Mark All as Read</button>
-  </form>
+<ul>
+  <% notifications.forEach(note => { %>
+  <li style="margin-bottom: 1rem;">
+    <p><strong>📬</strong> <%= note.message %></p>
 
-  <ul class="notification-list">
-    <% notifications.forEach(note => { %>
-      <li class="notification-item" id="notif-<%= note._id %>">
-        <div class="notification-content">
-          <p><%= note.message %></p>
-
-          <% if (note.link && note.link.includes('/communities/')) { %>
-            <a 
-            href="<%= note.link %>?notif=<%= note._id %>"
-            class="btn open-invite-modal"
-            data-community-id="<%= note.link.split('/').pop() %>" 
-            data-notification-id="<%= note._id %>"
-            data-message="<%= note.message %>"
-            data-link="<%= note.link %>">
-              View Invite
-            </a>
-          <% } else if (note.link) { %>
-            <% if (note.meta?.type === "join_request") { %>
-              <a href="/communities/<%= note.meta.communityId %>/manage" class="btn">View Invite</a>
-            <% } else { %>
-              <a href="<%= note.link %>" class="btn">View</a>
-            <% } %>
-          <% } %>
-        </div>
-      </li>
-    <% }) %>
-  </ul>
+    <% if (note.meta?.type === "friend_request") { %>
+    <form action="/friends/respond/<%= note.meta.requestId %>" method="POST" style="display:inline;">
+      <input type="hidden" name="decision" value="accept" />
+      <input type="hidden" name="notificationId" value="<%= note._id %>" />
+      <button type="submit">✅ Accept</button>
+    </form>
+    <form action="/friends/respond/<%= note.meta.requestId %>" method="POST" style="display:inline;">
+      <input type="hidden" name="decision" value="decline" />
+      <input type="hidden" name="notificationId" value="<%= note._id %>" />
+      <button type="submit">❌ Decline</button>
+    </form>
+    <% } else if (note.link) { %>
+    <a href="<%= note.link %>" class="btn">View</a>
+    <% } %>
+  </li>
+  <% }) %>
+</ul>
 <% } %>

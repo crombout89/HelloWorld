@@ -1,25 +1,12 @@
-// services/notificationService.js
 const Notification = require("../models/notification");
 
-async function sendNotification({ userId, message, link }, io) {
-  if (!userId || !message) {
-    console.warn("❌ Missing userId or message");
-    return;
-  }
+async function sendNotification({ userId, message, link, meta = {} }, io) {
+  if (!userId || !message) return;
 
-  const notification = new Notification({
-    user: userId,
-    message,
-    link,
-  });
-
+  const notification = new Notification({ user: userId, message, link, meta });
   await notification.save();
 
-  if (io) {
-    io.to(userId).emit("notification", notification);
-  }
-
-  return notification;
+  if (io) io.to(userId.toString()).emit("notification", notification);
 }
 
 module.exports = { sendNotification };

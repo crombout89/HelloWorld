@@ -188,22 +188,28 @@ router.get("/u/:username", async (req, res) => {
     if (!viewedUser)
       return res.status(404).render("404", { title: "User Not Found" });
 
-    const currentUserId = req.session.userId;
-    const currentUser = await User.findById(currentUserId).lean();
+    const currentUserId = req.session?.userId || null;
+    const currentUser = currentUserId
+      ? await User.findById(currentUserId).lean()
+      : null;
 
+    // Default to no relationship
     let friendStatus = "none";
-    const friendship = await Friendship.findOne({
-      $or: [
-        { requester: currentUserId, recipient: viewedUser._id },
-        { requester: viewedUser._id, recipient: currentUserId },
-      ],
-    });
 
-    if (friendship) {
-      friendStatus = friendship.status === "accepted" ? "friends" : "pending";
+    if (currentUserId && currentUserId !== viewedUser._id.toString()) {
+      const friendship = await Friendship.findOne({
+        $or: [
+          { requester: currentUserId, recipient: viewedUser._id },
+          { requester: viewedUser._id, recipient: currentUserId },
+        ],
+      });
+
+      if (friendship) {
+        friendStatus = friendship.status === "accepted" ? "friends" : "pending";
+      }
     }
 
-    // Get friends of viewedUser
+    // Fetch friends of the viewed user
     const friendDocs = await Friendship.find({
       $or: [
         { requester: viewedUser._id, status: "accepted" },
@@ -219,31 +225,36 @@ router.get("/u/:username", async (req, res) => {
 
     const friends = await User.find({ _id: { $in: friendIds } }).lean();
 
-    // Get friends of currentUser (for mutual match)
-    const myFriendDocs = await Friendship.find({
-      $or: [
-        { requester: currentUserId, status: "accepted" },
-        { recipient: currentUserId, status: "accepted" },
-      ],
-    }).lean();
+    // Only calculate mutuals if logged in
+    let mutualFriends = [];
+    let myFriendIds = [];
 
-    const myFriendIds = myFriendDocs.map((doc) =>
-      doc.requester.toString() === currentUserId.toString()
-        ? doc.recipient
-        : doc.requester
-    );
+    if (currentUserId) {
+      const myFriendDocs = await Friendship.find({
+        $or: [
+          { requester: currentUserId, status: "accepted" },
+          { recipient: currentUserId, status: "accepted" },
+        ],
+      }).lean();
 
-    const mutualFriends = await User.find({
-      _id: {
-        $in: friendIds.filter((id) =>
-          myFriendIds.map(String).includes(id.toString())
-        ),
-      },
-    }).lean();
+      myFriendIds = myFriendDocs.map((doc) =>
+        doc.requester.toString() === currentUserId
+          ? doc.recipient
+          : doc.requester
+      );
 
-    const canPostToWall = myFriendIds
-      .map(String)
-      .includes(viewedUser._id.toString());
+      mutualFriends = await User.find({
+        _id: {
+          $in: friendIds.filter((id) =>
+            myFriendIds.map(String).includes(id.toString())
+          ),
+        },
+      }).lean();
+    }
+
+    const canPostToWall =
+      currentUserId &&
+      myFriendIds.map(String).includes(viewedUser._id.toString());
 
     const wallPosts = await WallPost.find({ recipient: viewedUser._id })
       .populate({
@@ -251,7 +262,7 @@ router.get("/u/:username", async (req, res) => {
         select: "username profile.profilePicture",
       })
       .populate({
-        path: "reactions.user", // <- populate user field inside reactions[]
+        path: "reactions.user",
         select: "username",
       })
       .sort({ createdAt: -1 })
@@ -259,13 +270,13 @@ router.get("/u/:username", async (req, res) => {
 
     res.render("profile-view", {
       user: viewedUser,
+      currentUser,
       friends,
       friendStatus,
       mutualFriends,
       canPostToWall,
       wallPosts,
       session: req.session,
-      currentUser,
       title: `@${viewedUser.username}'s Profile`,
     });
   } catch (err) {
