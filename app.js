@@ -87,6 +87,7 @@ const locationRoutes = require("./routes/location");
 const friendsRoute = require('./routes/friends');
 const loginRouter = require('./routes/login');
 const messagesRoute = require('./routes/messages');
+const moderationRoutes = require("./routes/moderation");
 const notificationsRoute = require('./routes/notifications');
 const postRoutes = require("./routes/posts");
 const profileRouter = require('./routes/profile');
@@ -173,6 +174,10 @@ app.get('/logout', (req, res) => {
     }
     res.redirect('/login');
   });
+});
+
+app.use("*", (req, res) => {
+  res.status(404).send(`🔍 404: No route for ${req.method} ${req.originalUrl}`);
 });
 
 // Error handling middleware
