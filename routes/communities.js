@@ -277,16 +277,17 @@ router.post('/:id/request', isAuthenticated, async (req, res) => {
     community.pendingRequests.push(userId);
     await community.save();
 
-    await sendNotification({
-      userId: community.owner,
-      message: `${req.user.username} has requested to join "${community.name}"`,
-      link: `/communities/${community._id}/manage`,
-      meta: {
-        type: "join_request",
-        communityId: community._id,
-        requestedBy: userId
-      }
-    }, req.app.get("io"));
+    await sendNotification(
+      {
+        userId: community.owner, // owner receiving the request
+        message: `${req.user.username} has requested to join "${community.name}"`,
+        meta: {
+          type: "join_request",
+          communityId: community._id,
+        },
+      },
+      req.app.get("io")
+    );
 
     res.redirect(`/communities/${community._id}`);
   } catch (err) {

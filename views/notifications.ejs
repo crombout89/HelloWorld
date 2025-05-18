@@ -5,22 +5,47 @@
 <% } else { %>
 <ul>
   <% notifications.forEach(note => { %>
-  <li style="margin-bottom: 1rem;">
-    <p><strong>📬</strong> <%= note.message %></p>
+  <li style="margin-bottom: 1.5rem;">
+    <p><%= note.message %></p>
 
+    <!-- ✅ FRIEND REQUEST (accept or decline) -->
     <% if (note.meta?.type === "friend_request") { %>
-    <form action="/friends/respond/<%= note.meta.requestId %>" method="POST" style="display:inline;">
+    <form action="/friends/respond/<%= note.meta.from %>" method="POST" style="display:inline;">
       <input type="hidden" name="decision" value="accept" />
       <input type="hidden" name="notificationId" value="<%= note._id %>" />
-      <button type="submit">✅ Accept</button>
+      <button>✅ Accept</button>
     </form>
-    <form action="/friends/respond/<%= note.meta.requestId %>" method="POST" style="display:inline;">
+    <form action="/friends/respond/<%= note.meta.from %>" method="POST" style="display:inline;">
       <input type="hidden" name="decision" value="decline" />
       <input type="hidden" name="notificationId" value="<%= note._id %>" />
-      <button type="submit">❌ Decline</button>
+      <button>❌ Decline</button>
     </form>
+
+    <!-- 📥 JOIN REQUEST (link to manage page for owner) -->
+    <% } else if (note.meta?.type === "join_request") { %>
+    <a href="/communities/<%= note.meta.communityId %>/manage">🔧 Manage Request</a>
+
+    <!-- 📬 JOIN RESPONSE (user got accepted or rejected) -->
+    <% } else if (note.meta?.type === "join_response") { %>
+    <% if (note.meta.status === "accept") { %>
+    <p>🎉 You were approved to join!</p>
+    <% } else { %>
+    <p>❌ Your join request was declined.</p>
+    <% } %>
+    <a href="/communities/<%= note.meta.communityId %>">View Community</a>
+
+    <!-- 🤝 FRIEND ACCEPTED CONFIRMATION (no action) -->
+    <% } else if (note.meta?.type === "friend_accept") { %>
+    <!-- passive confirmation only -->
+
+    <!-- 📨 COMMUNITY INVITE (TBD logic, placeholder) -->
+    <% } else if (note.meta?.type === "community_invite") { %>
+    <!-- Add modal or accept/reject logic here -->
+    <a href="<%= note.link %>">View Invite</a>
+
+    <!-- 🔗 DEFAULT LINK FALLBACK -->
     <% } else if (note.link) { %>
-    <a href="<%= note.link %>" class="btn">View</a>
+    <a href="<%= note.link %>">View</a>
     <% } %>
   </li>
   <% }) %>
