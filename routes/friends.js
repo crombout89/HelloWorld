@@ -40,12 +40,11 @@ router.post("/request/:id", isAuthenticated, async (req, res) => {
     await sendNotification(
       {
         userId: recipientId,
-        message: `${req.user.username} sent you a friend request`,
-        link: `/u/${req.user.username}`,
+        message: `${sender.username} sent you a friend request`,
         meta: {
           type: "friend_request",
-          from: requesterId,
-          requestId: request._id,
+          from: sender._id,
+          requestId: request._id, // ✅ this is what we need for /respond/:id
         },
       },
       req.app.get("io")

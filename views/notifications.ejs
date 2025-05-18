@@ -1,5 +1,9 @@
 <h1>🔔 Your Notifications</h1>
 
+<form action="/notifications/mark-all-read" method="POST">
+  <button type="submit">📭 Mark All as Read</button>
+</form>
+
 <% if (notifications.length === 0) { %>
 <p>No notifications yet!</p>
 <% } else { %>
@@ -8,14 +12,21 @@
   <li style="margin-bottom: 1.5rem;">
     <p><%= note.message %></p>
 
+    <!-- Only show if not already read -->
+    <% if (!note.read) { %>
+    <form method="POST" action="/notifications/read/<%= note._id %>" style="display:inline;">
+      <button type="submit">👁️ Mark as Read</button>
+    </form>
+    <% } %>
+
     <!-- ✅ FRIEND REQUEST (accept or decline) -->
     <% if (note.meta?.type === "friend_request") { %>
-    <form action="/friends/respond/<%= note.meta.from %>" method="POST" style="display:inline;">
+    <form action="/friends/respond/<%= note.meta.requestId %>" method="POST" style="display:inline;">
       <input type="hidden" name="decision" value="accept" />
       <input type="hidden" name="notificationId" value="<%= note._id %>" />
       <button>✅ Accept</button>
     </form>
-    <form action="/friends/respond/<%= note.meta.from %>" method="POST" style="display:inline;">
+    <form action="/friends/respond/<%= note.meta.requestId %>" method="POST" style="display:inline;">
       <input type="hidden" name="decision" value="decline" />
       <input type="hidden" name="notificationId" value="<%= note._id %>" />
       <button>❌ Decline</button>
