@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
     .sort({ createdAt: -1 })
     .lean();
 
-  res.render("notifications", {
+  res.render("user/notifications", {
     title: "Your Notifications",
     notifications,
   });
