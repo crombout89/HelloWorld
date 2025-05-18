@@ -22,6 +22,10 @@
       <p>⏳ Friend request sent</p>
       <% } else if (friendStatus === "friends") { %>
       <p>✅ You’re friends</p>
+      <form action="/messages/start" method="POST">
+        <input type="hidden" name="friendId" value="<%= user._id %>">
+        <button type="submit">💬 Send Message</button>
+      </form>
       <% } %>
       <% } %>
       <% if (user.profile?.pronouns) { %>

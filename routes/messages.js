@@ -2,29 +2,28 @@ const express = require("express");
 const router = express.Router();
 const Message = require("../models/message");
 const User = require("../models/user");
-const { areFriends } = require("../services/friendService");
+const Notification = require("../models/notification");
+const { areFriends, getFriendsForUser } = require("../services/friendService");
 const { translateText } = require("../services/translate");
 
-// Middleware to check login
+// 🔐 Middleware to confirm login
 function isAuthenticated(req, res, next) {
-  if (!req.session?.userId) {
-    return res.redirect("/login");
-  }
+  if (!req.session?.userId) return res.redirect("/login");
   next();
 }
 
-// 📥 Inbox or redirect to first user you’ve messaged
-router.get("/messages", isAuthenticated, async (req, res) => {
-  console.log("📬 /messages route hit!");
+/* ===========================
+   📥 GET: Inbox (list of conversations)
+   =========================== */
+router.get("/", isAuthenticated, async (req, res) => {
   try {
     const currentUserId = req.session.userId;
 
-    // Find users you have exchanged messages with
     const messages = await Message.find({
       $or: [{ sender: currentUserId }, { recipient: currentUserId }],
     });
-    const userIds = new Set();
 
+    const userIds = new Set();
     messages.forEach((msg) => {
       userIds.add(
         msg.sender.toString() === currentUserId
@@ -35,15 +34,36 @@ router.get("/messages", isAuthenticated, async (req, res) => {
 
     const users = await User.find({ _id: { $in: Array.from(userIds) } });
 
-    res.render("inbox", { title: "Your Messages", users });
+    const friends = await getFriendsForUser(req.session.userId);
+    res.render("messages/inbox", {
+      title: "Your Messages",
+      users,
+      friends,
+    });
   } catch (err) {
     console.error("Error loading inbox:", err);
     res.redirect("/dashboard");
   }
 });
 
-// 💬 View conversation with a specific user
-router.get("/messages/:userId", isAuthenticated, async (req, res) => {
+/* ===========================
+   🆕 POST: Start a new DM
+   =========================== */
+router.post("/start", isAuthenticated, async (req, res) => {
+  const currentUserId = req.session.userId;
+  const friendId = req.body.friendId;
+
+  if (!friendId || friendId === currentUserId) {
+    return res.redirect("/messages");
+  }
+
+  res.redirect(`/messages/${friendId}`);
+});
+
+/* ===========================
+   💬 GET: View chat with specific user
+   =========================== */
+router.get("/:userId", isAuthenticated, async (req, res) => {
   try {
     const currentUserId = req.session.userId;
     const otherUserId = req.params.userId;
@@ -56,45 +76,46 @@ router.get("/messages/:userId", isAuthenticated, async (req, res) => {
     }).sort({ createdAt: 1 });
 
     const otherUser = await User.findById(otherUserId);
-    const currentUser = await User.findById(currentUserId); // ✅ ADD THIS
+    const currentUser = await User.findById(currentUserId);
 
-    res.render("messages", {
-      title: `Messages with ${otherUser?.username || "User"}`,
+    res.render("messages/chat", {
+      title: `Chat with ${otherUser?.username || "User"}`,
       messages,
       otherUser,
       user: req.user,
-      targetLanguage: currentUser?.profile?.language || "en", // ✅ FIX THIS
+      targetLanguage: currentUser?.profile?.language || "en",
     });
   } catch (err) {
-    console.error("Error loading messages:", err);
+    console.error("Error loading chat:", err);
     res.redirect("/dashboard");
   }
 });
 
-// 📤 Send a new message
-router.post("/messages/:userId", isAuthenticated, async (req, res) => {
+/* ===========================
+   📤 POST: Send new message
+   =========================== */
+router.post("/:userId", isAuthenticated, async (req, res) => {
   try {
     const { text } = req.body;
     const sender = req.session.userId;
     const recipient = req.params.userId;
 
-    if (!text || !text.trim()) {
-      return res.redirect(`/messages/${recipient}`);
-    }
+    if (!text || !text.trim()) return res.redirect(`/messages/${recipient}`);
 
-    // Save message to DB
     const message = await Message.create({ sender, recipient, text });
 
-    // ✅ Send a notification
-    const Notification = require("../models/notification");
     const notification = new Notification({
       user: recipient,
       message: `${req.user?.username || "Someone"} sent you a message!`,
       link: `/messages/${sender}`,
+      meta: {
+        type: "new_message",
+        from: sender,
+      },
     });
+
     await notification.save();
 
-    // ✅ Emit to the recipient in real time
     const io = req.app.get("io");
     io.to(recipient).emit("notification", notification);
 
@@ -105,30 +126,30 @@ router.post("/messages/:userId", isAuthenticated, async (req, res) => {
   }
 });
 
-// 🌍 Translate a message to the logged-in user's preferred language
-router.post("/messages/:userId/translate", isAuthenticated, async (req, res) => {
-  const { text } = req.body;
-  const userId = req.session.userId;
+/* ===========================
+   🌍 POST: Translate a message
+   =========================== */
+router.post("/:userId/translate", isAuthenticated, async (req, res) => {
+  const { text, messageId } = req.body;
 
   try {
-    // 1. Load the logged-in user (viewer)
-    const user = await User.findById(userId);
+    const user = await User.findById(req.session.userId);
+    const to = user?.profile?.language || "fr";
+    const from = "en";
 
-    const to = user?.profile?.language || "fr"; // fallback default
-    const from = "en"; // can be made dynamic later
-
-    console.log("🌐 Translating for:", user?.username || userId, `→ ${to}`);
-
-    // 2. Translate the message
     const translated = await translateText(text, from, to);
-
     if (!translated) {
       return res.status(500).json({ error: "Translation failed" });
     }
 
+    // 🔄 Save translation to the DB
+    await Message.findByIdAndUpdate(messageId, {
+      translatedText: translated,
+    });
+
     res.json({ translated });
   } catch (err) {
-    console.error("❌ Translation route error:", err.message);
+    console.error("Translation route error:", err);
     res.status(500).json({ error: "Translation failed" });
   }
 });

@@ -72,14 +72,10 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         try {
-          const res = await fetch("/api/translate", {
+          const res = await fetch(`/messages/${messageId}/translate`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              text: originalText,
-              sourceLang,
-              targetLang,
-            }),
+            body: JSON.stringify({ text: originalText }),
           });
 
           const data = await res.json();

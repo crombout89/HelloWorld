@@ -150,7 +150,7 @@ app.use((req, res, next) => {
 app.use('/', validateRouter(indexRouter, 'indexRouter'));
 app.use('/', validateRouter(registerRouter, 'registerRouter'));
 app.use('/', validateRouter(profileRouter, 'profileRouter'));
-app.use('/', messagesRoute); 
+app.use("/messages", messagesRoute);
 app.use("/", postRoutes);
 app.use('/api/translate', translateRoute);
 app.use('/communities', validateRouter(communitiesRouter, 'communitiesRouter'));
