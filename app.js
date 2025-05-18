@@ -159,13 +159,9 @@ app.use('/', eventRoutes);
 app.use('/dashboard', dashboardRouter);
 app.use('/discover', validateRouter(discoverRoutes, 'discoverRoutes'));
 app.use("/friends", friendsRoute);
-<<<<<<< HEAD
 app.use("/location", locationRoutes);
 app.use("/login", validateRouter(loginRouter, "loginRouter"));
 app.use("/notifications", notificationsRoute);
-=======
-app.use("/moderation", moderationRoutes);
->>>>>>> aa5b302 (Debug report form toggle)
 app.use("/rss", rssRoutes);
 app.use('/users', validateRouter(usersRouter, 'usersRouter'));
 app.use("/", validateRouter(wallRouter));
