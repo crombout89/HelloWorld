@@ -88,6 +88,7 @@ const locationRoutes = require("./routes/location");
 const friendsRoute = require('./routes/friends');
 const loginRouter = require('./routes/login');
 const messagesRoute = require('./routes/messages');
+const moderationRoutes = require("./routes/moderation");
 const notificationsRoute = require('./routes/notifications');
 const postRoutes = require("./routes/posts");
 const profileRouter = require('./routes/profile');
