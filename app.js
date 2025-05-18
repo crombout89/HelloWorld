@@ -15,6 +15,8 @@ const User = require('./models/user');
 
 const app = express();
 
+app.locals.geoapifyAutocompleteKey = process.env.GEOAPIFY_AUTOCOMPLETE_KEY;
+
 // Body parsers
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -78,12 +80,11 @@ setupApiProtection(app);
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const communitiesRouter = require('./routes/communities');
-const createEventRoutes = require('./routes/create-event');
 const dashboardRouter = require('./routes/dashboard'); 
+const eventRoutes = require("./routes/events");
 const registerRouter = require('./routes/register');
-const locationRoutes = require('./routes/location');
+const locationRoutes = require("./routes/location");
 const friendsRoute = require('./routes/friends');
-const geolocationRoutes = require('./routes/geolocation');
 const loginRouter = require('./routes/login');
 const messagesRoute = require('./routes/messages');
 const moderationRoutes = require("./routes/moderation");
@@ -93,6 +94,7 @@ const profileRouter = require('./routes/profile');
 const rssRoutes = require("./routes/rss");
 const discoverRoutes = require('./routes/discover');
 const translateRoute = require('./routes/api/translate');
+const wallRouter = require("./routes/wall");
 
 // View engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -136,6 +138,12 @@ const validateRouter = (router, routeName) => {
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null;
   res.locals.userId = req.session.userId || null;
+
+  // 🌍 Always define these so EJS doesn’t explode
+  res.locals.includeLocationClient = false;
+  res.locals.geoapifyAutocompleteKey =
+    process.env.GEOAPIFY_AUTOCOMPLETE_KEY || "";
+
   next();
 });
 
@@ -143,21 +151,20 @@ app.use((req, res, next) => {
 app.use('/', validateRouter(indexRouter, 'indexRouter'));
 app.use('/', validateRouter(registerRouter, 'registerRouter'));
 app.use('/', validateRouter(profileRouter, 'profileRouter'));
-app.use('/', messagesRoute); 
+app.use("/messages", messagesRoute);
 app.use("/", postRoutes);
 app.use('/api/translate', translateRoute);
 app.use('/communities', validateRouter(communitiesRouter, 'communitiesRouter'));
-app.use('/create-event', createEventRoutes);
+app.use('/', eventRoutes);
 app.use('/dashboard', dashboardRouter);
 app.use('/discover', validateRouter(discoverRoutes, 'discoverRoutes'));
 app.use("/friends", friendsRoute);
-app.use("/moderation", moderationRoutes);
+app.use("/location", locationRoutes);
+app.use("/login", validateRouter(loginRouter, "loginRouter"));
+app.use("/notifications", notificationsRoute);
 app.use("/rss", rssRoutes);
-app.use('/api/geolocation', geolocationRoutes);
-app.use('/api/location', validateRouter(locationRoutes, 'locationRoutes'));
-app.use('/login', validateRouter(loginRouter, 'loginRouter'));
-app.use('/notifications', notificationsRoute);
 app.use('/users', validateRouter(usersRouter, 'usersRouter'));
+app.use("/", validateRouter(wallRouter));
 
 // Logout Route
 app.get('/logout', (req, res) => {

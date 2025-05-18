@@ -1,0 +1,31 @@
+<!-- views/events/manage.ejs -->
+<h2>Manage Invites for <%= event.title %></h2>
+
+<!-- Invite Form -->
+<form action="/events/<%= event._id %>/invite" method="POST">
+  <label for="userId">Invite User by ID:</label>
+  <input type="text" name="userId" id="userId" required />
+  <button type="submit">Invite</button>
+</form>
+
+<hr>
+
+<!-- Current Invitees -->
+<h3>Invitees</h3>
+<ul>
+  <% if (event.invitees.length > 0) { %>
+  <% invitees.forEach(user => { %>
+  <li>
+    <strong><%= user.username %></strong>
+    <form action="/events/<%= event._id %>/remove" method="POST" style="display:inline;">
+      <input type="hidden" name="userId" value="<%= user._id %>" />
+      <button type="submit" style="margin-left: 0.5rem;">Remove</button>
+    </form>
+  </li>
+  <% }) %>
+  <% } else { %>
+  <li>No invitees yet.</li>
+  <% } %>
+</ul>
+
+<a href="/events/<%= event._id %>">Back to Event</a>

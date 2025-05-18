@@ -4,65 +4,76 @@ const User = require("../models/user");
 const Friendship = require("../models/friendship");
 const Notification = require("../models/notification");
 
-// Middleware to check if user is authenticated
+//
+// 🛡️ Auth Middleware
+//
 const isAuthenticated = async (req, res, next) => {
-  // For now, we'll just check if a user is logged in
-  // In a real app, you'd use session or JWT authentication
-  if (!req.user) {
-    return res.redirect("/login");
-  }
+  if (!req.user) return res.redirect("/login");
   next();
 };
 
-// Dashboard Route
-router.get('/', async (req, res) => {
+//
+// 📊 Dashboard Route
+//
+router.get("/", async (req, res) => {
   try {
     const userId = req.session.userId;
     const user = await User.findById(userId);
 
+    // 👥 Get Friends
     const friendships = await Friendship.find({
       status: "accepted",
       $or: [{ requester: userId }, { recipient: userId }],
     })
-    .populate("requester", "username profile")
-    .populate("recipient", "username profile");
+      .populate("requester", "username profile")
+      .populate("recipient", "username profile");
 
-    const friends = friendships.map((f) => {
-      const isRequester = f.requester._id.toString() === userId;
-      return isRequester ? f.recipient : f.requester;
+    const friends = friendships.map((f) =>
+      f.requester._id.toString() === userId ? f.recipient : f.requester
+    );
+
+    // 🔔 Get Notifications
+    const notifications = await Notification.find({ user: userId }).sort({
+      createdAt: -1,
     });
 
-    // 🔔 Add this line to get notifications
-    const notifications = await Notification.find({ user: userId }).sort({ createdAt: -1 });
+    // 📍 Location Info
+    const location = user.profile.location || {};
 
     const locationDetails = {
-      address: user.profile.location || 'Not specified',
-      hasLocation: !!user.profile.location
+      city: location.city || null,
+      country: location.country || null,
+      hasLocation: !!(location.city && location.country),
     };
 
-    res.render('dashboard', { 
-      title: 'Dashboard',
+    // 🎯 Render Dashboard
+    res.render("dashboard", {
+      title: "Dashboard",
       user,
       friends,
       friendCount: friends.length,
+      notifications,
       locationDetails,
-      notifications // 👈 add this
+      includeLocationClient: true, // explicitly on
+      geoapifyAutocompleteKey: process.env.GEOAPIFY_AUTOCOMPLETE_KEY,
     });
   } catch (error) {
-    console.error('Dashboard Error:', error);
-    res.redirect('/login');
+    console.error("Dashboard Error:", error);
+    res.redirect("/login");
   }
 });
 
-// Profile Edit Route (example)
+//
+// 🛠 Profile Edit Page
+//
 router.get("/profile/edit", isAuthenticated, async (req, res) => {
   try {
     const userId = req.user._id;
     const user = await User.findById(userId).select("-password");
 
     res.render("edit-profile", {
-      user: user,
       title: "Edit Profile",
+      user,
     });
   } catch (error) {
     console.error("Edit Profile Error:", error);
@@ -70,7 +81,9 @@ router.get("/profile/edit", isAuthenticated, async (req, res) => {
   }
 });
 
-// Profile Update Route
+//
+// 📤 Profile Update Handler
+//
 router.post("/profile/update", async (req, res) => {
   try {
     const userId = req.session.userId;
@@ -78,18 +91,17 @@ router.post("/profile/update", async (req, res) => {
 
     const user = await User.findById(userId);
 
-    // Update profile fields
     user.profile.firstName = firstName;
     user.profile.lastName = lastName;
-    user.profile.location = location;
+    user.profile.location = location; // Optional override
     user.profile.bio = bio;
 
-    // Process interests
+    // 🧠 Process Interests
     if (interests) {
       user.profile.interests = interests
         .split(",")
-        .map((interest) => interest.trim())
-        .filter((interest) => interest.length > 0);
+        .map((i) => i.trim())
+        .filter(Boolean);
     }
 
     await user.save();

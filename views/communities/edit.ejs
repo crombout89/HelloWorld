@@ -1,0 +1,39 @@
+<title><%= title %></title>
+
+<div class="page-title">
+  <h1>Edit Community</h1>
+</div>
+
+<form action="/communities/<%= community._id %>/update" method="POST" enctype="multipart/form-data">
+
+  <label for="coverImage">Change Cover Image:</label>
+  <input type="file" name="coverImage" id="coverImage" accept="image/*" />
+
+  <label for="name">Community Name:</label><br>
+  <input type="text" id="name" name="name" value="<%= community.name %>" required><br><br>
+
+    <!-- Category Selection -->
+    <label for="category">Category:</label>
+    <select name="category" id="category" required>
+      <option value="Tech">Tech</option>
+      <option value="Social">Social</option>
+      <option value="Gaming">Gaming</option>
+      <option value="Local">Local</option>
+      <option value="Other">Other</option>
+    </select>
+
+    <!-- Tags (comma-separated) -->
+    <label for="tags">Tags:</label>
+    <input type="text" id="tags" name="tags" placeholder="e.g. javascript, node, women-in-tech">
+
+  <label for="description">Description:</label><br>
+  <textarea id="description" name="description" rows="4" cols="50"><%= community.description %></textarea><br><br>
+
+  <button type="submit">Save Changes</button>
+</form>
+
+<form action="/communities/<%= community._id %>/delete" method="POST" onsubmit="return confirm('Are you sure you want to delete this community?');" style="margin-top: 1em;">
+  <button type="submit" style="color: red;">Delete Community</button>
+</form>
+
+<p><a href="/communities/<%= community._id %>">← Cancel</a></p>
