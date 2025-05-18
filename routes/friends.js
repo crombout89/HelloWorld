@@ -19,7 +19,7 @@ router.post("/request/:id", isAuthenticated, async (req, res) => {
     const requesterId = req.session.userId;
 
     // Prevent duplicate requests or adding yourself
-    if (recipientId === requesterId) return res.redirect("/dashboard");
+    if (recipientId === requesterId) return res.redirect("/home");
 
     const existing = await Friendship.findOne({
       $or: [
@@ -28,7 +28,7 @@ router.post("/request/:id", isAuthenticated, async (req, res) => {
       ],
     });
 
-    if (existing) return res.redirect("/dashboard");
+    if (existing) return res.redirect("/home");
 
     const request = await Friendship.create({
       requester: requesterId,
@@ -130,33 +130,10 @@ router.get("/", isAuthenticated, async (req, res) => {
       };
     });
 
-    res.render("friends", { title: "Your Friends", friends });
+    res.render("user/friends", { title: "Your Friends", friends });
   } catch (err) {
     console.error("Friends page error:", err);
     res.redirect("/dashboard");
-  }
-});
-
-// 📬 View pending friend requests (recipient perspective)
-router.get("/requests", isAuthenticated, async (req, res) => {
-  try {
-    const userId = req.session.userId;
-    console.log("🔍 Logged-in userId:", userId); // should be 6824ddbb164954ef265d71bc
-
-    const pendingRequests = await Friendship.find({
-      recipient: userId,
-      status: "pending",
-    }).populate("requester");
-
-    console.log("📥 Found requests:", pendingRequests);
-
-    res.render("friend-requests", {
-      title: "Pending Friend Requests",
-      requests: pendingRequests,
-    });
-  } catch (err) {
-    console.error("Error loading requests:", err);
-    res.status(500).send("Could not load friend requests.");
   }
 });
 
