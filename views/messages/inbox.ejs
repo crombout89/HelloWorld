@@ -1,0 +1,28 @@
+<div class="page-title">
+  <h1>Message Inbox</h1>
+</div>
+
+<!-- 🔍 Start New Conversation -->
+<form action="/messages/start" method="POST" style="margin-bottom: 2rem;">
+  <label for="friendId">Start new conversation with:</label>
+  <select name="friendId" required>
+    <% friends.forEach(friend => { %>
+    <option value="<%= friend._id %>">@<%= friend.username %></option>
+    <% }) %>
+  </select>
+  <button type="submit">💬 Start Chat</button>
+</form>
+
+<% if (users.length === 0) { %>
+  <p>No conversations yet.</p>
+<% } else { %>
+  <ul>
+    <% users.forEach(user => { %>
+      <li>
+        <a href="/messages/<%= user._id %>">💬 <%= user.username %></a>
+      </li>
+    <% }) %>
+  </ul>
+<% } %>
+
+<p><a href="/dashboard">← Back to Dashboard</a></p>

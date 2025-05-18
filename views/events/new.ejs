@@ -1,0 +1,43 @@
+<!-- views/events/new.ejs -->
+<h2>Create Event</h2>
+<form action="/events/create" method="POST">
+  <div>
+    <label>Title:</label>
+    <input type="text" name="title" required />
+  </div>
+
+  <div>
+    <label>Description:</label>
+    <textarea name="description"></textarea>
+  </div>
+
+  <div>
+    <label>Start Time:</label>
+    <input type="datetime-local" name="startTime" required />
+  </div>
+
+  <div>
+    <label>End Time:</label>
+    <input type="datetime-local" name="endTime" required />
+  </div>
+
+  <div>
+    <label>Location Name:</label>
+    <input type="text" name="location[name]" />
+  </div>
+  <div>
+    <label>Location Address:</label>
+    <input type="text" name="location[address]" />
+  </div>
+
+  <div>
+    <label>Visibility:</label>
+    <select name="visibility">
+      <option value="public">Public</option>
+      <option value="friends">Friends Only</option>
+      <option value="invite">Invite Only</option>
+    </select>
+  </div>
+
+  <button type="submit">Create Event</button>
+</form>

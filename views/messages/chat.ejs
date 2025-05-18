@@ -1,0 +1,44 @@
+<div class="page-title">
+  <h1>Chat with <%= otherUser?.username || 'User' %></h1>
+</div>
+
+<div class="messages-thread">
+  <% if (messages.length === 0) { %>
+    <p>No messages yet.</p>
+  <% } else { %>
+    <% messages.forEach(msg => { %>
+      <div class="message <%= msg.sender.toString() === user._id.toString() ? 'sent' : 'received' %>">
+        <p id="msg-<%= msg._id %>"><%= msg.text %></p>
+
+        <% if (msg.translatedText) { %>
+          <p class="translated">[Translated] <%= msg.translatedText %></p>
+        <% } else { %>
+          <button 
+          class="translate-btn" 
+          data-message-id="<%= msg._id %>" 
+          data-user-id="<%= otherUser._id %>"
+          >
+            Translate
+          </button>
+        <% } %>
+
+        <small><%= new Date(msg.createdAt).toLocaleTimeString() %></small>
+      </div>
+    <% }) %>
+  <% } %>
+</div>
+
+<form method="POST" action="/messages/<%= otherUser._id %>" class="message-form">
+  <input
+    type="text"
+    name="text"
+    placeholder="Type your message..."
+    required
+  />
+  <button type="submit">Send</button>
+</form>
+
+<p><a href="/messages">← Back to Inbox</a></p>
+
+<!-- Include JS if using client-side translate button -->
+<script src="/js/messages.js"></script>

@@ -1,0 +1,18 @@
+<!-- views/messages/new.ejs -->
+<h1>🆕 Start a New Conversation</h1>
+
+<!-- ✅ Display friend list (assuming passed as `friends`) -->
+<% if (friends && friends.length > 0) { %>
+<form action="/messages/start" method="POST">
+  <label for="friendId">Select a friend:</label>
+  <select name="friendId" id="friendId" required>
+    <% friends.forEach(friend => { %>
+    <option value="<%= friend._id %>"><%= friend.username %></option>
+    <% }) %>
+  </select>
+
+  <button type="submit">💬 Start Chat</button>
+</form>
+<% } else { %>
+<p>You must be friends with someone to start a conversation.</p>
+<% } %>

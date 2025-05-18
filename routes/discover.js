@@ -1,6 +1,10 @@
 const express = require("express");
 const router = express.Router();
 const Community = require("../models/community");
+const Event = require("../models/event");
+const User = require("../models/user");
+const { calculateMatchScore } = require("../services/matchService");
+const { getFriendsForUser } = require("../services/friendService");
 const { isLoggedIn } = require("../middleware/auth");
 
 router.get("/", (req, res) => {
@@ -40,7 +44,7 @@ router.get("/", (req, res) => {
 router.get("/communities", isLoggedIn, async (req, res) => {
   try {
     const communities = await Community.find().populate("owner", "username");
-    res.render("directory-communities", {
+    res.render("discover/communities", {
       title: "Community Directory",
       communities,
     });
@@ -48,6 +52,54 @@ router.get("/communities", isLoggedIn, async (req, res) => {
     console.error("Error loading community directory:", err);
     res.status(500).send("Something went wrong");
   }
+});
+
+// GET /discover/events
+router.get("/events", isLoggedIn, async (req, res) => {
+  try {
+    const events = await Event.find({ visibility: "public" })
+      .sort({ startTime: 1 })
+      .populate("host")
+      .lean();
+
+    res.render("discover/events", {
+      title: "Discover Events",
+      events,
+    });
+  } catch (err) {
+    console.error("Error loading events:", err);
+    res.status(500).send("Something went wrong");
+  }
+});
+
+// GET /discover/friends
+router.get("/friends", isLoggedIn, async (req, res) => {
+  const userId = req.session.userId;
+  const me = await User.findById(userId).lean();
+
+  const friends = await getFriendsForUser(userId);
+  const excludedIds = new Set([
+    userId,
+    ...friends.map((f) => f._id.toString()),
+  ]);
+
+  const candidates = await User.find({
+    _id: { $nin: Array.from(excludedIds) },
+    "profile.interests": { $exists: true, $ne: [] },
+  }).lean();
+
+  const matches = candidates
+    .map((u) => ({
+      ...u,
+      score: calculateMatchScore(me, u),
+    }))
+    .filter((m) => m.score > 0)
+    .sort((a, b) => b.score - a.score);
+
+  res.render("discover/friends", {
+    title: "Discover New Friends",
+    matches,
+  });
 });
 
 module.exports = router;
