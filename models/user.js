@@ -58,10 +58,7 @@ const UserSchema = new mongoose.Schema(
         type: [String],
         validate: [arrayLimit(10), "Interests cannot exceed 10"],
       },
-      tags: {
-        type: [String],
-        default: [],
-      },
+      tags: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tag" }],
       profilePicture: {
         type: String,
         default: "/default-profile.png",
