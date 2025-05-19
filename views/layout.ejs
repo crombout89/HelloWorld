@@ -41,7 +41,7 @@
 
   <!-- 🔑 Location API key and client JS -->
   <script>
-    const GEOAPIFY_AUTOCOMPLETE_KEY = "<%= geoapifyAutocompleteKey %>";
+    window.GEOAPIFY_AUTOCOMPLETE_KEY = "<%= geoapifyAutocompleteKey %>";
   </script>
   <% if (includeLocationClient) { %>
   <script src="/js/location-client.js"></script>
