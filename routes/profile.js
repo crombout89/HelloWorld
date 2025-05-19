@@ -261,6 +261,7 @@ router.get("/u/:username", async (req, res) => {
     res.render("user/view-profile", {
       user: viewedUser,
       currentUser,
+      includeLeaflet: true,
       friends,
       friendStatus,
       mutualFriends,
