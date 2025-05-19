@@ -14,6 +14,7 @@
 <% } %>
 
 <h2><%= event.title %></h2>
+<p><strong>Hosted By:</strong> <%= event.host?.username || "Unknown" %></p>
 <% if (event.community) { %>
 <p>🏘️ This event is linked to a community: <a href="/communities/<%= event.community._id %>"><%= event.community.name %></a></p>
 <% } %>
