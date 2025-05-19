@@ -7,17 +7,27 @@ const { isLoggedIn } = require("../middleware/auth");
 const { sendNotification } = require("../services/notificationService");
 const { resolveTags } = require("../services/tagService");
 const { getFriendsForUser } = require("../services/friendService");
+const LocationIQ = require("../services/locationService");
 
 // GET: All events you're hosting or invited to
 router.get("/events", isLoggedIn, async (req, res) => {
   const userId = req.session.userId;
-  const events = await Event.find({
-    $or: [{ host: userId }, { invitees: userId }, { attendees: userId }],
-  })
+  const createdEvents = await Event.find({ host: userId })
     .sort({ startTime: 1 })
     .lean();
 
-  res.render("events/index", { events, title: "My Events" });
+  const attendingEvents = await Event.find({
+    attendees: userId,
+    host: { $ne: userId },
+  })
+    .sort({ startTime: 1 })
+    .lean();
+    
+  res.render("events/index", {
+    title: "My Events",
+    createdEvents,
+    attendingEvents,
+  });
 });
 
 // GET: New Event Form
@@ -28,12 +38,21 @@ router.get("/events/new", isLoggedIn, async (req, res) => {
   }).lean();
 
   res.render("events/new", {
-    title: "Create Event",
-    communities, // 👈 pass to view
+    title: "Create New Event",
+    event: {
+      location: {
+        name: "",
+        address: "",
+        latitude: "",
+        longitude: "",
+      },
+    },
+    communities,
+    includeLeaflet: true,
   });
 });
 
-// POST: Create a new community
+// POST: Create a new event
 router.post("/events/create", isLoggedIn, async (req, res) => {
   const {
     title,
@@ -44,7 +63,9 @@ router.post("/events/create", isLoggedIn, async (req, res) => {
     endTime,
     visibility,
     communityId,
-    tags, // ⬅️ from form input
+    tags,
+    lat,
+    lon, // ✅ add these
   } = req.body;
 
   try {
@@ -62,6 +83,8 @@ router.post("/events/create", isLoggedIn, async (req, res) => {
       location: {
         name: locationName,
         address: locationAddress,
+        lat: parseFloat(lat) || 0,
+        lon: parseFloat(lon) || 0,
       },
       startTime,
       endTime,
@@ -127,6 +150,7 @@ router.get("/events/:id", isLoggedIn, async (req, res) => {
     canPost,
     canEdit: isHost,
     groupedAttendees,
+    includeLeaflet: true,
   });
 });
 
@@ -277,20 +301,26 @@ router.post("/events/:id/remove", isLoggedIn, async (req, res) => {
 router.get("/events/:id/edit", isLoggedIn, async (req, res) => {
   const event = await Event.findById(req.params.id).populate("tags").lean();
   if (!event) return res.status(404).render("404");
-  res.render("events/edit", { event, title: `Edit ${event.title}` });
+  res.render("events/edit", {
+    event,
+    title: `Edit: ${event.title}`,
+    includeLeaflet: true, // ✅ ensures leaflet.css/js are included from layout
+  });
 });
 
-// POST: Update Event
 router.post("/events/:id/edit", isLoggedIn, async (req, res) => {
   try {
     const {
       title,
       description,
+      locationName,
+      locationAddress,
       startTime,
       endTime,
-      location,
       visibility,
       tags,
+      lat,
+      lon,
     } = req.body;
 
     const tagNames = tags
@@ -298,6 +328,13 @@ router.post("/events/:id/edit", isLoggedIn, async (req, res) => {
       .map((t) => t.trim())
       .filter(Boolean);
     const resolvedTags = await resolveTags(tagNames, req.session.userId);
+
+    const location = {
+      name: locationName,
+      address: locationAddress,
+      lat: parseFloat(lat),
+      lon: parseFloat(lon),
+    };
 
     await Event.findByIdAndUpdate(req.params.id, {
       title,

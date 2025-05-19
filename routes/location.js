@@ -46,4 +46,26 @@ router.post("/save", async (req, res) => {
   }
 });
 
+// GET: Reverse geocoding
+router.get("/reverse", async (req, res) => {
+  const { lat, lon } = req.query;
+
+  try {
+    const result = await LocationService.reverseGeocode(lat, lon);
+    if (!result) return res.status(404).json({ success: false });
+
+    res.json({
+      success: true,
+      city: result.city,
+      country: result.country,
+      road: result.road,
+      houseNumber: result.houseNumber,
+      fullAddress: result.fullAddress,
+    });
+  } catch (err) {
+    console.error("🔁 Reverse lookup failed:", err);
+    res.status(500).json({ success: false });
+  }
+});
+
 module.exports = router;
