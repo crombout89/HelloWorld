@@ -18,7 +18,6 @@ router.post("/request/:id", isAuthenticated, async (req, res) => {
     const recipientId = req.params.id;
     const requesterId = req.session.userId;
 
-    // Prevent duplicate requests or adding yourself
     if (recipientId === requesterId) return res.redirect("/home");
 
     const existing = await Friendship.findOne({
@@ -30,13 +29,15 @@ router.post("/request/:id", isAuthenticated, async (req, res) => {
 
     if (existing) return res.redirect("/home");
 
+    const sender = await User.findById(requesterId);
+    if (!sender) return res.status(404).send("Sender not found");
+
     const request = await Friendship.create({
       requester: requesterId,
       recipient: recipientId,
       status: "pending",
     });
 
-    // ✅ Send Notification
     await sendNotification(
       {
         userId: recipientId,
@@ -44,13 +45,13 @@ router.post("/request/:id", isAuthenticated, async (req, res) => {
         meta: {
           type: "friend_request",
           from: sender._id,
-          requestId: request._id, // ✅ this is what we need for /respond/:id
+          requestId: request._id,
         },
       },
       req.app.get("io")
     );
 
-    res.redirect(`/u/${req.user.username}`);
+    res.redirect(`/u/${sender.username}`);
   } catch (err) {
     console.error("Error sending friend request:", err);
     res.status(500).send("Something went wrong");

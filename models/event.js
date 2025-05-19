@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const eventSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: String,
+  tags: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tag" }],
   coverImage: String,
   hostType: { type: String, enum: ["User", "Community"], required: true },
   host: {
