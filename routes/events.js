@@ -12,13 +12,22 @@ const LocationIQ = require("../services/locationService");
 // GET: All events you're hosting or invited to
 router.get("/events", isLoggedIn, async (req, res) => {
   const userId = req.session.userId;
-  const events = await Event.find({
-    $or: [{ host: userId }, { invitees: userId }, { attendees: userId }],
-  })
+  const createdEvents = await Event.find({ host: userId })
     .sort({ startTime: 1 })
     .lean();
 
-  res.render("events/index", { events, title: "My Events" });
+  const attendingEvents = await Event.find({
+    attendees: userId,
+    host: { $ne: userId },
+  })
+    .sort({ startTime: 1 })
+    .lean();
+    
+  res.render("events/index", {
+    title: "My Events",
+    createdEvents,
+    attendingEvents,
+  });
 });
 
 // GET: New Event Form

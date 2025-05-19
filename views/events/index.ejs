@@ -1,3 +1,29 @@
-<h2>My Events</h2>
+<h2>Your Events</h2>
 
-<p>You have no upcoming events. <a href="/events/new">Create one?</a></p>
+<% if (createdEvents.length > 0) { %>
+<h3>🗓️ Created Events</h3>
+<ul>
+  <% createdEvents.forEach(event => { %>
+  <li>
+    <a href="/events/<%= event._id %>"><%= event.title %></a>
+    <small><%= new Date(event.startTime).toLocaleDateString() %></small>
+  </li>
+  <% }) %>
+</ul>
+<% } else { %>
+<p>You haven't created any events yet.</p>
+<% } %>
+
+<% if (attendingEvents.length > 0) { %>
+<h3>🎉 You're Attending</h3>
+<ul>
+  <% attendingEvents.forEach(event => { %>
+  <li>
+    <a href="/events/<%= event._id %>"><%= event.title %></a>
+    <small><%= new Date(event.startTime).toLocaleDateString() %></small>
+  </li>
+  <% }) %>
+</ul>
+<% } else { %>
+<p>No upcoming events you're attending yet.</p>
+<% } %>
