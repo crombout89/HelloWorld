@@ -7,6 +7,16 @@
   </div>
 
   <div>
+    <label for="communityId">Link to a Community (optional):</label>
+    <select name="communityId">
+      <option value="">— None —</option>
+      <% communities.forEach(c => { %>
+      <option value="<%= c._id %>"><%= c.name %></option>
+      <% }) %>
+    </select>
+  </div>
+
+  <div>
     <label>Description:</label>
     <textarea name="description"></textarea>
   </div>

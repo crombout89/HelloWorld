@@ -52,6 +52,23 @@
     <!-- 📨 COMMUNITY INVITE -->
     <% } else if (note.meta?.type === "community_invite") { %>
     <a href="<%= note.link %>" class="btn">🏘️ View Community</a>
+    
+    <!-- 📨 EVENT INVITE -->
+    <% if (isHost && friends && friends.length > 0) { %>
+    <h3>Invite a Friend</h3>
+    <form action="/events/<%= event._id %>/invite" method="POST">
+      <label for="userId">Select a friend to invite:</label>
+      <select name="userId" id="userId" required>
+        <% friends.forEach(friend => { %>
+        <% const alreadyInvited = event.invitees?.some(id => id.toString() === friend._id.toString()); %>
+        <% if (!alreadyInvited) { %>
+        <option value="<%= friend._id %>"><%= friend.username %></option>
+        <% } %>
+        <% }) %>
+      </select>
+      <button type="submit">Send Invite</button>
+    </form>
+    <% } %>
 
     <!-- 🔗 DEFAULT LINK FALLBACK -->
     <% } else if (note.link) { %>
