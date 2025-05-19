@@ -6,6 +6,7 @@ const User = require("../models/user");
 const { isLoggedIn } = require("../middleware/auth");
 const { sendNotification } = require("../services/notificationService");
 const { getFriendsForUser } = require("../services/friendService");
+const LocationIQ = require("../services/locationService");
 
 // GET: All events you're hosting or invited to
 router.get("/events", isLoggedIn, async (req, res) => {
@@ -27,8 +28,16 @@ router.get("/events/new", isLoggedIn, async (req, res) => {
   }).lean();
 
   res.render("events/new", {
-    title: "Create Event",
-    communities, // 👈 pass to view
+    title: "Create New Event",
+    event: {
+      location: {
+        name: "",
+        address: "",
+        latitude: "",
+        longitude: "",
+      },
+    },
+    communities,
   });
 });
 
@@ -42,10 +51,15 @@ router.post("/events/create", isLoggedIn, async (req, res) => {
     startTime,
     endTime,
     visibility,
-    communityId, // optional input from the form
+    communityId,
   } = req.body;
 
   try {
+    // 🌍 Geocode the address to get lat/lon
+    const geo = await LocationIQ.geocodeAddress(
+      `${locationName}, ${locationAddress}`
+    );
+
     const newEvent = await Event.create({
       title,
       description,
@@ -54,11 +68,13 @@ router.post("/events/create", isLoggedIn, async (req, res) => {
       location: {
         name: locationName,
         address: locationAddress,
+        lat: geo?.lat,
+        lon: geo?.lon,
       },
       startTime,
       endTime,
       visibility,
-      community: communityId || null, // optional: only stored if provided
+      community: communityId || null,
       invitees: [],
       attendees: [],
       rsvp: [],

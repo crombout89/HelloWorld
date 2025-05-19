@@ -19,6 +19,20 @@
 <% } %>
 <p><%= event.description %></p>
 
+<% if (event.location?.latitude && event.location?.longitude) { %>
+<h3>📍 Event Location</h3>
+<p><%= event.location.name %>, <%= event.location.address %></p>
+<div id="event-map" style="height: 300px;"></div>
+<script>
+  const lat = <%= event.location.latitude %>;
+  const lng = <%= event.location.longitude %>;
+
+  const map = L.map("event-map").setView([lat, lng], 13);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png").addTo(map);
+  L.marker([lat, lng]).addTo(map).bindPopup("<%= event.title %>").openPopup();
+</script>
+<% } %>
+
 <% if (
   event.invitees.some(i => i.toString() === currentUserId) &&
   !event.attendees.some(a => a.toString() === currentUserId)
