@@ -20,8 +20,16 @@ router.get("/events", isLoggedIn, async (req, res) => {
 });
 
 // GET: New Event Form
-router.get("/events/new", isLoggedIn, (req, res) => {
-  res.render("events/new", { title: "Create Event" });
+router.get("/events/new", isLoggedIn, async (req, res) => {
+  const Community = require("../models/community");
+  const communities = await Community.find({
+    members: req.session.userId,
+  }).lean();
+
+  res.render("events/new", {
+    title: "Create Event",
+    communities, // 👈 pass to view
+  });
 });
 
 // POST: Create Event
@@ -29,12 +37,12 @@ router.post("/events/create", isLoggedIn, async (req, res) => {
   const {
     title,
     description,
-    hostType,
-    hostId,
-    location,
+    locationName,
+    locationAddress,
     startTime,
     endTime,
     visibility,
+    communityId, // optional input from the form
   } = req.body;
 
   try {
@@ -42,14 +50,15 @@ router.post("/events/create", isLoggedIn, async (req, res) => {
       title,
       description,
       hostType: "User",
-      host: req.session.userId, // use the logged-in user as the host
+      host: req.session.userId,
       location: {
-        name: req.body.locationName,
-        address: req.body.locationAddress,
+        name: locationName,
+        address: locationAddress,
       },
       startTime,
       endTime,
       visibility,
+      community: communityId || null, // optional: only stored if provided
       invitees: [],
       attendees: [],
       rsvp: [],
@@ -57,7 +66,7 @@ router.post("/events/create", isLoggedIn, async (req, res) => {
 
     res.redirect(`/events/${newEvent._id}`);
   } catch (err) {
-    console.error(err);
+    console.error("❌ Event creation error:", err);
     res.status(500).send("Failed to create event");
   }
 });

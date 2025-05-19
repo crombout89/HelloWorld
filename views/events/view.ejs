@@ -14,6 +14,9 @@
 <% } %>
 
 <h2><%= event.title %></h2>
+<% if (event.community) { %>
+<p>🏘️ This event is linked to a community: <a href="/communities/<%= event.community._id %>"><%= event.community.name %></a></p>
+<% } %>
 <p><%= event.description %></p>
 
 <% if (
@@ -23,6 +26,7 @@
   <form action="/events/<%= event._id %>/rsvp" method="POST">
     <label for="response">RSVP:</label>
     <select name="status" required>
+      <option value="" disabled selected>Select response</option>
       <option value="going">✅ Going</option>
       <option value="interested">🤔 Maybe</option>
       <option value="declined">❌ Not Going</option>
