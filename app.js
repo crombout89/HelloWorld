@@ -55,16 +55,27 @@ app.use(session({
 // User Session Middleware
 app.use(async (req, res, next) => {
   try {
-    if (req.session && req.session.userId) {
-      const user = await User.findById(req.session.userId).select('-password');
+    if (req.session?.userId) {
+      const user = await User.findById(req.session.userId).select("-password");
       if (user) {
         req.user = user;
         res.locals.user = user;
+        res.locals.userId = user._id;
       }
+    } else {
+      res.locals.user = null;
+      res.locals.userId = null;
     }
   } catch (error) {
-    console.error('Session user lookup error:', error);
+    console.error("Session user lookup error:", error);
+    res.locals.user = null;
+    res.locals.userId = null;
   }
+
+  // ✅ Safe defaults for conditional scripts/styles
+  res.locals.includeLeaflet = false;
+  res.locals.includeLocationClient = false;
+
   next();
 });
 

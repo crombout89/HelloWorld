@@ -46,10 +46,7 @@
     </p>
 
     <% if (friendStatus === "friends") { %>
-    <div id="friend-map" style="margin-top: 1rem;">
-      <iframe width="100%" height="200" style="border:0" loading="lazy" allowfullscreen referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=<%= user.profile.location.address.latitude %>,<%= user.profile.location.address.longitude %>&z=14&output=embed">
-      </iframe>
-    </div>
+      <div id="user-map" style="height: 200px; margin: 1rem 0;"></div>
     <% } %>
     <% } else { %>
     <p>📍 Location not shared.</p>
@@ -205,3 +202,19 @@
     <% } %>
   </div>
 </div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const container = document.getElementById("user-map");
+    const lat = <%= user.profile.location?.address?.latitude || "null" %>;
+    const lng = <%= user.profile.location?.address?.longitude || "null" %>;
+
+    if (container && lat && lng) {
+      const map = L.map("user-map").setView([lat, lng], 13);
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+      }).addTo(map);
+      L.marker([lat, lng]).addTo(map).bindPopup("<%= user.username %>").openPopup();
+    }
+  });
+</script>

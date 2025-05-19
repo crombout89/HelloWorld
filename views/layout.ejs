@@ -9,10 +9,15 @@
   <link rel='stylesheet' href='/css/effects.css' />
   <link rel="stylesheet" href="https://use.typekit.net/yrl0zql.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-  <!-- 📦 Geoapify Autocomplete UI -->
-  <script src="https://unpkg.com/@geoapify/geocoder-autocomplete@1.2.1/dist/geocoder-autocomplete.min.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/@geoapify/geocoder-autocomplete@1.2.1/styles/minimal.css" />
-
+  <!-- Leaflet CSS -->
+  <% if (includeLeaflet) { %>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <% } %>
+  <!-- Leaflet JS -->
+  <% if (includeLeaflet) { %>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="/js/location.js"></script>
+  <% } %>
   <!-- custom view-specific styles like /css/profile.css will get inserted here -->
 </head>
 
