@@ -76,12 +76,10 @@ router.get("/events", isLoggedIn, async (req, res) => {
 router.get("/friends", isLoggedIn, async (req, res) => {
   const userId = req.session.userId;
   const me = await User.findById(userId).lean();
+  if (!me) return res.redirect("/login");
 
   const friends = await getFriendsForUser(userId);
-  const excludedIds = new Set([
-    userId,
-    ...friends.map((f) => f._id.toString()),
-  ]);
+  const excludedIds = new Set([userId, ...friends.map((f) => f._id.toString())]);
 
   const candidates = await User.find({
     _id: { $nin: Array.from(excludedIds) },

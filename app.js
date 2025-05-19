@@ -79,6 +79,21 @@ app.use(async (req, res, next) => {
   next();
 });
 
+app.use((req, res, next) => {
+  res.locals.languageMap = {
+    en: "🇺🇸 English",
+    es: "🇪🇸 Spanish",
+    fr: "🇫🇷 French",
+    fa: "🇮🇷 Farsi",
+    de: "🇩🇪 German",
+    it: "🇮🇹 Italian",
+    zh: "🇨🇳 Chinese",
+    ar: "🇸🇦 Arabic",
+    ru: "🇷🇺 Russian",
+  };
+  next();
+});
+
 const injectNotifications = require("./middleware/notifications");
 app.use(injectNotifications);
 
