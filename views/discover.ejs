@@ -1,13 +1,11 @@
 <h1 class="page-title">Discover</h1>
 
-<div id="discoveryGrid" class="discovery-grid">
-  <% discoveryOptions.forEach(option => { %>
-  <div class="discovery-card" data-search-type="<%= option.title.toLowerCase().replace(/\s+/g, '-') %>">
-    <img src="/<%= option.icon %>" alt="<%= option.title %> icon" />
-    <h2><%= option.title %></h2>
-    <p><%= option.description %></p>
-  </div>
-  <% }) %>
+<div id="discoveryGrid">
+  <div class="discovery-card" data-search-type="find-friends">Find Friends</div>
+  <div class="discovery-card" data-search-type="interests">By Interest</div>
+  <div class="discovery-card" data-search-type="near-me">Near Me</div>
+  <div class="discovery-card" data-search-type="communities">Communities</div>
+  <div class="discovery-card" data-search-type="events">Events</div>
 </div>
 
 <script src="/js/discover.js"></script>

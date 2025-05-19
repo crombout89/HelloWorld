@@ -1,0 +1,29 @@
+<h2>🧠 Discover by Interests</h2>
+
+<% if (matchedEvents.length > 0) { %>
+<h3>🎟️ Events</h3>
+<ul>
+  <% matchedEvents.forEach(event => { %>
+  <li>
+    <a href="/events/<%= event._id %>"><%= event.title %></a>
+    (Match Score: <%= event.score %>)
+  </li>
+  <% }) %>
+</ul>
+<% } else { %>
+<p>No matching events found.</p>
+<% } %>
+
+<% if (matchedCommunities.length > 0) { %>
+<h3>🏘️ Communities</h3>
+<ul>
+  <% matchedCommunities.forEach(c => { %>
+  <li>
+    <a href="/communities/<%= c._id %>"><%= c.name %></a>
+    (Match Score: <%= c.score %>)
+  </li>
+  <% }) %>
+</ul>
+<% } else { %>
+<p>No matching communities found.</p>
+<% } %>
