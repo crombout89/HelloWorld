@@ -5,6 +5,7 @@ const WallPost = require("../models/post");
 const User = require("../models/user");
 const { isLoggedIn } = require("../middleware/auth");
 const { sendNotification } = require("../services/notificationService");
+const { resolveTags } = require("../services/tagService");
 const { getFriendsForUser } = require("../services/friendService");
 
 // GET: All events you're hosting or invited to
@@ -32,7 +33,6 @@ router.get("/events/new", isLoggedIn, async (req, res) => {
   });
 });
 
-// POST: Create Event
 router.post("/events/create", isLoggedIn, async (req, res) => {
   const {
     title,
@@ -42,10 +42,17 @@ router.post("/events/create", isLoggedIn, async (req, res) => {
     startTime,
     endTime,
     visibility,
-    communityId, // optional input from the form
+    communityId,
+    tags, // ⬅️ from form input
   } = req.body;
 
   try {
+    const tagNames = tags
+      ?.split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+    const resolvedTags = await resolveTags(tagNames, req.session.userId);
+
     const newEvent = await Event.create({
       title,
       description,
@@ -58,7 +65,8 @@ router.post("/events/create", isLoggedIn, async (req, res) => {
       startTime,
       endTime,
       visibility,
-      community: communityId || null, // optional: only stored if provided
+      community: communityId || null,
+      tags: resolvedTags.map((t) => t._id), // ✅ store ObjectIds
       invitees: [],
       attendees: [],
       rsvp: [],
@@ -74,7 +82,10 @@ router.post("/events/create", isLoggedIn, async (req, res) => {
 // GET: Single Event View
 router.get("/events/:id", isLoggedIn, async (req, res) => {
   const userId = req.session.userId;
-  const rawEvent = await Event.findById(req.params.id).lean();
+  const rawEvent = await Event.findById(req.params.id)
+    .populate("tags")
+    .populate("community", "name") // ✅ you need this line
+    .lean();
   if (!rawEvent) return res.status(404).render("404");
 
   // Manually fetch the host based on type
