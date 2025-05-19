@@ -28,6 +28,11 @@
                 <p id="location-status"></p>
                 </section>
             </section>
+
+            <% if (user.profile?.location?.address?.latitude && user.profile?.location?.address?.longitude) { %>
+            <h3>📍 Your Location</h3>
+            <div id="user-map" style="height: 250px;"></div>
+
         </section>
 
         <nav>
@@ -103,3 +108,14 @@
 
 <!-- Load scripts at the end of body -->
 <script src="/js/dashboard.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const map = L.map('user-map').setView([<%= user.profile.location.address.latitude %>, <%= user.profile.location.address.longitude %>], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    L.marker([<%= user.profile.location.address.latitude %>, <%= user.profile.location.address.longitude %>])
+      .addTo(map)
+      .bindPopup("You are here!")
+      .openPopup();
+  });
+</script>
+<% } %>

@@ -1,46 +1,79 @@
 // services/matchService.js
 
-// 🔍 Core matching logic based on shared profile traits
+const haversine = require("haversine-distance"); // Optional: For real distance in km
+
+// 📐 Get geographic distance in kilometers between two users
+function getDistance(userA, userB) {
+  if (!userA?.profile?.location?.address || !userB?.profile?.location?.address)
+    return Infinity;
+
+  const { latitude: lat1, longitude: lon1 } = userA.profile.location.address;
+  const { latitude: lat2, longitude: lon2 } = userB.profile.location.address;
+
+  if ([lat1, lon1, lat2, lon2].some((v) => typeof v !== "number"))
+    return Infinity;
+
+  const distMeters = haversine(
+    { lat: lat1, lon: lon1 },
+    { lat: lat2, lon: lon2 }
+  );
+  return distMeters / 1000; // return in km
+}
+
+// 🕓 Check if the user was active in the past 7 days
+function isRecentlyActive(user) {
+  const oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  return new Date(user.lastLogin) > oneWeekAgo;
+}
+
+// 👥 Find mutual friend userIds
+function getMutualFriends(friendsA = [], friendsB = []) {
+  const setA = new Set(friendsA.map((id) => id.toString()));
+  return friendsB.filter((id) => setA.has(id.toString()));
+}
+
+// 🧠 Main scoring algorithm for two users
 function calculateMatchScore(userA, userB) {
-    let score = 0;
-  
-    // ✅ Interests overlap (weighted more heavily)
-    const interestsA = new Set(userA.profile?.interests || []);
-    const interestsB = new Set(userB.profile?.interests || []);
-    const sharedInterests = [...interestsA].filter(i => interestsB.has(i));
-    score += sharedInterests.length * 2;
-  
-    // ✅ Preferences overlap
-    const preferencesA = new Set(userA.profile?.preferences || []);
-    const preferencesB = new Set(userB.profile?.preferences || []);
-    const sharedPreferences = [...preferencesA].filter(p => preferencesB.has(p));
-    score += sharedPreferences.length;
-  
-    // ✅ Language match
-    if (userA.profile?.language === userB.profile?.language) {
-      score += 2;
-    }
-  
-    // 🧪 Future: Boost score for recent activity (e.g. login, RSVP, posts)
-    // score += isRecentlyActive(userB) ? 1 : 0;
-  
-    // 📍 Future: Adjust score by geographic proximity
-    // const distance = getDistance(userA.location, userB.location);
-    // if (distance < 50km) score += 1;
-  
-    // 🧠 Future: Prioritize matches with mutual friends
-    // const mutuals = getMutualFriends(userA.friends, userB.friends);
-    // score += mutuals.length;
-  
-    // 🪄 Future: Sentiment or tone analysis of bio/description
-    // score += hasMatchingTone(userA.bio, userB.bio) ? 1 : 0;
-  
-    return {
-      score,
-      sharedInterests,
-      sharedPreferences,
-      languageMatch: userA.profile?.language === userB.profile?.language,
-    };
+  let score = 0;
+
+  // 🏷️ Shared tags/interests
+  const tagsA = new Set(userA.profile?.tags || []);
+  const tagsB = new Set(userB.profile?.tags || []);
+  tagsB.forEach((tag) => {
+    if (tagsA.has(tag)) score += 2;
+  });
+
+  const interestsA = new Set(userA.profile?.interests || []);
+  const interestsB = new Set(userB.profile?.interests || []);
+  interestsB.forEach((interest) => {
+    if (interestsA.has(interest)) score += 1;
+  });
+
+  // 🌐 Shared language
+  if (
+    userA.profile?.language &&
+    userA.profile.language === userB.profile?.language
+  ) {
+    score += 2;
   }
 
-module.exports = { calculateMatchScore };
+  // 📍 Nearby location (under 50km = +1)
+  const distance = getDistance(userA, userB);
+  if (distance < 50) score += 1;
+
+  // 🔄 Recent activity bonus
+  if (isRecentlyActive(userB)) score += 1;
+
+  // 👥 Mutual friends
+  const mutuals = getMutualFriends(userA.friends, userB.friends);
+  score += mutuals.length;
+
+  return score;
+}
+
+module.exports = {
+  calculateMatchScore,
+  getDistance,
+  isRecentlyActive,
+  getMutualFriends,
+};

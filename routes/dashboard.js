@@ -49,6 +49,7 @@ router.get("/", async (req, res) => {
     // 🎯 Render Dashboard
     res.render("user/home", {
       title: "Dashboard",
+      includeLeaflet: true,
       user,
       friends,
       friendCount: friends.length,
