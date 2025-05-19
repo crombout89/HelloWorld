@@ -30,6 +30,27 @@
     <input type="text" name="location[address]" value="<%= event.location?.address || '' %>" />
   </div>
 
+    <!-- 🏷️ Tags -->
+    <div>
+      <label for="tags">Tags (comma-separated)</label>
+      <input type="text" name="tags" id="tags" value="<%= event.tags?.map(t => t.name).join(', ') || '' %>" />
+    </div>
+
+    <% if (event.tags?.length > 0) { %>
+    <h4>Current Tags</h4>
+    <ul>
+      <% event.tags.forEach(tag => { %>
+      <li>
+        <%= tag?.name || "Unnamed Tag" %>
+        <form action="/events/<%= event._id %>/tags/remove" method="POST" style="display:inline;">
+          <input type="hidden" name="tagId" value="<%= tag._id %>" />
+          <button type="submit">❌</button>
+        </form>
+      </li>
+      <% }) %>
+    </ul>
+    <% } %>
+
   <div>
     <label>Visibility:</label>
     <select name="visibility">

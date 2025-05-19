@@ -1,17 +1,5 @@
 <link rel='stylesheet' href='css/dashboard.css' />
 
-<% const languageMap = {
-    en: "🇺🇸 English",
-    es: "🇪🇸 Spanish",
-    fr: "🇫🇷 French",
-    fa: "🇮🇷 Farsi",
-    de: "🇩🇪 German",
-    it: "🇮🇹 Italian",
-    zh: "🇨🇳 Chinese",
-    ar: "🇸🇦 Arabic",
-    ru: "🇷🇺 Russian"
-  }; %>
-
 <div id="dashboard">
     <div id="dashboard-header">
 
@@ -73,11 +61,11 @@
             <p><strong>Bio:</strong> <%= user.profile.bio || 'No bio yet.' %></p>
             
             <p><strong>Interests:</strong>
-                <% if (user.profile.interests?.length) { %>
-                <%= user.profile.interests.join(', ') %>
-                <% } else { %>
-                None listed.
-                <% } %>
+              <% if (user.profile.tags?.length) { %>
+              <%= user.profile.tags.map(tag => tag.name).join(', ') %>
+              <% } else { %>
+              None listed.
+              <% } %>
             </p>
 
             <a href="/profile" class="button">Edit Profile</a>

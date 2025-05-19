@@ -10,6 +10,16 @@
 <% } %>
 
 <p><%= community.description %></p>
+
+<% if (community.tags?.length) { %>
+<div class="community-tags">
+  <strong>Tags:</strong>
+  <% community.tags.forEach(tag => { %>
+  <span class="tag-pill"><%= tag.name %></span>
+  <% }) %>
+</div>
+<% } %>
+
 <p><strong>Owner:</strong> <%= community.owner.username %></p>
 
 <% if (isOwner) { %>

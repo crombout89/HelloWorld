@@ -11,20 +11,12 @@
 
   <label for="name">Community Name:</label><br>
   <input type="text" id="name" name="name" required><br><br>
-
-  <!-- Category Selection -->
-  <label for="category">Category:</label>
-  <select name="category" id="category" required>
-    <option value="Tech">Tech</option>
-    <option value="Social">Social</option>
-    <option value="Gaming">Gaming</option>
-    <option value="Local">Local</option>
-    <option value="Other">Other</option>
-  </select>
-
-  <!-- Tags (comma-separated) -->
-  <label for="tags">Tags:</label>
-  <input type="text" id="tags" name="tags" placeholder="e.g. javascript, node, women-in-tech">
+  
+  <!-- 🏷️ Tags Input -->
+  <div>
+    <label for="tags">Tags (comma-separated)</label>
+    <input type="text" name="tags" id="tags" value="<%= community?.tags?.map(t => t.name).join(', ') || '' %>" />
+  </div>
 
   <label for="description">Description:</label><br>
   <textarea id="description" name="description" rows="4" cols="50"></textarea><br><br>

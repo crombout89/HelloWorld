@@ -14,10 +14,20 @@
 <% } %>
 
 <h2><%= event.title %></h2>
+<p><strong>Hosted By:</strong> <%= event.host?.username || "Unknown" %></p>
 <% if (event.community) { %>
 <p>🏘️ This event is linked to a community: <a href="/communities/<%= event.community._id %>"><%= event.community.name %></a></p>
 <% } %>
 <p><%= event.description %></p>
+
+<% if (event.tags?.length) { %>
+<div class="event-tags">
+  <strong>Tags:</strong>
+  <% event.tags.forEach(tag => { %>
+  <span class="tag-pill"><%= tag.name %></span>
+  <% }) %>
+</div>
+<% } %>
 
 <% if (
   event.invitees.some(i => i.toString() === currentUserId) &&
