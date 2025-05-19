@@ -33,8 +33,11 @@ window.initEventMap = function initEventMap(
         const addressInput = document.getElementById("location-address");
 
         if (nameInput) nameInput.value = city || "";
-        if (addressInput)
-          addressInput.value = `${displayName || city}, ${country}`;
+        if (addressInput) {
+          addressInput.value =
+            data.fullAddress ||
+            `${data.road || ""} ${data.houseNumber || ""}, ${data.city || ""}, ${data.country || ""}`;
+        }
       }
     } catch (err) {
       console.error("❌ Failed to reverse geocode:", err);

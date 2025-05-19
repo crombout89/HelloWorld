@@ -58,7 +58,9 @@ router.get("/reverse", async (req, res) => {
       success: true,
       city: result.city,
       country: result.country,
-      displayName: `${result.city}, ${result.country}`,
+      road: result.road,
+      houseNumber: result.houseNumber,
+      fullAddress: result.fullAddress,
     });
   } catch (err) {
     console.error("🔁 Reverse lookup failed:", err);

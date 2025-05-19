@@ -15,6 +15,9 @@ class LocationService {
       return {
         city: address.city || address.town || address.village || "",
         country: address.country || "",
+        road: address.road || "",
+        houseNumber: address.house_number || "",
+        fullAddress: res.data.display_name || "",
         latitude: parseFloat(lat),
         longitude: parseFloat(lon),
       };

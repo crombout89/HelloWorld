@@ -292,20 +292,26 @@ router.post("/events/:id/remove", isLoggedIn, async (req, res) => {
 router.get("/events/:id/edit", isLoggedIn, async (req, res) => {
   const event = await Event.findById(req.params.id).populate("tags").lean();
   if (!event) return res.status(404).render("404");
-  res.render("events/edit", { event, title: `Edit ${event.title}` });
+  res.render("events/edit", {
+    event,
+    title: `Edit: ${event.title}`,
+    includeLeaflet: true, // ✅ ensures leaflet.css/js are included from layout
+  });
 });
 
-// POST: Update Event
 router.post("/events/:id/edit", isLoggedIn, async (req, res) => {
   try {
     const {
       title,
       description,
+      locationName,
+      locationAddress,
       startTime,
       endTime,
-      location,
       visibility,
       tags,
+      lat,
+      lon,
     } = req.body;
 
     const tagNames = tags
@@ -313,6 +319,13 @@ router.post("/events/:id/edit", isLoggedIn, async (req, res) => {
       .map((t) => t.trim())
       .filter(Boolean);
     const resolvedTags = await resolveTags(tagNames, req.session.userId);
+
+    const location = {
+      name: locationName,
+      address: locationAddress,
+      lat: parseFloat(lat),
+      lon: parseFloat(lon),
+    };
 
     await Event.findByIdAndUpdate(req.params.id, {
       title,
