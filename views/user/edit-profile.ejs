@@ -109,21 +109,31 @@
     <button type="submit" style="margin-top: 1rem;">Save Profile</button>
   </form>
 
-  <!-- ❤️ FORM: Add Interests -->
-  <h2 style="margin-bottom: 1rem;">Interests</h2>
-  <% if (user.profile?.interests?.length > 0) { %>
-  <ul style="margin-bottom: 1rem;">
-    <% user.profile.interests.forEach(interest => { %>
-    <li><%= interest %></li>
+  <!-- ❤️ Tagged Interests -->
+  <h2 style="margin-bottom: 1rem;">Your Interests</h2>
+
+  <% if (user.profile?.tags?.length > 0) { %>
+  <ul>
+    <% user.profile.tags.forEach(tag => { %>
+    <li>
+      <%= tag?.name || "Unnamed Tag" %>
+      <form action="/profile/tags/remove" method="POST" style="display:inline;">
+        <input type="hidden" name="tagId" value="<%= tag._id %>" />
+        <button type="submit">❌</button>
+      </form>
+    </li>
     <% }); %>
   </ul>
   <% } else { %>
-  <p style="margin-bottom: 1rem;">No interests added yet.</p>
+  <p>No interests added yet.</p>
   <% } %>
 
-  <form action="/profile/interests" method="POST" style="margin-bottom: 2rem;">
-    <label for="interest">Add New Interest:</label><br>
-    <input type="text" name="interest" id="interest" required style="width: 100%; margin-bottom: 0.5rem;">
-    <button type="submit">Add Interest</button>
+  <!-- 📝 Tag Update Form -->
+  <form action="/profile/tags" method="POST">
+    <label for="tags">Edit Interests</label>
+    <textarea name="tags" id="tags" rows="5" placeholder="e.g., anime, hiking, devtools">
+    <%= user.profile.tags.map(t => t.name).join(', ') %>
+    </textarea>
+    <button type="submit">Update Interests</button>
   </form>
 </div>

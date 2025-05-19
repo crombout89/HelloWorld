@@ -5,6 +5,7 @@ const WallPost = require("../models/post");
 const User = require("../models/user");
 const { isLoggedIn } = require("../middleware/auth");
 const { sendNotification } = require("../services/notificationService");
+const { resolveTags } = require("../services/tagService");
 const { getFriendsForUser } = require("../services/friendService");
 const LocationIQ = require("../services/locationService");
 
@@ -41,7 +42,7 @@ router.get("/events/new", isLoggedIn, async (req, res) => {
   });
 });
 
-// POST: Create Event
+// POST: Create a new community
 router.post("/events/create", isLoggedIn, async (req, res) => {
   const {
     title,
@@ -52,13 +53,15 @@ router.post("/events/create", isLoggedIn, async (req, res) => {
     endTime,
     visibility,
     communityId,
+    tags, // ⬅️ from form input
   } = req.body;
 
   try {
-    // 🌍 Geocode the address to get lat/lon
-    const geo = await LocationIQ.geocodeAddress(
-      `${locationName}, ${locationAddress}`
-    );
+    const tagNames = tags
+      ?.split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+    const resolvedTags = await resolveTags(tagNames, req.session.userId);
 
     const newEvent = await Event.create({
       title,
@@ -75,6 +78,10 @@ router.post("/events/create", isLoggedIn, async (req, res) => {
       endTime,
       visibility,
       community: communityId || null,
+<<<<<<< HEAD
+=======
+      tags: resolvedTags.map((t) => t._id), // ✅ store ObjectIds
+>>>>>>> 0394f40fadbf8eb8a2bc458242fc10d9dde7dfee
       invitees: [],
       attendees: [],
       rsvp: [],
@@ -90,21 +97,12 @@ router.post("/events/create", isLoggedIn, async (req, res) => {
 // GET: Single Event View
 router.get("/events/:id", isLoggedIn, async (req, res) => {
   const userId = req.session.userId;
-  const rawEvent = await Event.findById(req.params.id).lean();
+  const rawEvent = await Event.findById(req.params.id)
+    .populate("tags")
+    .populate("community", "name")
+    .populate("host", "username")
+    .lean();
   if (!rawEvent) return res.status(404).render("404");
-
-  // Manually fetch the host based on type
-  let populatedHost = null;
-  if (rawEvent.hostType === "User") {
-    const User = require("../models/user");
-    populatedHost = await User.findById(rawEvent.host).lean();
-  } else if (rawEvent.hostType === "Community") {
-    const Community = require("../models/community");
-    populatedHost = await Community.findById(rawEvent.host).lean();
-  }
-
-  // Attach host manually
-  rawEvent.host = populatedHost;
 
   const isInvited = rawEvent.invitees?.some(id => id.toString() === userId);
   const isAttending = rawEvent.attendees?.some(id => id.toString() === userId);
@@ -291,7 +289,7 @@ router.post("/events/:id/remove", isLoggedIn, async (req, res) => {
 
 // GET: Edit Event Form
 router.get("/events/:id/edit", isLoggedIn, async (req, res) => {
-  const event = await Event.findById(req.params.id).lean();
+  const event = await Event.findById(req.params.id).populate("tags").lean();
   if (!event) return res.status(404).render("404");
   res.render("events/edit", { event, title: `Edit ${event.title}` });
 });
@@ -299,8 +297,22 @@ router.get("/events/:id/edit", isLoggedIn, async (req, res) => {
 // POST: Update Event
 router.post("/events/:id/edit", isLoggedIn, async (req, res) => {
   try {
-    const { title, description, startTime, endTime, location, visibility } =
-      req.body;
+    const {
+      title,
+      description,
+      startTime,
+      endTime,
+      location,
+      visibility,
+      tags,
+    } = req.body;
+
+    const tagNames = tags
+      ?.split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+    const resolvedTags = await resolveTags(tagNames, req.session.userId);
+
     await Event.findByIdAndUpdate(req.params.id, {
       title,
       description,
@@ -308,11 +320,32 @@ router.post("/events/:id/edit", isLoggedIn, async (req, res) => {
       endTime,
       location,
       visibility,
+      tags: resolvedTags.map((t) => t._id),
     });
+
     res.redirect(`/events/${req.params.id}`);
   } catch (err) {
     console.error(err);
     res.status(500).send("Failed to update event");
+  }
+});
+
+// POST: Remove event tags
+router.post("/events/:id/tags/remove", isLoggedIn, async (req, res) => {
+  try {
+    const { tagId } = req.body;
+    const event = await Event.findById(req.params.id);
+
+    if (!event || event.host.toString() !== req.session.userId)
+      return res.status(403).send("Not allowed");
+
+    event.tags = event.tags.filter((t) => t.toString() !== tagId);
+    await event.save();
+
+    res.redirect(`/events/${req.params.id}/edit`);
+  } catch (err) {
+    console.error("Error removing tag from event:", err);
+    res.status(500).send("Could not remove tag");
   }
 });
 

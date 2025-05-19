@@ -13,7 +13,14 @@
     <% } %>
     <h2><%= c.name %></h2>
     <p><%= c.description %></p>
-    <p><strong>Category:</strong> <%= c.category %></p>
+    <% if (community.tags?.length) { %>
+    <div class="community-tags">
+      <strong>Tags:</strong>
+      <% community.tags.forEach(tag => { %>
+      <span class="tag-pill"><%= tag.name %></span>
+      <% }) %>
+    </div>
+    <% } %>
     <p><strong>Members:</strong> <%= c.members.length %></p>
     <a href="/communities/<%= c._id %>/public" class="btn">🔍 View Community</a>
   </div>

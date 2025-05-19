@@ -5,6 +5,8 @@ const Community = require("../models/community");
 const Notification = require("../models/notification");
 const { sendNotification } = require("../services/notificationService");
 const { getFriendsForUser } = require("../services/friendService");
+const Tag = require("../models/tag");
+const { resolveTags } = require("../services/tagService");
 const Post = require("../models/post");
 const User = require("../models/user");
 const multer = require("multer");
@@ -36,7 +38,15 @@ router.get("/", isAuthenticated, async (req, res) => {
 
 // New community form
 router.get("/new", isAuthenticated, (req, res) => {
-  res.render("communities/new", { title: "Create New Community" });
+  res.render("communities/new", {
+    title: "Create Community",
+    community: {
+      name: "",
+      description: "",
+      category: "",
+      tags: [], // make sure this is defined so .map() works
+    },
+  });
 });
 
 // Create community
@@ -49,15 +59,22 @@ router.post(
     const coverImage = req.file ? `/uploads/${req.file.filename}` : null;
 
     try {
+      // 🧠 Normalize + resolve tag ObjectIds
+      const resolvedTags = await resolveTags(
+        tags?.split(",").map((t) => t.trim()),
+        req.session.userId
+      );
+
       const community = new Community({
         name,
         description,
         category,
-        tags: tags?.split(",").map((t) => t.trim()),
+        tags: resolvedTags.map((t) => t._id),
         coverImage,
         owner: req.session.userId,
         members: [req.session.userId],
       });
+
       await community.save();
       res.redirect(`/communities/${community._id}`);
     } catch (err) {
@@ -77,7 +94,8 @@ router.get("/:id", isAuthenticated, async (req, res) => {
   try {
     const community = await Community.findById(req.params.id)
       .populate("owner", "username")
-      .populate("members", "username");
+      .populate("members", "username")
+      .populate("tags"); // 🧠 this was missing
 
     if (!community) return res.status(404).send("Community not found");
 
@@ -117,52 +135,80 @@ router.get("/:id", isAuthenticated, async (req, res) => {
   }
 });
 
-// Edit community form
-router.get("/:id/edit", isAuthenticated, async (req, res) => {
+// 🔄 GET + POST logic for editing a community
+router
+  .route("/:id/edit")
+  .get(isAuthenticated, async (req, res) => {
+    try {
+      const community = await Community.findById(req.params.id).populate(
+        "tags"
+      );
+
+      if (!community || community.owner.toString() !== req.session.userId)
+        return res.status(403).send("Not allowed");
+
+      res.render("communities/edit", {
+        title: `Edit: ${community.name}`,
+        community,
+      });
+    } catch (err) {
+      console.error("Error loading edit form:", err);
+      res.status(500).send("Something went wrong");
+    }
+  })
+  .post(isAuthenticated, upload.single("coverImage"), async (req, res) => {
+    console.log("Remove tag attempt by:", req.session.userId);
+    try {
+      const { name, description, tags } = req.body;
+      const community = await Community.findById(req.params.id);
+
+      if (!community || community.owner.toString() !== req.session.userId)
+        return res.status(403).send("Not allowed");
+
+      // ✍️ Updates
+      community.name = name;
+      community.description = description;
+
+      if (req.file) {
+        community.coverImage = `/uploads/${req.file.filename}`;
+      }
+
+      // 🏷️ Tags
+      const tagNames = tags
+        ?.split(",")
+        .map((t) => t.trim())
+        .filter(Boolean);
+      if (tagNames?.length) {
+        const resolved = await resolveTags(tagNames, req.session.userId);
+        community.tags = resolved.map((t) => t._id);
+      }
+
+      await community.save();
+      res.redirect(`/communities/${community._id}/edit`);
+    } catch (err) {
+      console.error("Error updating community:", err);
+      res.status(500).send("Something went wrong");
+    }
+  });
+
+// Remove community tags
+router.post("/:id/tags/remove", isAuthenticated, async (req, res) => {
   try {
+    const { tagId } = req.body;
     const community = await Community.findById(req.params.id);
+
     if (!community || community.owner.toString() !== req.session.userId)
       return res.status(403).send("Not allowed");
 
-    res.render("communities/edit", {
-      title: `Edit: ${community.name}`,
-      community,
-    });
+    community.tags = community.tags.filter((t) => t.toString() !== tagId);
+    await community.save();
+
+    res.redirect(`/communities/${req.params.id}/edit`);
   } catch (err) {
-    console.error("Error loading edit form:", err);
-    res.status(500).send("Something went wrong");
+    console.error("Error removing tag:", err);
+    res.status(500).send("Failed to remove tag");
   }
 });
-
-// Update community
-router.post(
-  "/:id/update",
-  isAuthenticated,
-  upload.single("coverImage"),
-  async (req, res) => {
-    try {
-      const community = await Community.findById(req.params.id);
-      if (!community) return res.redirect("/communities");
-
-      if (community.owner.toString() !== req.session.userId)
-        return res.status(403).send("Forbidden");
-
-      const updates = {
-        name: req.body.name,
-        description: req.body.description,
-        category: req.body.category,
-        tags: req.body.tags.split(",").map((tag) => tag.trim()),
-      };
-      if (req.file) updates.coverImage = "/uploads/" + req.file.filename;
-
-      await Community.findByIdAndUpdate(req.params.id, updates);
-      res.redirect(`/communities/${community._id}`);
-    } catch (err) {
-      console.error("Error updating community:", err);
-      res.redirect("/communities");
-    }
-  }
-);
 
 // Manage community
 router.get("/:id/manage", isAuthenticated, async (req, res) => {
@@ -261,7 +307,7 @@ router.get("/:id/manage/modal", isAuthenticated, async (req, res) => {
 });
 
 // ✅ Request to Join a Community
-router.post('/:id/request', isAuthenticated, async (req, res) => {
+router.post("/:id/request", isAuthenticated, async (req, res) => {
   try {
     const community = await Community.findById(req.params.id);
     if (!community) return res.status(404).send("Community not found");
@@ -297,10 +343,10 @@ router.post('/:id/request', isAuthenticated, async (req, res) => {
 });
 
 // ✅ Leave Community
-router.post('/:id/leave', isAuthenticated, async (req, res) => {
+router.post("/:id/leave", isAuthenticated, async (req, res) => {
   try {
     await Community.findByIdAndUpdate(req.params.id, {
-      $pull: { members: req.session.userId }
+      $pull: { members: req.session.userId },
     });
     res.redirect(`/communities/${req.params.id}`);
   } catch (err) {

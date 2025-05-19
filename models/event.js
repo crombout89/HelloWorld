@@ -3,12 +3,16 @@ const mongoose = require("mongoose");
 const eventSchema = new mongoose.Schema({
   title: { type: String, required: true },
   description: String,
+
+  tags: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tag" }],
   coverImage: String,
-  hostType: { type: String, enum: ["User", "Community"], required: true },
-  host: {
+
+  host: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+
+  community: {
     type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    refPath: "hostType",
+    ref: "Community",
+    default: null,
   },
 
   location: {
@@ -26,9 +30,10 @@ const eventSchema = new mongoose.Schema({
     enum: ["public", "friends", "invite"],
     default: "public",
   },
-  invitees: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
 
+  invitees: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
   attendees: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+
   rsvp: [
     {
       user: { type: mongoose.Schema.Types.ObjectId, ref: "User" },

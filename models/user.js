@@ -58,10 +58,7 @@ const UserSchema = new mongoose.Schema(
         type: [String],
         validate: [arrayLimit(10), "Interests cannot exceed 10"],
       },
-      tags: {
-        type: [String],
-        default: [],
-      },
+      tags: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tag" }],
       profilePicture: {
         type: String,
         default: "/default-profile.png",
@@ -158,10 +155,6 @@ UserSchema.methods.updateLastLogin = function () {
 UserSchema.statics.findByEmail = function (email) {
   return this.findOne({ email: email.toLowerCase() });
 };
-
-UserSchema.path("profile.interests").validate(function (interests) {
-  return interests.every((interest) => interest.trim().length > 0);
-}, "Interests cannot be empty strings");
 
 UserSchema.virtual("fullName").get(function () {
   return `${this.profile.firstName || ""} ${this.profile.lastName || ""}`.trim();

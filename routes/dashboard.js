@@ -18,7 +18,9 @@ const isAuthenticated = async (req, res, next) => {
 router.get("/", async (req, res) => {
   try {
     const userId = req.session.userId;
-    const user = await User.findById(userId);
+    const user = await User.findById(userId)
+      .populate("profile.tags") // <-- this is the fix
+      .lean();
 
     // 👥 Get Friends
     const friendships = await Friendship.find({
