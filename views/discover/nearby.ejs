@@ -1,0 +1,14 @@
+<h2>📍 Events Near You</h2>
+
+<% if (nearbyEvents.length > 0) { %>
+<ul>
+  <% nearbyEvents.forEach(event => { %>
+  <li>
+    <a href="/events/<%= event._id %>"><%= event.title %></a>
+    (<%= event.distance.toFixed(1) %> km)
+  </li>
+  <% }) %>
+</ul>
+<% } else { %>
+<p>No nearby events found within 25 km.</p>
+<% } %>

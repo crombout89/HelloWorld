@@ -3,8 +3,10 @@ const router = express.Router();
 const Community = require("../models/community");
 const Event = require("../models/event");
 const User = require("../models/user");
+const haversine = require("haversine-distance");
 const { calculateMatchScore } = require("../services/matchService");
 const { getFriendsForUser } = require("../services/friendService");
+const { calculateItemMatch } = require("../services/discoverMatchService");
 const { isLoggedIn } = require("../middleware/auth");
 
 router.get("/", (req, res) => {
@@ -97,6 +99,68 @@ router.get("/friends", isLoggedIn, async (req, res) => {
   res.render("discover/friends", {
     title: "Discover New Friends",
     matches,
+  });
+});
+
+// GET /discover/interests
+router.get("/interests", isLoggedIn, async (req, res) => {
+  const userId = req.session.userId;
+  const me = await User.findById(userId).lean();
+  if (!me) return res.redirect("/login");
+
+  const [events, communities] = await Promise.all([
+    Event.find({
+      tags: { $exists: true, $ne: [] },
+      visibility: "public",
+    }).lean(),
+    Community.find({ tags: { $exists: true, $ne: [] } }).lean(),
+  ]);
+
+  const matchedEvents = events
+    .map((e) => ({ ...e, score: calculateItemMatch(me, e) }))
+    .filter((e) => e.score > 0)
+    .sort((a, b) => b.score - a.score);
+
+  const matchedCommunities = communities
+    .map((c) => ({ ...c, score: calculateItemMatch(me, c) }))
+    .filter((c) => c.score > 0)
+    .sort((a, b) => b.score - a.score);
+
+  res.render("discover/interests", {
+    title: "Interest Matches",
+    matchedEvents,
+    matchedCommunities,
+  });
+});
+
+// GET /discover/nearby
+router.get("/nearby", isLoggedIn, async (req, res) => {
+  const { lat, lon } = req.query;
+  if (!lat || !lon) return res.status(400).send("Missing coordinates");
+
+  const userCoords = {
+    lat: parseFloat(lat),
+    lon: parseFloat(lon),
+  };
+
+  const events = await Event.find({ visibility: "public" }).lean();
+
+  const nearbyEvents = events
+    .map((event) => {
+      if (!event.location?.lat || !event.location?.lon) return null;
+      const dist =
+        haversine(userCoords, {
+          lat: event.location.lat,
+          lon: event.location.lon,
+        }) / 1000;
+      return { ...event, distance: dist };
+    })
+    .filter((e) => e && e.distance <= 25)
+    .sort((a, b) => a.distance - b.distance);
+
+  res.render("discover/nearby", {
+    title: "Events Near You",
+    nearbyEvents,
   });
 });
 
