@@ -18,8 +18,15 @@
         <section id="current-location">
             <h2>Your Current Location</h2>
 
+            <!-- 🌍 Location Input -->
             <section class="location-section">
-              <-- LOGIC GO HERE DUDE -->
+                <h3>📍 Set Your Location</h3>
+                <input id="location-city" type="text" placeholder="City..." />
+                <input id="location-country" type="text" placeholder="Country..." />
+                <button id="save-location-btn">Save Location</button>
+                <button id="use-current-location">📍 Use My Current Location</button>
+                <p id="location-status"></p>
+                </section>
             </section>
         </section>
 
@@ -46,6 +53,15 @@
                 <%= user.profile.firstName || 'First' %>
                 <%= user.profile.lastName || 'Last' %>
             </p>
+
+            <% if (user.profile?.location?.address?.city) { %>
+            <p>📍 Location:
+              <%= user.profile.location.address.city %>,
+              <%= user.profile.location.address.country %>
+            </p>
+            <% } else { %>
+            <p>📍 No location set yet.</p>
+            <% } %>
 
             <p><strong>Language:</strong> <%= languageMap[user.profile.language] || "Not specified" %></p>
 
