@@ -5,6 +5,7 @@ const multer = require("multer");
 const User = require("../models/user");
 const Friendship = require("../models/friendship");
 const WallPost = require("../models/wallPost");
+const { resolveTags } = require("../services/tagService");
 const { isLoggedIn } = require("../middleware/auth");
 
 // ========================
@@ -99,26 +100,19 @@ router.post("/profile/update", upload.single("photo"), async (req, res) => {
 // ========================
 router.post("/profile/interests", isLoggedIn, async (req, res) => {
   const userId = req.session.user._id;
-  const newInterest = req.body.interest?.trim();
-
-  if (!newInterest) return res.redirect("/profile");
+  const interestInput = req.body.interest || ""; // could be single or comma-delimited
 
   try {
+    const rawList = interestInput.split(",").map(i => i.trim()).filter(Boolean);
+
+    const tags = await resolveTags(rawList, userId);
+    const tagNames = tags.map(t => t.name);
+
     const user = await User.findById(userId);
-    if (!user) return res.redirect("/login");
+    user.profile.interests = tagNames;
+    await user.save();
 
-    if (!Array.isArray(user.profile.interests)) {
-      user.profile.interests = [];
-    }
-
-    if (!user.profile.interests.includes(newInterest)) {
-      user.profile.interests.push(newInterest);
-      await user.save();
-
-      // Also update session
-      req.session.user.profile.interests = user.profile.interests;
-    }
-
+    req.session.user.profile.interests = tagNames;
     res.redirect("/profile");
   } catch (err) {
     console.error("Error updating interests:", err);

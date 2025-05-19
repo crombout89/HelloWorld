@@ -159,10 +159,6 @@ UserSchema.statics.findByEmail = function (email) {
   return this.findOne({ email: email.toLowerCase() });
 };
 
-UserSchema.path("profile.interests").validate(function (interests) {
-  return interests.every((interest) => interest.trim().length > 0);
-}, "Interests cannot be empty strings");
-
 UserSchema.virtual("fullName").get(function () {
   return `${this.profile.firstName || ""} ${this.profile.lastName || ""}`.trim();
 });
