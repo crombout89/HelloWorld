@@ -40,12 +40,7 @@
   <% } %>
 
   <!-- 🔑 Location API key and client JS -->
-  <script>
-    const GEOAPIFY_AUTOCOMPLETE_KEY = "<%= geoapifyAutocompleteKey %>";
-  </script>
-  <% if (includeLocationClient) { %>
-  <script src="/js/location-client.js"></script>
-  <% } %>
+  <script src="/js/location.js"></script>
 
   <!-- Socket + modular client-side logic -->
   <script>

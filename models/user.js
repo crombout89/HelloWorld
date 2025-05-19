@@ -62,21 +62,6 @@ const UserSchema = new mongoose.Schema(
         type: [String],
         default: [],
       },
-      preferences: {
-        theme: {
-          type: String,
-          enum: ["light", "dark", "system"],
-          default: "system",
-        },
-        allowWallPosts: { type: Boolean, default: true },
-        allowMessages: { type: Boolean, default: true },
-        visibility: {
-          type: String,
-          enum: ["public", "friends", "private"],
-          default: "public",
-        },
-        timezone: { type: String },
-      },
       profilePicture: {
         type: String,
         default: "/default-profile.png",

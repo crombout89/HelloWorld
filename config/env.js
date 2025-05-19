@@ -9,11 +9,8 @@ module.exports = {
   // 🧠 AI Integration
   huggingFaceApiKey: env.get("HF_API_KEY").required().asString(),
 
-  // 🌍 Geoapify (autocomplete only for now)
-  geoapifyAutocompleteKey: env
-    .get("GEOAPIFY_AUTOCOMPLETE_KEY")
-    .required()
-    .asString(),
+  // 🧠 LocationIQ API
+  locationIqApiKey: env.get("LOCATIONIQ_API_KEY").required().asString(),
 
   // 📊 API limits
   apiRequestLimit: env.get("API_REQUEST_LIMIT").default(1000).asIntPositive(),
