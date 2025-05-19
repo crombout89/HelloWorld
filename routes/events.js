@@ -39,10 +39,11 @@ router.get("/events/new", isLoggedIn, async (req, res) => {
       },
     },
     communities,
+    includeLeaflet: true,
   });
 });
 
-// POST: Create a new community
+// POST: Create a new event
 router.post("/events/create", isLoggedIn, async (req, res) => {
   const {
     title,
@@ -53,7 +54,9 @@ router.post("/events/create", isLoggedIn, async (req, res) => {
     endTime,
     visibility,
     communityId,
-    tags, // ⬅️ from form input
+    tags,
+    lat,
+    lon, // ✅ add these
   } = req.body;
 
   try {
@@ -71,17 +74,14 @@ router.post("/events/create", isLoggedIn, async (req, res) => {
       location: {
         name: locationName,
         address: locationAddress,
-        lat: geo?.lat,
-        lon: geo?.lon,
+        lat: parseFloat(lat) || 0,
+        lon: parseFloat(lon) || 0,
       },
       startTime,
       endTime,
       visibility,
       community: communityId || null,
-<<<<<<< HEAD
-=======
       tags: resolvedTags.map((t) => t._id), // ✅ store ObjectIds
->>>>>>> 0394f40fadbf8eb8a2bc458242fc10d9dde7dfee
       invitees: [],
       attendees: [],
       rsvp: [],
@@ -141,6 +141,7 @@ router.get("/events/:id", isLoggedIn, async (req, res) => {
     canPost,
     canEdit: isHost,
     groupedAttendees,
+    includeLeaflet: true,
   });
 });
 

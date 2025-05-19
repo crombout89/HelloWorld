@@ -37,16 +37,18 @@
     <input type="datetime-local" name="endTime" required />
   </div>
 
+
+  <!-- 🌍 Leaflet Map -->
   <h3>📍 Event Location</h3>
-  <div>
-    <input type="text" name="locationName" value="<%= event.location?.name || '' %>" placeholder="Location Name" required>
 
-    <input type="text" name="locationAddress" value="<%= event.location?.address || '' %>" placeholder="Street Address" required>
+  <input type="text" name="locationName" id="location-name">
+  <input type="text" name="locationAddress" id="location-address">
+  
+  <div id="event-map" style="height: 300px; margin: 1em 0;"></div>
 
-    <input type="text" name="latitude" value="<%= event.location?.latitude || '' %>" placeholder="Latitude" required>
-
-    <input type="text" name="longitude" value="<%= event.location?.longitude || '' %>" placeholder="Longitude" required>
-  </div>
+  <!-- Hidden fields to capture lat/lon -->
+  <input type="hidden" id="lat" name="lat">
+  <input type="hidden" id="lon" name="lon">
 
   <div>
     <label>Visibility:</label>
@@ -59,3 +61,17 @@
 
   <button type="submit">Create Event</button>
 </form>
+
+<!-- Load the map logic -->
+<script src="/js/event-map.js"></script>
+
+<!-- 🕓 Defer init until DOM + Leaflet ready -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    if (typeof L === "undefined") {
+      console.error("Leaflet (L) is not loaded");
+    } else {
+      initEventMap();
+    }
+  });
+</script>

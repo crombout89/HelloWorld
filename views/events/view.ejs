@@ -1,4 +1,12 @@
-<!-- views/events/view.ejs -->
+<style>
+  #event-view-map {
+    height: 300px;
+    min-height: 300px;
+    width: 100%;
+  }
+</style>
+
+<!-- 🔧 Manage Controls -->
 <% if (isHost) { %>
 <a href="/events/<%= event._id %>/edit">Edit Event</a>
 
@@ -13,13 +21,21 @@
 </form>
 <% } %>
 
+<!-- 🎉 Event Title & Info -->
 <h2><%= event.title %></h2>
 <p><strong>Hosted By:</strong> <%= event.host?.username || "Unknown" %></p>
+
 <% if (event.community) { %>
-<p>🏘️ This event is linked to a community: <a href="/communities/<%= event.community._id %>"><%= event.community.name %></a></p>
+<p>🏘️ This event is linked to a community:
+  <a href="/communities/<%= event.community._id %>">
+    <%= event.community.name %>
+  </a>
+</p>
 <% } %>
+
 <p><%= event.description %></p>
 
+<!-- 🏷️ Tags -->
 <% if (event.tags?.length) { %>
 <div class="event-tags">
   <strong>Tags:</strong>
@@ -29,22 +45,24 @@
 </div>
 <% } %>
 
+<!-- 📩 RSVP -->
 <% if (
   event.invitees.some(i => i.toString() === currentUserId) &&
   !event.attendees.some(a => a.toString() === currentUserId)
 ) { %>
-  <form action="/events/<%= event._id %>/rsvp" method="POST">
-    <label for="response">RSVP:</label>
-    <select name="status" required>
-      <option value="" disabled selected>Select response</option>
-      <option value="going">✅ Going</option>
-      <option value="interested">🤔 Maybe</option>
-      <option value="declined">❌ Not Going</option>
-    </select>
-    <button type="submit">Submit</button>
-  </form>
+<form action="/events/<%= event._id %>/rsvp" method="POST">
+  <label for="response">RSVP:</label>
+  <select name="status" required>
+    <option value="" disabled selected>Select response</option>
+    <option value="going">✅ Going</option>
+    <option value="interested">🤔 Maybe</option>
+    <option value="declined">❌ Not Going</option>
+  </select>
+  <button type="submit">Submit</button>
+</form>
 <% } %>
 
+<!-- 👥 Attendees List -->
 <% if (groupedAttendees && Object.keys(groupedAttendees).length > 0) { %>
 <div style="margin-top: 2rem;">
   <h3>Attendees</h3>
@@ -52,20 +70,49 @@
   <strong><%= status.charAt(0).toUpperCase() + status.slice(1) %>:</strong>
   <ul style="margin-bottom: 1rem;">
     <% groupedAttendees[status].forEach(user => { %>
-    <li>
-      <a href="/u/<%= user.username %>"><%= user.username %></a>
-    </li>
+    <li><a href="/u/<%= user.username %>"><%= user.username %></a></li>
     <% }) %>
   </ul>
   <% } %>
 </div>
 <% } %>
 
-<p><strong>Hosted By:</strong> <%= event.host?.username || event.host?.name || 'Unknown' %></p>
-<p><strong>Date:</strong> <%= new Date(event.startTime).toLocaleString() %> - <%= new Date(event.endTime).toLocaleString() %></p>
-<p><strong>Location:</strong> <%= event.location %></p>
+<!-- 🗓️ Timing & Location -->
+<p><strong>Date:</strong>
+  <%= new Date(event.startTime).toLocaleString() %> -
+  <%= new Date(event.endTime).toLocaleString() %>
+</p>
+<p><strong>Location:</strong><br />
+  <%= event.location.name || "No name" %><br />
+  <%= event.location.address || "No address" %>
+</p>
 
+<!-- 🗺️ Leaflet Preview Map -->
+<% if (event.location && event.location.lat && event.location.lon) { %>
+<div id="event-view-map" style="height: 300px; margin: 1em 0;"></div>
 
+<script>
+  window.addEventListener("DOMContentLoaded", () => {
+    const lat = <%= event.location.lat %>;
+    const lon = <%= event.location.lon %>;
+
+    console.log("📍 Loaded event location:", lat, lon);
+
+    const map = L.map("event-view-map").setView([lat, lon], 13);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; OpenStreetMap contributors',
+    }).addTo(map);
+
+    L.marker([lat, lon])
+    .addTo(map)
+    .bindPopup(`<strong>${"<%= event.location.name || 'Event Location' %>"}</strong><br>${"<%= event.location.address || '' %>"}`)
+    .openPopup();
+  });
+</script>
+<% } %>
+
+<!-- 🧱 Wall -->
 <h3>Wall</h3>
 <% if (canPost) { %>
 <form action="/events/<%= event._id %>/wall/post" method="POST">
@@ -78,8 +125,8 @@
 <ul>
   <% wallPosts.forEach(post => { %>
   <li>
-    <strong><%= post.author.username %></strong>: <%= post.message %>
-    <br><small><%= new Date(post.createdAt).toLocaleString() %></small>
+    <strong><%= post.author.username %></strong>: <%= post.message %><br>
+    <small><%= new Date(post.createdAt).toLocaleString() %></small>
   </li>
   <% }) %>
 </ul>
