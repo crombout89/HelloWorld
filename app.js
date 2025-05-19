@@ -15,8 +15,6 @@ const User = require('./models/user');
 
 const app = express();
 
-app.locals.geoapifyAutocompleteKey = process.env.GEOAPIFY_AUTOCOMPLETE_KEY;
-
 // Body parsers
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -140,9 +138,7 @@ app.use((req, res, next) => {
 
   // 🌍 Always define these so EJS doesn’t explode
   res.locals.includeLocationClient = false;
-  res.locals.geoapifyAutocompleteKey =
-    process.env.GEOAPIFY_AUTOCOMPLETE_KEY || "";
-
+  res.locals.locationAutocompleteKey = "";
   next();
 });
 
