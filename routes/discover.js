@@ -74,30 +74,43 @@ router.get("/events", isLoggedIn, async (req, res) => {
 
 // GET /discover/friends
 router.get("/friends", isLoggedIn, async (req, res) => {
-  const userId = req.session.userId;
-  const me = await User.findById(userId).lean();
-  if (!me) return res.redirect("/login");
+  console.log("👋 /discover/friends route hit");
 
-  const friends = await getFriendsForUser(userId);
-  const excludedIds = new Set([userId, ...friends.map((f) => f._id.toString())]);
+  try {
+    const userId = req.session.userId;
+    const me = await User.findById(userId).populate("profile.tags").lean();
+    if (!me) return res.redirect("/login");
 
-  const candidates = await User.find({
-    _id: { $nin: Array.from(excludedIds) },
-    "profile.interests": { $exists: true, $ne: [] },
-  }).lean();
+    console.log("🧍 Current user:", me.username);
+    console.log("🧠 Tags:", me.profile.tags.map(t => t.name || t));
 
-  const matches = candidates
-    .map((u) => ({
-      ...u,
-      score: calculateMatchScore(me, u),
-    }))
-    .filter((m) => m.score > 0)
-    .sort((a, b) => b.score - a.score);
+    // 🧱 Step A: Exclude self and friends
+    const friends = await getFriendsForUser(userId);
+    const excludedIds = new Set([userId, ...friends.map(f => f._id.toString())]);
 
-  res.render("discover/friends", {
-    title: "Discover New Friends",
-    matches,
-  });
+    const candidates = await User.find({
+      _id: { $nin: Array.from(excludedIds) }
+    }).populate("profile.tags").lean();
+
+    console.log("🎯 Candidate pool size (post exclusion):", candidates.length);
+
+    const matches = candidates
+      .filter(
+        (u) => Array.isArray(u.profile?.tags) && u.profile.tags.length > 0
+      )
+      .map((u) => ({ ...u, score: calculateMatchScore(me, u) }))
+      .filter((m) => m.score > 0)
+      .sort((a, b) => b.score - a.score);
+
+    res.render("discover/friends", {
+      title: "Discover New Friends",
+      matches,
+    });
+
+  } catch (err) {
+    console.error("🔥 Error in /discover/friends:", err);
+    res.status(500).send("Something broke loading matches");
+  }
 });
 
 module.exports = router;

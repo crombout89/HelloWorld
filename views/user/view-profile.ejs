@@ -71,24 +71,15 @@
   <% } %>
 
   <!-- 💬 Tags & Interests -->
-  <% if (user.profile?.tags?.length || user.profile?.interests?.length) { %>
-  <div class="profile-tags" style="margin-top: 1rem;">
-    <% if (user.profile.tags?.length) { %>
-    <p><strong>Tags:</strong>
-      <% user.profile.tags.forEach(tag => { %>
-      <span class="tag"><%= tag %></span>
-      <% }) %>
-    </p>
-    <% } %>
-
-    <% if (user.profile.interests?.length) { %>
-    <p><strong>Interests:</strong>
-      <% user.profile.interests.forEach(interest => { %>
-      <span class="interest"><%= interest %></span>
-      <% }) %>
-    </p>
-    <% } %>
-  </div>
+  <% if (user.profile?.tags?.length > 0) { %>
+  <h3>Your Interests</h3>
+  <ul>
+    <% user.profile.tags.forEach(tag => { %>
+    <li><%= tag.name %></li>
+    <% }) %>
+  </ul>
+  <% } else { %>
+  <p>No interests listed.</p>
   <% } %>
 
   <!-- 🧑‍🤝‍🧑 Friends List -->

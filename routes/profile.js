@@ -5,6 +5,7 @@ const multer = require("multer");
 const User = require("../models/user");
 const Friendship = require("../models/friendship");
 const WallPost = require("../models/wallPost");
+const { resolveTags } = require("../services/tagService");
 const { isLoggedIn } = require("../middleware/auth");
 
 // ========================
@@ -31,7 +32,9 @@ router.get("/profile", isLoggedIn, async (req, res) => {
   if (!userId) return res.redirect("/login");
 
   try {
-    const user = await User.findById(userId);
+    const user = await User.findById(userId)
+      .populate("profile.tags") // ✅ resolve tag ObjectIds to full tag docs
+      .lean();
 
     if (!user) return res.redirect("/login");
 
@@ -95,34 +98,51 @@ router.post("/profile/update", upload.single("photo"), async (req, res) => {
 });
 
 // ========================
-// POST: Update Interests
+// POST: Add Tag Interests
 // ========================
 router.post("/profile/interests", isLoggedIn, async (req, res) => {
   const userId = req.session.user._id;
-  const newInterest = req.body.interest?.trim();
-
-  if (!newInterest) return res.redirect("/profile");
+  const interestInput = req.body.interest || ""; // could be single or comma-delimited
 
   try {
+    const rawList = interestInput
+      .split(",")
+      .map((i) => i.trim())
+      .filter(Boolean);
+
+    const tags = await resolveTags(rawList, userId);
+    const tagNames = input
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+
     const user = await User.findById(userId);
-    if (!user) return res.redirect("/login");
+    user.profile.interests = tagNames;
+    await user.save();
 
-    if (!Array.isArray(user.profile.interests)) {
-      user.profile.interests = [];
-    }
-
-    if (!user.profile.interests.includes(newInterest)) {
-      user.profile.interests.push(newInterest);
-      await user.save();
-
-      // Also update session
-      req.session.user.profile.interests = user.profile.interests;
-    }
-
+    req.session.user.profile.interests = tagNames;
     res.redirect("/profile");
   } catch (err) {
     console.error("Error updating interests:", err);
     res.redirect("/profile");
+  }
+});
+
+// ========================
+// POST: Remove Tag Interests
+// ========================
+router.post("/profile/tags/remove", isLoggedIn, async (req, res) => {
+  const userId = req.session.userId;
+  const { tagId } = req.body;
+
+  try {
+    await User.findByIdAndUpdate(userId, {
+      $pull: { "profile.tags": tagId },
+    });
+    res.redirect("/profile");
+  } catch (err) {
+    console.error("Remove tag error:", err);
+    res.status(500).send("Could not remove tag");
   }
 });
 
@@ -154,7 +174,32 @@ router.post("/profile/preferences", isLoggedIn, async (req, res) => {
 });
 
 // ========================
-// GET: Public Read-Only Profile
+// POST: Save User interest tags
+// ========================
+router.post("/profile/tags", isLoggedIn, async (req, res) => {
+  try {
+    const userId = req.session.userId;
+    const input = req.body.tags || "";
+    const tagNames = input
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+
+    const tags = await resolveTags(tagNames, userId);
+
+    await User.findByIdAndUpdate(userId, {
+      "profile.tags": tags.map((tag) => tag._id),
+    });
+
+    res.redirect("/profile");
+  } catch (err) {
+    console.error("Tag update error:", err);
+    res.status(500).send("Failed to update interests");
+  }
+});
+
+// ========================
+// GET: Public profile view
 // ========================
 
 // Legacy redirect: /profile/:userId/public → /u/:username
@@ -172,9 +217,9 @@ router.get("/profile/:userId/public", async (req, res) => {
 // Clean user profile route: /u/:username
 router.get("/u/:username", async (req, res) => {
   try {
-    const viewedUser = await User.findOne({
-      username: req.params.username,
-    }).lean();
+    const viewedUser = await User.findOne({ username: req.params.username })
+      .populate("profile.tags")
+      .lean();
     if (!viewedUser)
       return res.status(404).render("404", { title: "User Not Found" });
 

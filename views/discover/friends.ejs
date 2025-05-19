@@ -5,7 +5,7 @@
 <% } else { %>
 <div class="friend-suggestions">
   <% matches.forEach(user => { %>
-  <div class="friend-card">
+  <div class="friend-card" style="margin-bottom: 20px;">
     <div class="friend-header">
       <img src="<%= user.profile?.profilePicture || '/default-profile.png' %>" alt="Avatar" class="avatar" />
       <strong>@<%= user.username %></strong>
@@ -21,7 +21,9 @@
       <% } %>
 
       <% if (user.profile?.tags?.length) { %>
-      <p><strong>Tags:</strong> <%= user.profile.tags.join(', ') %></p>
+      <p><strong>Tags:</strong>
+        <%= user.profile.tags.map(tag => tag.name).join(', ') %>
+      </p>
       <% } %>
 
       <% if (user.profile?.location?.address?.city) { %>
@@ -33,7 +35,7 @@
       </p>
     </div>
 
-    <a href="/u/<%= user.username %>" class="btn">👤 View Profile</a>
+    <a href="/u/<%= user.username %>" class="button" style="">👤 View Profile</a>
   </div>
   <% }) %>
 </div>
