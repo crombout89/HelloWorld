@@ -1,4 +1,5 @@
 <!-- views/partials/nav-top.ejs -->
+<link rel='stylesheet' href='/css/nav.css' />
 <header id="top-nav" class="top-nav">
   <div class="nav-left">
     <% if (user && user._id) { %>
@@ -10,8 +11,8 @@
 
   <div class="nav-right">
     <% if (user && user._id) { %>
-    <a href="/notifications" id="" class="">
-      🔔
+    <a href="/notifications" id="alerts" class="bell-wrapper">
+      <%- include("icons/notification") %>
       <span id="notification-badge" class="badge" style="display: none;">0</span>
     </a>
     <% } %>

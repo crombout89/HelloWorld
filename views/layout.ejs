@@ -2,7 +2,7 @@
 <html lang="en">
 
 <head>
-    <!-- Header Content -->
+  <!-- Header Content -->
   <%- include('partials/head') %>
 </head>
 
@@ -27,8 +27,15 @@
   <!-- Bottom Navigation Buttons -->
   <%- include('partials/nav-bottom') %>
 
-    <!-- Client-Side JS Scripts -->
-    <%- include('partials/scripts') %>
+  <!-- Socket + modular client-side logic -->
+  <script>
+    const notifications = <%- JSON.stringify(locals.notifications || []) %>;
+    window.notifications = notifications;
+    window.userId = "<%= userId || '' %>";
+  </script>
+
+  <!-- Client-Side JS Scripts -->
+  <!-- <%- include('partials/scripts') %> -->
 
 </body>
 
