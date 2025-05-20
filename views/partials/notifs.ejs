@@ -1,0 +1,9 @@
+  <!-- Socket + modular client-side logic -->
+  <script>
+    const notifications = <%- JSON.stringify(locals.notifications || []) %>;
+    window.notifications = notifications;
+    window.userId = "<%= userId || '' %>";
+  </script>
+
+  <!-- Toast container -->
+  <div id="toast-container" style="position: fixed; bottom: 1rem; right: 1rem; z-index: 9999;"></div>

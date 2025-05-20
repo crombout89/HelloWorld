@@ -1,0 +1,19 @@
+<!-- views/partials/nav-top.ejs -->
+<header id="top-nav" class="top-nav">
+  <div class="nav-left">
+    <% if (user && user._id) { %>
+    <button id="menu-toggle" aria-label="Menu">☰</button>
+    <% } else { %>
+    <a href="/login" aria-label="Login">🔒 Login</a>
+    <% } %>
+  </div>
+
+  <div class="nav-right">
+    <% if (user && user._id) { %>
+    <a href="/notifications" id="" class="">
+      🔔
+      <span id="notification-badge" class="badge" style="display: none;">0</span>
+    </a>
+    <% } %>
+  </div>
+</header>

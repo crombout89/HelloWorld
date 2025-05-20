@@ -1,0 +1,12 @@
+  <!-- Preferred Language logic -->
+  <% if (typeof targetLanguage !== 'undefined') { %>
+  <script>
+    window.userId = "<%= user?._id || '' %>";
+    window.targetLanguage = "<%= user?.profile?.language || 'en' %>";
+  </script>
+  <% } %>
+
+  <script>
+    window.languageMap = <%- JSON.stringify(languageMap || {}) %>;
+    window.emojiMap = <%- JSON.stringify(emojiMap || {}) %>;
+  </script>
