@@ -1,0 +1,26 @@
+<!-- Inside views/partials/nav-drawer.ejs -->
+<aside id="drawer-nav" class="drawer-nav" style="display: none;">
+  <nav>
+    <ul>
+      <li><a href="/discover">🔍 Discover</a></li>
+      <li>
+        <details>
+          <summary>📍 Set Location</summary>
+          <section class="location-section">
+            <input id="location-city" type="text" placeholder="City..." />
+            <input id="location-country" type="text" placeholder="Country..." />
+            <button id="save-location-btn">Save Location</button>
+            <button id="use-current-location">📍 Use My Current Location</button>
+            <p id="location-status"></p>
+          </section>
+        </details>
+      </li>
+    </ul>
+  </nav>
+
+  <footer>
+    <form action="/logout" method="POST">
+      <button type="submit">🚪 Logout</button>
+    </form>
+  </footer>
+</aside>

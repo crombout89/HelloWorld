@@ -2,64 +2,30 @@
 <html lang="en">
 
 <head>
-  <meta name="viewport" content="width=device-width,
-  initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title><%= title %> | Hello World App</title>
-  <link rel="stylesheet" href="/styles.css">
-  <link rel='stylesheet' href='/css/effects.css' />
-  <link rel="stylesheet" href="https://use.typekit.net/yrl0zql.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-  <!-- Leaflet CSS -->
-  <% if (includeLeaflet) { %>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-  <% } %>
-  <!-- Leaflet JS -->
-  <% if (includeLeaflet) { %>
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <% } %>
-  <!-- custom view-specific styles like /css/profile.css will get inserted here -->
+    <!-- Header Content -->
+  <%- include('partials/head') %>
 </head>
 
 <body>
 
-  <!-- You can add a navbar here -->
-  <%- include('partials/navbar') %>
+  <!-- Top Navigation Buttons -->
+  <%- include('partials/nav-top') %>
 
-  <!-- Main content -->
+  <!-- Main Content -->
   <%- body %>
 
-  <!-- Toast container -->
-  <div id="toast-container" style="position: fixed; bottom: 1rem; right: 1rem; z-index: 9999;"></div>
-
-  <!-- Include modal logic -->
+  <!-- Modal Popup Template -->
   <%- include('partials/modal') %>
-  <script src="/js/modal.js"></script>
 
-  <!-- Preferred Language logic -->
-  <% if (typeof targetLanguage !== 'undefined') { %>
-  <script>
-    window.userId = "<%= user?._id || '' %>";
-    window.targetLanguage = "<%= user?.profile?.language || 'en' %>";
-  </script>
-  <% } %>
+  <!-- Global App Settings -->
+  <%- include('partials/global') %>
 
-  <!-- 🔑 Location API key and client JS -->
-  <script src="/js/location.js"></script>
+  <!-- Bottom Navigation Buttons -->
+  <%- include('partials/nav-bottom') %>
 
-  <!-- Socket + modular client-side logic -->
-  <script>
-    const notifications = <%- JSON.stringify(locals.notifications || []) %>;
-    window.notifications = notifications;
-    window.userId = "<%= userId || '' %>";
-    window.languageMap = <%- JSON.stringify(languageMap || {}) %>;
-    window.emojiMap = <%- JSON.stringify(emojiMap || {}) %>;
-  </script>
-  <script src="/socket.io/socket.io.js"></script>
-  <script src="/js/socket.js"></script>
-  <script src="/js/notifications.js"></script>
-  <script src="/js/messages.js"></script>
-  <script src="/js/modal.js"></script>
-  <script src="/js/location.js"></script>
+    <!-- Client-Side JS Scripts -->
+    <%- include('partials/scripts') %>
+
 </body>
 
 </html>

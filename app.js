@@ -72,6 +72,13 @@ app.use(async (req, res, next) => {
     res.locals.userId = null;
   }
 
+  // Notifications Middleware
+  app.use((req, res, next) => {
+    res.locals.user = req.session.user || null;
+    res.locals.unreadNotifications = req.session.unreadNotifications || 0;
+    next();
+  });
+
   // ✅ Safe defaults for conditional scripts/styles
   res.locals.includeLeaflet = false;
   res.locals.includeLocationClient = false;

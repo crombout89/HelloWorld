@@ -1,0 +1,16 @@
+<meta name="viewport" content="width=device-width,
+initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title><%= title %> | Hello World App</title>
+<link rel="stylesheet" href="/styles.css">
+<link rel='stylesheet' href='/css/effects.css' />
+<link rel="stylesheet" href="https://use.typekit.net/yrl0zql.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+<!-- Leaflet CSS -->
+<% if (includeLeaflet) { %>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<% } %>
+<!-- Leaflet JS -->
+<% if (includeLeaflet) { %>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<% } %>
+<!-- custom view-specific styles like /css/profile.css will get inserted here -->
