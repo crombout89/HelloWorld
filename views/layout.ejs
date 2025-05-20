@@ -51,6 +51,8 @@
     const notifications = <%- JSON.stringify(locals.notifications || []) %>;
     window.notifications = notifications;
     window.userId = "<%= userId || '' %>";
+    window.languageMap = <%- JSON.stringify(languageMap || {}) %>;
+    window.emojiMap = <%- JSON.stringify(emojiMap || {}) %>;
   </script>
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/socket.js"></script>
