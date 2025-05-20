@@ -7,6 +7,7 @@ router.get("/", (req, res) => {
   res.render("user/login", {
     title: "Login",
     error: null,
+    layout: "layout", // ⬅️ force it
   });
 });
 

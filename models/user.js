@@ -36,6 +36,11 @@ const UserSchema = new mongoose.Schema(
       firstName: { type: String, trim: true, maxlength: 50 },
       lastName: { type: String, trim: true, maxlength: 50 },
       usernameColor: { type: String, default: "#000000" },
+      theme: {
+        type: String,
+        enum: ["default", "sunset", "midnight"],
+        default: "default",
+      },
       bio: { type: String, maxlength: 500 },
       language: { type: String, trim: true, maxlength: 50 },
       age: { type: Number, min: 13, max: 120 },
