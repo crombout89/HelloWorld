@@ -5,6 +5,7 @@ const { sendNotification } = require("../services/notificationService");
 const User = require("../models/user");
 const { isLoggedIn } = require("../middleware/auth");
 
+// POST: Make a new wall post
 router.post("/wall/post", isLoggedIn, async (req, res) => {
   const { recipientId, message, recipientUsername } = req.body;
   try {
@@ -39,6 +40,7 @@ router.post("/wall/post", isLoggedIn, async (req, res) => {
   }
 });
 
+// POST: Delete a wall post
 router.post("/wall/delete/:postId", isLoggedIn, async (req, res) => {
   try {
     const userId = req.session.userId;
@@ -62,23 +64,47 @@ router.post("/wall/delete/:postId", isLoggedIn, async (req, res) => {
   }
 });
 
+// POST: React to a wall post
 router.post("/wall/react/:postId", isLoggedIn, async (req, res) => {
   const { type } = req.body;
   const userId = req.session.userId;
 
-  if (!["like", "love", "laugh", "wow", "sad", "dislike"].includes(type)) {
+  const validTypes = ["like", "love", "laugh", "wow", "sad", "dislike"];
+  if (!validTypes.includes(type)) {
     return res.status(400).send("Invalid reaction type");
   }
 
   const post = await WallPost.findById(req.params.postId).populate("recipient");
   if (!post) return res.status(404).send("Post not found");
 
-  // Remove old reaction
+  // Remove any previous reaction from this user
   post.reactions = post.reactions.filter((r) => r.user.toString() !== userId);
 
-  // Add new one
+  // Add the new reaction
   post.reactions.push({ user: userId, type });
   await post.save();
+
+  // 🔔 Notification logic (failsafe + log)
+  const recipientId = post.recipient?._id?.toString();
+
+  if (!recipientId) {
+    console.warn("⚠️ No recipient found on wall post.");
+  } else if (recipientId === userId) {
+    console.log("🛑 Reaction by wall owner — no notification sent.");
+  } else {
+    const author = await User.findById(userId).lean();
+    console.log("📣 Sending notification to:", post.recipient.username);
+
+    await sendNotification(
+      {
+        userId: post.recipient._id,
+        message: `${author.username} reacted to a post on your wall.`,
+        link: `/u/${post.recipient.username}`,
+        meta: { type: "wall_post_reaction" },
+      },
+      req.app.get("io")
+    );
+  }
 
   res.redirect(`/u/${post.recipient.username}`);
 });
