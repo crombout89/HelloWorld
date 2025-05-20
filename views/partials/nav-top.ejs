@@ -3,18 +3,23 @@
 <header id="top-nav" class="top-nav">
   <div class="nav-left">
     <% if (user && user._id) { %>
-    <button id="menu-toggle" aria-label="Menu">☰</button>
+    <div id="menu-toggle" class="icon-wrapper" role="button" tabindex="0" aria-label="Menu">
+      <%- include("icons/nav-menu") %>
+    </div>
     <% } else { %>
-    <a href="/login" aria-label="Login">🔒 Login</a>
+      <a href="/login" aria-label="Login" class="icon-wrapper">
+        <%- include("icons/user-login") %>
+      </a>
     <% } %>
   </div>
 
   <div class="nav-right">
     <% if (user && user._id) { %>
-    <a href="/notifications" id="alerts" class="bell-wrapper">
+    <a href="/notifications" id="alerts" class="icon-wrapper">
       <%- include("icons/notification") %>
       <span id="notification-badge" class="badge" style="display: none;">0</span>
     </a>
     <% } %>
   </div>
 </header>
+

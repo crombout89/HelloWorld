@@ -42,7 +42,7 @@
   animation: wobble 1s;
 }
 
-.bell-wrapper {
+.icon-wrapper {
   position: relative;
   display: flex;
   align-items: center;
