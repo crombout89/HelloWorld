@@ -52,7 +52,7 @@
     <!-- 📨 COMMUNITY INVITE -->
     <% } else if (note.meta?.type === "community_invite") { %>
     <a href="<%= note.link %>" class="btn">🏘️ View Community</a>
-    
+
     <!-- 📨 EVENT INVITE -->
     <% if (isHost && friends && friends.length > 0) { %>
     <h3>Invite a Friend</h3>
@@ -69,6 +69,10 @@
       <button type="submit">Send Invite</button>
     </form>
     <% } %>
+
+    <!-- 📝 WALL POST -->
+    <% } else if (note.meta?.type === "wall_post") { %>
+    <a href="<%= note.link %>">📝 View Wall</a>
 
     <!-- 🔗 DEFAULT LINK FALLBACK -->
     <% } else if (note.link) { %>

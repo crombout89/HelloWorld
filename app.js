@@ -79,6 +79,7 @@ app.use(async (req, res, next) => {
   next();
 });
 
+// 🗺️ Maps for global access
 app.use((req, res, next) => {
   res.locals.languageMap = {
     en: "🇺🇸 English",
@@ -91,6 +92,16 @@ app.use((req, res, next) => {
     ar: "🇸🇦 Arabic",
     ru: "🇷🇺 Russian",
   };
+
+  res.locals.emojiMap = {
+    like: "👍",
+    love: "❤️",
+    laugh: "😂",
+    wow: "😮",
+    sad: "😢",
+    dislike: "👎",
+  };
+
   next();
 });
 
@@ -184,6 +195,7 @@ app.use("/location", locationRoutes);
 app.use("/login", validateRouter(loginRouter, "loginRouter"));
 app.use("/notifications", notificationsRoute);
 app.use("/rss", rssRoutes);
+app.use(wallRouter);
 
 // Logout Route
 app.get('/logout', (req, res) => {

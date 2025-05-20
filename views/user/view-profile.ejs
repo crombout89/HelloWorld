@@ -1,7 +1,3 @@
-<% const emojiMap = {
-  like: "👍", love: "❤️", laugh: "😂", wow: "😮", sad: "😢", dislike: "👎"
-}; %>
-
 <!-- 🔍 User Profile View (Public or Logged-In) -->
 <link rel="stylesheet" href="/css/profile.css">
 
@@ -53,7 +49,10 @@
     <% } %>
     <% } %>
     <% if (user.profile?.language) { %>
-    <p><strong>Preferred Language:</strong> <%= user.profile.language %></p>
+    <p>
+      <strong>Preferred Language:</strong>
+      <%= languageMap[user.profile.language] || user.profile.language %>
+    </p>
     <% } %>
     <% if (user.profile?.age) { %>
     <p><strong>Age:</strong> <%= user.profile.age %></p>

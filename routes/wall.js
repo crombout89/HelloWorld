@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const WallPost = require("../models/wallPost");
+const { sendNotification } = require("../services/notificationService");
+const User = require("../models/user");
 const { isLoggedIn } = require("../middleware/auth");
 
 router.post("/wall/post", isLoggedIn, async (req, res) => {
@@ -15,6 +17,20 @@ router.post("/wall/post", isLoggedIn, async (req, res) => {
       recipient: recipientId,
       message: message.trim(),
     });
+
+    const author = await User.findById(req.session.userId).lean();
+
+    if (recipientId !== req.session.userId) {
+      await sendNotification(
+        {
+          userId: recipientId,
+          message: `${author.username} posted on your wall.`,
+          link: `/u/${recipientUsername}`,
+          meta: { type: "wall_post" },
+        },
+        req.app.get("io")
+      );
+    }
 
     res.redirect(`/u/${recipientUsername}`);
   } catch (err) {
