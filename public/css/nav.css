@@ -100,7 +100,7 @@
 #drawer-nav {
   position: fixed;
   top: 48px;
-  left: 0;
+  left: calc(-1 * (250px + 20px));
   width: 250px;
   height: calc(100% - 48px);
   background-color: #f9f9f9;
@@ -108,6 +108,12 @@
   padding: 1rem;
   z-index: 999;
   overflow-y: auto;
+  transition: left 0.3s ease;
+}
+
+/* When active */
+#drawer-nav.visible {
+  left: 0;
 }
 
 #drawer-nav nav ul {

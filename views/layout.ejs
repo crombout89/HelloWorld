@@ -11,6 +11,10 @@
   <!-- Top Navigation Buttons -->
   <%- include('partials/nav-top') %>
 
+  <% if (user && user._id) { %>
+  <%- include("partials/nav-drawer") %>
+  <% } %>
+
   <!-- Main Content -->
   <%- body %>
 
