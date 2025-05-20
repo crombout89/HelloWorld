@@ -1,0 +1,9 @@
+/* === THEME: Default HelloWorld Colours === */
+:root {
+    --primary: #87c159;
+    --secondary: #adcacb;
+    --accent1: #f3c301;
+    --accent2: #fee3a2;
+    --text: #058240;
+    --background: #f0f0f0;
+  }

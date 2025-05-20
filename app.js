@@ -187,6 +187,7 @@ app.use((req, res, next) => {
 });
 
 // Register routes with validation
+app.use("/login", validateRouter(loginRouter, "loginRouter"));
 app.use('/', validateRouter(indexRouter, 'indexRouter'));
 app.use('/', validateRouter(registerRouter, 'registerRouter'));
 app.use('/', validateRouter(profileRouter, 'profileRouter'));
@@ -199,7 +200,6 @@ app.use('/home', dashboardRouter);
 app.use('/discover', validateRouter(discoverRoutes, 'discoverRoutes'));
 app.use("/friends", friendsRoute);
 app.use("/location", locationRoutes);
-app.use("/login", validateRouter(loginRouter, "loginRouter"));
 app.use("/notifications", notificationsRoute);
 app.use("/rss", rssRoutes);
 app.use(wallRouter);
