@@ -71,6 +71,7 @@ router.post("/profile/update", upload.single("photo"), async (req, res) => {
       "profile.lastName": lastName?.trim() || "",
       "profile.language": language?.trim(),
       "profile.bio": bio?.trim() || "",
+      "profile.theme": req.body.theme || "default",
     };
 
     if (req.file) {

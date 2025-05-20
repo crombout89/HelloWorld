@@ -92,11 +92,11 @@
     </div>
 
     <div style="margin-bottom: 1rem;">
-      <label for="theme">Theme:</label>
-      <select name="theme" id="theme" style="width: 100%;">
-        <option value="system" <%= user.profile?.preferences?.theme === 'system' ? "selected" : "" %>>System Default</option>
-        <option value="light" <%= user.profile?.preferences?.theme === 'light' ? "selected" : "" %>>Light</option>
-        <option value="dark" <%= user.profile?.preferences?.theme === 'dark' ? "selected" : "" %>>Dark</option>
+      <label for="theme">Theme</label>
+      <select name="theme" id="theme">
+        <option value="default" <%= user.profile.theme === "default" ? "selected" : "" %>>🌿 Default</option>
+        <option value="sunset" <%= user.profile.theme === "sunset" ? "selected" : "" %>>🌇 Sunset</option>
+        <option value="midnight" <%= user.profile.theme === "midnight" ? "selected" : "" %>>🌌 Midnight</option>
       </select>
     </div>
 
