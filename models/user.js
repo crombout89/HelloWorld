@@ -66,7 +66,7 @@ const UserSchema = new mongoose.Schema(
       tags: [{ type: mongoose.Schema.Types.ObjectId, ref: "Tag" }],
       profilePicture: {
         type: String,
-        default: "/default-profile.png",
+        default: "/assets/imgs/profile-placeholder.jpeg",
       },
     },
     geolocation: {
