@@ -1,42 +1,46 @@
 <!-- views/events/index.ejs -->
-<h2>Your Events</h2>
+<h2>
+  <%= title %>
+</h2>
 
-<!-- ADD THIS BLOCK -->
-<div style="margin-bottom: 1rem;">
+<div class="create-event-cta">
   <a href="/events/new">
-    <button type="button">+ Create New Event</button>
+    <button id="create-event-btn">+ Create Event</button>
   </a>
 </div>
-<!-- /ADD THIS BLOCK -->
 
 <% if (createdEvents.length> 0) { %>
-  <!-- … rest of your list … -->
+  <h3>🗓️ Created Events</h3>
+  <ul>
+    <% createdEvents.forEach(event=> { %>
+      <li>
+        <a href="/events/<%= event._id %>">
+          <%= event.title %>
+        </a>
+        <small>
+          <%= new Date(event.startTime).toLocaleDateString() %>
+        </small>
+      </li>
+      <% }) %>
+  </ul>
+  <% } else { %>
+    <p>You haven't created any events yet.</p>
+    <% } %>
 
-
-<% if (createdEvents.length > 0) { %>
-<h3>🗓️ Created Events</h3>
-<ul>
-  <% createdEvents.forEach(event => { %>
-  <li>
-    <a href="/events/<%= event._id %>"><%= event.title %></a>
-    <small><%= new Date(event.startTime).toLocaleDateString() %></small>
-  </li>
-  <% }) %>
-</ul>
-<% } else { %>
-<p>You haven't created any events yet.</p>
-<% } %>
-
-<% if (attendingEvents.length > 0) { %>
-<h3>🎉 You're Attending</h3>
-<ul>
-  <% attendingEvents.forEach(event => { %>
-  <li>
-    <a href="/events/<%= event._id %>"><%= event.title %></a>
-    <small><%= new Date(event.startTime).toLocaleDateString() %></small>
-  </li>
-  <% }) %>
-</ul>
-<% } else { %>
-<p>No upcoming events you're attending yet.</p>
-<% } %>
+      <% if (attendingEvents.length> 0) { %>
+        <h3>🎉 You're Attending</h3>
+        <ul>
+          <% attendingEvents.forEach(event=> { %>
+            <li>
+              <a href="/events/<%= event._id %>">
+                <%= event.title %>
+              </a>
+              <small>
+                <%= new Date(event.startTime).toLocaleDateString() %>
+              </small>
+            </li>
+            <% }) %>
+        </ul>
+        <% } else { %>
+          <p>No upcoming events you're attending yet.</p>
+          <% } %>

@@ -20,6 +20,28 @@
     user-select: text;
 }
 
+#create-event-btn {
+    align-self: flex-start;
+    /* hug the left edge */
+    background-color: #007bff;
+    /* or your var(--primary) */
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    /* space before the <h2> */
+}
+
+/* If you want its container to use your existing layout rules: */
+.create-event-cta {
+    display: flex;
+    /* you could also reuse #create-event if you renamed it */
+    margin-top: 1rem;
+}
+
 #create-event-info {
     background-color: var(--background);
     z-index: 3;
