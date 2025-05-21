@@ -1,46 +1,122 @@
-<!-- views/events/index.ejs -->
-<h2>
-  <%= title %>
-</h2>
+<!DOCTYPE html>
+<html>
 
-<div class="create-event-cta">
-  <a href="/events/new">
-    <button id="create-event-btn">+ Create Event</button>
-  </a>
-</div>
+<head>
+  <meta charset="utf-8">
+  <title>
+    <%= title %>
+  </title>
+  <link rel="stylesheet" href="/css/themes/events.css">
+</head>
 
-<% if (createdEvents.length> 0) { %>
-  <h3>🗓️ Created Events</h3>
-  <ul>
-    <% createdEvents.forEach(event=> { %>
-      <li>
-        <a href="/events/<%= event._id %>">
-          <%= event.title %>
-        </a>
-        <small>
-          <%= new Date(event.startTime).toLocaleDateString() %>
-        </small>
-      </li>
-      <% }) %>
-  </ul>
-  <% } else { %>
-    <p>You haven't created any events yet.</p>
-    <% } %>
+<body>
+  <h2>
+    <%= title %>
+  </h2>
 
-      <% if (attendingEvents.length> 0) { %>
-        <h3>🎉 You're Attending</h3>
-        <ul>
-          <% attendingEvents.forEach(event=> { %>
-            <li>
-              <a href="/events/<%= event._id %>">
-                <%= event.title %>
-              </a>
-              <small>
-                <%= new Date(event.startTime).toLocaleDateString() %>
-              </small>
-            </li>
-            <% }) %>
-        </ul>
-        <% } else { %>
-          <p>No upcoming events you're attending yet.</p>
-          <% } %>
+  <div class="create-event-cta">
+    <button id="open-create-modal">+ Create Event</button>
+  </div>
+
+  <% if (createdEvents.length> 0) { %>
+    <h3>🗓️ Created Events</h3>
+    <ul>
+      <% createdEvents.forEach(event=> { %>
+        <li>
+          <a href="/events/<%= event._id %>">
+            <%= event.title %>
+          </a>
+          <small>
+            <%= new Date(event.startTime).toLocaleDateString() %>
+          </small>
+        </li>
+        <% }) %>
+    </ul>
+    <% } else { %>
+      <p>You haven't created any events yet.</p>
+      <% } %>
+
+        <% if (attendingEvents.length> 0) { %>
+          <h3>🎉 You're Attending</h3>
+          <ul>
+            <% attendingEvents.forEach(event=> { %>
+              <li>
+                <a href="/events/<%= event._id %>">
+                  <%= event.title %>
+                </a>
+                <small>
+                  <%= new Date(event.startTime).toLocaleDateString() %>
+                </small>
+              </li>
+              <% }) %>
+          </ul>
+          <% } else { %>
+            <p>No upcoming events you're attending yet.</p>
+            <% } %>
+
+              <!-- Modal Popup -->
+              <div id="create-modal">
+                <div class="backdrop"></div>
+                <div class="modal-content">
+                  <button class="close-btn">&times;</button>
+                  <h2>Create a New Event</h2>
+                  <form action="/events/create" method="POST" enctype="multipart/form-data">
+                    <label>Title:</label>
+                    <input name="title" required>
+
+                    <label>Description:</label>
+                    <textarea name="description"></textarea>
+
+                    <label>Start Time:</label>
+                    <input type="datetime-local" name="startTime" required>
+
+                    <label>End Time:</label>
+                    <input type="datetime-local" name="endTime">
+
+                    <label>Community:</label>
+                    <select name="communityId">
+                      <option value="">— none —</option>
+                      <% communities.forEach(c=> { %>
+                        <option value="<%= c._id %>">
+                          <%= c.name %>
+                        </option>
+                        <% }) %>
+                    </select>
+
+                    <label>Tags (comma-separated):</label>
+                    <input name="tags">
+
+                    <label>Location Name:</label>
+                    <input name="locationName">
+
+                    <label>Address:</label>
+                    <input name="locationAddress">
+
+                    <% if (includeLeaflet) { %>
+                      <div id="map"></div>
+                      <% } %>
+
+                        <input type="hidden" name="lat">
+                        <input type="hidden" name="lon">
+
+                        <button type="submit">Create</button>
+                  </form>
+                </div>
+              </div>
+
+              <script>
+                const modal = document.getElementById("create-modal");
+                document.getElementById("open-create-modal").addEventListener("click", e => {
+                  e.preventDefault();
+                  modal.classList.add("active");
+                });
+                modal.querySelector(".close-btn").addEventListener("click", () => {
+                  modal.classList.remove("active");
+                });
+                modal.querySelector(".backdrop").addEventListener("click", () => {
+                  modal.classList.remove("active");
+                });
+              </script>
+</body>
+
+</html>

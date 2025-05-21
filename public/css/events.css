@@ -1,3 +1,4 @@
+/* ==== your existing form styles ==== */
 #create-event {
     margin-top: 100px;
     max-width: 800px;
@@ -20,28 +21,6 @@
     user-select: text;
 }
 
-#create-event-btn {
-    align-self: flex-start;
-    /* hug the left edge */
-    background-color: #007bff;
-    /* or your var(--primary) */
-    color: #fff;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1rem;
-    margin-bottom: 20px;
-    /* space before the <h2> */
-}
-
-/* If you want its container to use your existing layout rules: */
-.create-event-cta {
-    display: flex;
-    /* you could also reuse #create-event if you renamed it */
-    margin-top: 1rem;
-}
-
 #create-event-info {
     background-color: var(--background);
     z-index: 3;
@@ -53,7 +32,9 @@
     border-radius: 8px;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
     -webkit-appearance: none;
     appearance: none;
     border: 1px solid #ccc;
@@ -71,26 +52,85 @@ input, textarea, select {
     display: none;
 }
 
-/* Add this to your CSS file or in a <style> tag in your HTML */
+/* Create-button */
+#create-event-btn {
+    align-self: flex-start;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+.create-event-cta {
+    display: flex;
+    margin-top: 1rem;
+}
+
+/* Leaflet map */
 #map {
-  width: 100%;
-  height: 400px; /* Adjust height as needed */
-  z-index: 1; /* Ensure map is accessible */
-  position: relative;
+    width: 100%;
+    height: 400px;
+    z-index: 1;
+    position: relative;
 }
 
-/* Make sure no parent elements are capturing mouse events */
 .map-container {
-  pointer-events: auto;
+    pointer-events: auto;
 }
 
-
-/*** RESPONSIVE SETTINGS ***/
-
+/* Responsive tweaks */
 @media screen and (max-width: 1024px) {
-    
     #create-event {
         margin-top: 0;
     }
+}
 
+/* ==== Modal Popup Styles ==== */
+#create-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+}
+
+#create-modal.active {
+    display: flex;
+}
+
+#create-modal .backdrop {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+#create-modal .modal-content {
+    position: relative;
+    background: #fff;
+    padding: 2rem;
+    border-radius: 8px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 90%;
+    overflow-y: auto;
+    z-index: 1;
+}
+
+#create-modal .close-btn {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+    font-size: 1.5rem;
+    cursor: pointer;
+    border: none;
+    background: none;
 }
