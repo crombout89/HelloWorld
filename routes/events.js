@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const Event = require("../models/event");
-const Community = require("../models/community");
+const Community = require("../models/community");           // ← added
 const WallPost = require("../models/post");
 const User = require("../models/user");
 const { isLoggedIn } = require("../middleware/auth");
@@ -12,63 +12,53 @@ const { getFriendsForUser } = require("../services/friendService");
 const LocationIQ = require("../services/locationService");
 
 // GET: All events you're hosting or invited to
-router.get("/events", isLoggedIn, async (req, res, next) => {
-  try {
-    const userId = req.session.userId;
+router.get("/events", isLoggedIn, async (req, res) => {
+  const userId = req.session.userId;
 
-    const createdEvents = await Event.find({ host: userId })
-      .sort({ startTime: 1 })
-      .lean();
+  const createdEvents = await Event.find({ host: userId })
+    .sort({ startTime: 1 })
+    .lean();
 
-    const attendingEvents = await Event.find({
-      attendees: userId,
-      host: { $ne: userId },
-    })
-      .sort({ startTime: 1 })
-      .lean();
+  const attendingEvents = await Event.find({
+    attendees: userId,
+    host: { $ne: userId },
+  })
+    .sort({ startTime: 1 })
+    .lean();
 
-    // fetch communities so we can render the <select> in the modal
-    const communities = await Community.find({ members: userId })
-      .sort({ name: 1 })
-      .lean();
+  // fetch communities for the modal dropdown
+  const communities = await Community.find({ members: userId })
+    .sort({ name: 1 })
+    .lean();
 
-    res.render("events/index", {
-      title: "My Events",
-      createdEvents,
-      attendingEvents,
-      communities,
-      includeLeaflet: true,
-      currentUserId: userId
-    });
-  } catch (err) {
-    console.error("❌ Error loading events:", err);
-    next(err);
-  }
+  res.render("events/index", {
+    title: "My Events",
+    createdEvents,
+    attendingEvents,
+    communities,          // ← now passed into the template
+    includeLeaflet: true, // ← so the map can render
+    currentUserId: userId // ← used to show the Edit button only on your events
+  });
 });
 
-// GET: New Event Form (standalone page)
-router.get("/events/new", isLoggedIn, async (req, res, next) => {
-  try {
-    const communities = await Community.find({
-      members: req.session.userId,
-    })
-      .sort({ name: 1 })
-      .lean();
+// GET: New Event Form
+router.get("/events/new", isLoggedIn, async (req, res) => {
+  const communities = await Community.find({
+    members: req.session.userId,
+  }).lean();
 
-    res.render("events/new", {
-      title: "Create New Event",
-      event: { location: { name: "", address: "", latitude: "", longitude: "" } },
-      communities,
-      includeLeaflet: true,
-    });
-  } catch (err) {
-    console.error("❌ Error showing new‐event form:", err);
-    next(err);
-  }
+  res.render("events/new", {
+    title: "Create New Event",
+    event: {
+      location: { name: "", address: "", latitude: "", longitude: "" },
+    },
+    communities,
+    includeLeaflet: true,
+  });
 });
 
 // POST: Create a new event
-router.post("/events/create", isLoggedIn, async (req, res, next) => {
+router.post("/events/create", isLoggedIn, async (req, res) => {
   const {
     title,
     description,
@@ -111,131 +101,116 @@ router.post("/events/create", isLoggedIn, async (req, res, next) => {
     res.redirect(`/events/${newEvent._id}`);
   } catch (err) {
     console.error("❌ Event creation error:", err);
-    next(err);
+    res.status(500).send("Failed to create event");
   }
 });
 
 // GET: Single Event View
-router.get("/events/:id", isLoggedIn, async (req, res, next) => {
-  try {
-    const userId = req.session.userId;
-    const rawEvent = await Event.findById(req.params.id)
-      .populate("tags")
-      .populate("community", "name")
-      .populate("host", "username")
-      .lean();
-    if (!rawEvent) return res.status(404).render("404");
+router.get("/events/:id", isLoggedIn, async (req, res) => {
+  const userId = req.session.userId;
+  const rawEvent = await Event.findById(req.params.id)
+    .populate("tags")
+    .populate("community", "name")
+    .populate("host", "username")
+    .lean();
+  if (!rawEvent) return res.status(404).render("404");
 
-    const isInvited = rawEvent.invitees?.some(id => id.toString() === userId);
-    const isAttending = rawEvent.attendees?.some(id => id.toString() === userId);
-    const isHost = rawEvent.host?._id?.toString() === userId;
-    const canManage = isHost || isInvited || isAttending;
-    const canPost = isHost || isAttending;
-    const isVisible =
-      rawEvent.visibility === "public" || isInvited || isHost || isAttending;
-    if (!isVisible) return res.status(403).render("403", { title: "Access Denied" });
+  const isInvited = rawEvent.invitees?.some(id => id.toString() === userId);
+  const isAttending = rawEvent.attendees?.some(id => id.toString() === userId);
+  const isHost = rawEvent.host?._id?.toString() === userId;
+  const canManage = isHost || isInvited || isAttending;
+  const canPost = isHost || isAttending;
+  const isVisible =
+    rawEvent.visibility === "public" || isInvited || isHost || isAttending;
+  if (!isVisible) return res.status(403).render("403", { title: "Access Denied" });
 
-    const wallPosts = await WallPost.find({ event: rawEvent._id }).lean();
+  const wallPosts = await WallPost.find({ event: rawEvent._id }).lean();
 
-    // Group RSVP attendees by status
-    const usersInRSVP = rawEvent.rsvp?.map(r => r.user) || [];
-    const allUsers = await User.find({ _id: { $in: usersInRSVP } }).lean();
-    const groupedAttendees = {};
-    rawEvent.rsvp?.forEach(r => {
-      const u = allUsers.find(u => u._id.toString() === r.user.toString());
-      if (!u) return;
-      groupedAttendees[r.status] = groupedAttendees[r.status] || [];
-      groupedAttendees[r.status].push(u);
-    });
+  // Group RSVP attendees by status
+  const usersInRSVP = rawEvent.rsvp?.map(r => r.user) || [];
+  const allUsers = await User.find({ _id: { $in: usersInRSVP } }).lean();
+  const groupedAttendees = {};
+  rawEvent.rsvp?.forEach(r => {
+    const u = allUsers.find(u => u._id.toString() === r.user.toString());
+    if (!u) return;
+    groupedAttendees[r.status] = groupedAttendees[r.status] || [];
+    groupedAttendees[r.status].push(u);
+  });
 
-    res.render("events/view", {
-      event: rawEvent,
-      currentUserId: userId,
-      title: rawEvent.title,
-      wallPosts,
-      isHost,
-      isInvited,
-      isAttending,
-      canManage,
-      canPost,
-      canEdit: isHost,
-      groupedAttendees,
-      includeLeaflet: true,
-    });
-  } catch (err) {
-    console.error("❌ Error loading event view:", err);
-    next(err);
-  }
+  res.render("events/view", {
+    event: rawEvent,
+    currentUserId: userId,
+    title: rawEvent.title,
+    wallPosts,
+    isHost,
+    isInvited,
+    isAttending,
+    canManage,
+    canPost,
+    canEdit: isHost,
+    groupedAttendees,
+    includeLeaflet: true,
+  });
 });
 
 // GET: Manage events
-router.get("/events/:id/manage", isLoggedIn, async (req, res, next) => {
-  try {
-    const event = await Event.findById(req.params.id)
-      .populate("invitees")
-      .populate("attendees")
-      .lean();
-    if (!event) return res.status(404).render("404");
+router.get("/events/:id/manage", isLoggedIn, async (req, res) => {
+  const event = await Event.findById(req.params.id)
+    .populate("invitees")
+    .populate("attendees")
+    .lean();
+  if (!event) return res.status(404).render("404");
 
-    const isHost =
-      event.hostType === "User" && event.host.toString() === req.session.userId;
-    if (!isHost) return res.status(403).render("403", { title: "Access Denied" });
+  const isHost =
+    event.hostType === "User" && event.host.toString() === req.session.userId;
+  if (!isHost) return res.status(403).render("403", { title: "Access Denied" });
 
-    const friends = await getFriendsForUser(req.session.userId);
-    res.render("events/manage", {
-      event,
-      invitees: event.invitees,
-      attendees: event.attendees,
-      friends,
-      title: `Manage Invites for ${event.title}`,
-      layout: false,
-    });
-  } catch (err) {
-    console.error("❌ Error loading manage page:", err);
-    next(err);
-  }
+  const friends = await getFriendsForUser(req.session.userId);
+  res.render("events/manage", {
+    event,
+    invitees: event.invitees,
+    attendees: event.attendees,
+    friends,
+    title: `Manage Invites for ${event.title}`,
+    layout: false,
+  });
 });
 
 // POST: RSVP to an event
-router.post("/events/:id/rsvp", isLoggedIn, async (req, res, next) => {
-  try {
-    const { status } = req.body;
-    const userId = req.session.userId;
-    const event = await Event.findById(req.params.id);
-    if (!event) return res.status(404).send("Event not found");
+router.post("/events/:id/rsvp", isLoggedIn, async (req, res) => {
+  const { status } = req.body;
+  const userId = req.session.userId;
+  const event = await Event.findById(req.params.id);
+  if (!event) return res.status(404).send("Event not found");
 
-    event.rsvp = event.rsvp.filter(r => r.user.toString() !== userId);
-    event.rsvp.push({ user: userId, status });
-    if (status === "going" && !event.attendees.includes(userId)) {
-      event.attendees.push(userId);
-    }
-    await event.save();
-
-    const user = await User.findById(userId);
-    if (event.hostType === "User") {
-      const hostUser = await User.findById(event.host);
-      if (hostUser) {
-        await sendNotification(
-          {
-            userId: hostUser._id,
-            message: `${user.username} RSVP'd "${status}" to "${event.title}"`,
-            link: `/events/${event._id}`,
-            meta: { type: "event_rsvp", status, eventId: event._id, from: userId },
-          },
-          req.app.get("io")
-        );
-      }
-    }
-
-    res.redirect(`/events/${req.params.id}`);
-  } catch (err) {
-    console.error("❌ RSVP error:", err);
-    next(err);
+  event.rsvp = event.rsvp.filter(r => r.user.toString() !== userId);
+  event.rsvp.push({ user: userId, status });
+  if (status === "going" && !event.attendees.includes(userId)) {
+    event.attendees.push(userId);
   }
+  await event.save();
+
+  const user = await User.findById(userId);
+  if (event.hostType === "User") {
+    const hostUser = await User.findById(event.host);
+    if (hostUser) {
+      await sendNotification(
+        {
+          userId: hostUser._id,
+          message: `${user.username} RSVP'd "${status}" to "${event.title}"`,
+          link: `/events/${event._id}`,
+          meta: { type: "event_rsvp", status, eventId: event._id, from: userId },
+        },
+        req.app.get("io")
+      );
+    }
+  }
+
+  res.redirect(`/events/${req.params.id}`);
 });
 
 // POST: Invite a user to an event
-router.post("/events/:id/invite", isLoggedIn, async (req, res, next) => {
+router.post("/events/:id/invite", isLoggedIn, async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
     if (!event) return res.status(404).send("Event not found");
@@ -270,14 +245,14 @@ router.post("/events/:id/invite", isLoggedIn, async (req, res, next) => {
     res.redirect(`/events/${req.params.id}`);
   } catch (err) {
     console.error("❌ Invite error:", err);
-    next(err);
+    res.status(500).send("Error inviting user");
   }
 });
 
 // POST: Remove invitee from event
-router.post("/events/:id/remove", isLoggedIn, async (req, res, next) => {
+router.post("/events/:id/remove", isLoggedIn, async (req, res) => {
+  const { userId: removeId } = req.body;
   try {
-    const { userId: removeId } = req.body;
     const event = await Event.findById(req.params.id);
     if (!event) return res.status(404).send("Event not found");
 
@@ -289,28 +264,23 @@ router.post("/events/:id/remove", isLoggedIn, async (req, res, next) => {
     res.redirect(`/events/${req.params.id}`);
   } catch (err) {
     console.error("❌ Remove invitee error:", err);
-    next(err);
+    res.status(500).send("Error removing user");
   }
 });
 
 // GET: Edit Event Form
-router.get("/events/:id/edit", isLoggedIn, async (req, res, next) => {
-  try {
-    const event = await Event.findById(req.params.id).populate("tags").lean();
-    if (!event) return res.status(404).render("404");
-    res.render("events/edit", {
-      event,
-      title: `Edit: ${event.title}`,
-      includeLeaflet: true,
-    });
-  } catch (err) {
-    console.error("❌ Error showing edit form:", err);
-    next(err);
-  }
+router.get("/events/:id/edit", isLoggedIn, async (req, res) => {
+  const event = await Event.findById(req.params.id).populate("tags").lean();
+  if (!event) return res.status(404).render("404");
+  res.render("events/edit", {
+    event,
+    title: `Edit: ${event.title}`,
+    includeLeaflet: true,
+  });
 });
 
 // POST: Update Event
-router.post("/events/:id/edit", isLoggedIn, async (req, res, next) => {
+router.post("/events/:id/edit", isLoggedIn, async (req, res) => {
   try {
     const {
       title,
@@ -347,12 +317,12 @@ router.post("/events/:id/edit", isLoggedIn, async (req, res, next) => {
     res.redirect(`/events/${req.params.id}`);
   } catch (err) {
     console.error("❌ Update event error:", err);
-    next(err);
+    res.status(500).send("Failed to update event");
   }
 });
 
 // POST: Delete Event Tag
-router.post("/events/:id/tags/remove", isLoggedIn, async (req, res, next) => {
+router.post("/events/:id/tags/remove", isLoggedIn, async (req, res) => {
   try {
     const { tagId } = req.body;
     const event = await Event.findById(req.params.id);
@@ -364,18 +334,18 @@ router.post("/events/:id/tags/remove", isLoggedIn, async (req, res, next) => {
     res.redirect(`/events/${req.params.id}/edit`);
   } catch (err) {
     console.error("❌ Remove tag error:", err);
-    next(err);
+    res.status(500).send("Could not remove tag");
   }
 });
 
 // POST: Delete Event
-router.post("/events/:id/delete", isLoggedIn, async (req, res, next) => {
+router.post("/events/:id/delete", isLoggedIn, async (req, res) => {
   try {
     await Event.findByIdAndDelete(req.params.id);
     res.redirect("/events");
   } catch (err) {
     console.error("❌ Delete event error:", err);
-    next(err);
+    res.status(500).send("Failed to delete event");
   }
 });
 

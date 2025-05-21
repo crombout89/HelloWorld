@@ -28,7 +28,7 @@
         </p>
         <p class="desc">
           <%= (event.description||'').substring(0,100) %>
-            <% if ((event.description||'').length> 100) { %>…<% } %>
+            <% if ((event.description||'').length>100) { %>…<% } %>
         </p>
         <div class="actions">
           <a href="/events/<%= event._id %>" class="btn view">View</a>
@@ -48,7 +48,7 @@
             </p>
             <p class="desc">
               <%= (event.description||'').substring(0,100) %>
-                <% if ((event.description||'').length> 100) { %>…<% } %>
+                <% if ((event.description||'').length>100) { %>…<% } %>
             </p>
             <div class="actions">
               <a href="/events/<%= event._id %>" class="btn view">View</a>
@@ -113,7 +113,7 @@
 
   <script src="/js/event-map.js"></script>
   <script>
-    // toggle modal
+    // Toggle modal
     const modal = document.getElementById("create-modal");
     document.getElementById("create-event-btn").addEventListener("click", e => {
       e.preventDefault();
@@ -126,7 +126,7 @@
       modal.classList.remove("active");
     });
 
-    // init map inside modal
+    // Initialize Leaflet picker inside modal
     document.addEventListener("DOMContentLoaded", () => {
       if (typeof initEventMap === "function") {
         initEventMap("map", "lat", "lon");
