@@ -75,8 +75,6 @@ router.post("/profile/update", upload.single("photo"), async (req, res) => {
       "profile.age": age ? parseInt(age) : undefined,
       "profile.gender": gender?.trim() || "prefer_not_to_say",
       "profile.pronouns": pronouns?.trim() || "",
-
-
     };
 
     if (req.file) {

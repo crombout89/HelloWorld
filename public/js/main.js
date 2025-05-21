@@ -4,10 +4,26 @@
 document.addEventListener("DOMContentLoaded", () => {
   const menuToggle = document.getElementById("menu-toggle");
   const drawerNav = document.getElementById("drawer-nav");
+  const iconMenu = document.querySelector(".icon-menu");
+  const iconClose = document.querySelector(".icon-close");
+
+  function toggleDrawer() {
+    const isOpen = drawerNav.classList.toggle("visible");
+
+    if (iconMenu && iconClose) {
+      iconMenu.style.display = isOpen ? "none" : "block";
+      iconClose.style.display = isOpen ? "block" : "none";
+    }
+  }
 
   if (menuToggle && drawerNav) {
-    menuToggle.addEventListener("click", () => {
-      drawerNav.classList.toggle("visible");
+    menuToggle.addEventListener("click", toggleDrawer);
+
+    menuToggle.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        toggleDrawer();
+      }
     });
 
     document.addEventListener("click", (e) => {
@@ -17,12 +33,16 @@ document.addEventListener("DOMContentLoaded", () => {
         !menuToggle.contains(e.target)
       ) {
         drawerNav.classList.remove("visible");
+        iconMenu.style.display = "block";
+        iconClose.style.display = "none";
       }
     });
 
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
         drawerNav.classList.remove("visible");
+        iconMenu.style.display = "block";
+        iconClose.style.display = "none";
       }
     });
   }

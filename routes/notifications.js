@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const Notification = require("../models/notification");
+const { sendNotification } = require("../services/notificationService");
 
 const isAuthenticated = async (req, res, next) => {
   if (!req.user) return res.redirect("/login");
@@ -54,6 +55,21 @@ router.post("/mark-all-read", isAuthenticated, async (req, res) => {
     console.error("Failed to mark all notifications as read:", err);
     res.status(500).send("Something went wrong.");
   }
+});
+
+// Dev-only test route
+router.get("/dev/send-test", async (req, res) => {
+  if (!req.session.userId) return res.redirect("/login");
+
+  const io = req.app.get("io");
+
+  await sendNotification({
+    userId: req.session.userId,
+    message: "🛎️ This is a real-time test notification!",
+    link: "/notifications",
+  }, io);
+
+  res.redirect("/notifications");
 });
 
 module.exports = router;

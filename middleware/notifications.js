@@ -1,7 +1,10 @@
 const Notification = require("../models/notification");
 
 module.exports = async function injectNotifications(req, res, next) {
-  if (!req.session?.userId) return next();
+  if (!req.session?.userId) {
+    console.log("🔕 No session user, skipping notifications.");
+    return next();
+  }
 
   try {
     const notifications = await Notification.find({
@@ -12,6 +15,10 @@ module.exports = async function injectNotifications(req, res, next) {
 
     res.locals.notifications = notifications;
     res.locals.unreadNotifications = unreadCount;
+
+    console.log(
+      `🔔 Injected ${notifications.length} notifications for user ${req.session.userId}`
+    );
   } catch (err) {
     console.error("🔔 Notification middleware error:", err);
     res.locals.notifications = [];
