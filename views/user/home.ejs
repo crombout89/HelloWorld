@@ -1,22 +1,7 @@
 <link rel='stylesheet' href='css/dashboard.css' />
 <h2>Welcome, <%= user.profile?.firstName || user.username %>!</h2>
 
-<section id="user-overview" class="">
-  <div class="home-profile-bg" style="background-image: url('<%= user.profile?.profilePicture %>');"></div>
-  <div id="user-details" class="">
-    <p><strong>Language:</strong> <%= languageMap[user.profile.language] || "Not specified" %></p>
-    <p><strong>Bio:</strong> <%= user.profile.bio || 'No bio yet.' %></p>
-    <a href="/profile" class="">Edit Profile</a>
-  </div>
-</section>
-
-<button class="accordion">Your Location</button>
-<div id="user-location" class="panel">
-  <section class="location-section">
-    <p>Set your location</p>
-    <button id="use-current-location">📍 Use My Current Location</button>
-    <p id="location-status"></p>
-  </section>
+<section class="location-section">
   <% if (user.profile?.location?.address?.latitude && user.profile?.location?.address?.longitude) { %>
   <div id="user-map"></div>
   <% if (user.profile?.location?.address?.city) { %>
@@ -27,6 +12,21 @@
   <% } else { %>
   <p>📍 No location set yet.</p>
   <% } %>
+</section>
+
+<button class="accordion">Your Info</button>
+<div id="user-info" class="panel">
+  <section id="user-overview" class="">
+    <div class="home-profile-bg" style="background-image: url('<%= user.profile?.profilePicture %>');"></div>
+    <div id="user-details" class="">
+      <p><strong>Age:</strong> <%= user.profile.age || 'No age yet.' %></p>
+      <p><strong>Pronouns:</strong> <%= user.profile.pronouns || 'No pronouns yet.' %></p>
+      <p><strong>Gender:</strong> <%= user.profile.gender || 'No pronouns yet.' %></p>
+      <p><strong>Language:</strong> <%= languageMap[user.profile.language] || "Not specified" %></p>
+      <p><strong>Bio:</strong> <%= user.profile.bio || 'No bio yet.' %></p>
+      <a href="/profile" class="">Edit Profile</a>
+    </div>
+  </section>
 </div>
 
 <button class="accordion">Friends</button>
@@ -51,7 +51,7 @@
 
     <% } %>
   </div>
-  </div>
+</div>
 </div>
 
 <button class="accordion">Interests</button>
@@ -66,7 +66,6 @@
 </div>
 
 <!-- Load scripts at the end of body -->
-<script src="/js/dashboard.js"></script>
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const map = L.map('user-map').setView([<%= user.profile.location.address.latitude %>, <%= user.profile.location.address.longitude %>], 13);

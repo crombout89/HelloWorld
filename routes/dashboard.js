@@ -18,9 +18,8 @@ const isAuthenticated = async (req, res, next) => {
 router.get("/", async (req, res) => {
   try {
     const userId = req.session.userId;
-    const user = await User.findById(userId)
-      .populate("profile.tags") // <-- this is the fix
-      .lean();
+    const user = await User.findById(userId).populate("profile.tags").lean();
+    if (!user.profile) user.profile = {};
 
     // 👥 Get Friends
     const friendships = await Friendship.find({
@@ -39,16 +38,7 @@ router.get("/", async (req, res) => {
       createdAt: -1,
     });
 
-    // 📍 Location Info
-    const location = user.profile.location || {};
-
-    const locationDetails = {
-      city: location.city || null,
-      country: location.country || null,
-      hasLocation: !!(location.city && location.country),
-    };
-
-    // 🎯 Render Dashboard
+    // 🎯 Render Dashboard (no need to compute location details here)
     res.render("user/home", {
       title: "Dashboard",
       includeLeaflet: true,
@@ -56,9 +46,7 @@ router.get("/", async (req, res) => {
       friends,
       friendCount: friends.length,
       notifications,
-      locationDetails,
-      includeLocationClient: true, // explicitly on
-      geoapifyAutocompleteKey: process.env.GEOAPIFY_AUTOCOMPLETE_KEY,
+      includeLocationClient: true,
     });
   } catch (error) {
     console.error("Dashboard Error:", error);
@@ -84,20 +72,16 @@ router.get("/profile/edit", isAuthenticated, async (req, res) => {
   }
 });
 
-//
-// 📤 Profile Update Handler
-//
 router.post("/profile/update", async (req, res) => {
   try {
     const userId = req.session.userId;
-    const { firstName, lastName, location, interests, bio } = req.body;
+    const { firstName, lastName, interests, bio } = req.body;
 
     const user = await User.findById(userId);
 
-    user.profile.firstName = firstName;
-    user.profile.lastName = lastName;
-    user.profile.location = location; // Optional override
-    user.profile.bio = bio;
+    user.profile.firstName = firstName?.trim() || "";
+    user.profile.lastName = lastName?.trim() || "";
+    user.profile.bio = bio?.trim() || "";
 
     // 🧠 Process Interests
     if (interests) {

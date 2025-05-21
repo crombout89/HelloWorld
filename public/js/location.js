@@ -3,8 +3,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const saveBtn = document.querySelector("#save-location-btn");
   const cityInput = document.querySelector("#location-city");
   const countryInput = document.querySelector("#location-country");
-  const statusEl = document.querySelector("#location-status");
-  const useCurrentBtn = document.querySelector("#use-current-location");
+  const useCurrentBtn =
+    document.getElementById("use-current-location") ||
+    document.getElementById("dashboard-use-current-location");
+  const statusEl =
+    document.getElementById("location-status") ||
+    document.getElementById("dashboard-location-status");
 
   // 📍 Manual Location Save
   if (saveBtn) {
@@ -41,6 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // 🌎 GPS Location Save
   if (useCurrentBtn) {
     useCurrentBtn.addEventListener("click", () => {
+      console.log("🌐 Location Button clicked");
       if (!navigator.geolocation) {
         return alert("Geolocation is not supported by your browser.");
       }
