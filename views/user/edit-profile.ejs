@@ -138,6 +138,7 @@
     <textarea name="tags" id="tags" rows="5" placeholder="e.g., anime, hiking, devtools">
     <%= user.profile.tags.map(t => t.name).join(', ') %>
     </textarea>
-    <button type="submit">Update Interests</button>
+    <br/>
+    <button type="submit" class="custom-save-button">Update Interests</button>
   </form>
 </div>

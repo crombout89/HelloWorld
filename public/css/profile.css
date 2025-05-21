@@ -80,3 +80,15 @@
   display: inline-block;
 }
 
+.custom-save-button {
+  background-color: #5bbb5e;
+  color: white;
+  font-weight: bold;
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+
+
