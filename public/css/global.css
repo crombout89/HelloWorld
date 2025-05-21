@@ -28,56 +28,29 @@ h1 {
   margin: 0;
 }
 
-.container {
-  display: flex;
-  overflow: hidden;
-}
-
-.button {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: center;
-  padding: 12px 25px;
-  margin: 10px;
+.btn {
   background-color: var(--primary);
-  color: white;
-  font-family: "brevia", sans-serif;
-  font-weight: bold;
-  text-decoration: none;
-  text-transform: uppercase;
-  border-radius: 5px;
+  color: #fff;
   border: none;
-  box-shadow: 0px 5px 6px -2px #00000040;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: bold;
+  font-size: 18px;
+  padding: 12px 28px;
+  border-radius: 10px;
+  box-shadow: 2px 2px 5px -1px #00000080;
   transition: transform 0.3s ease;
 }
 
-.button:hover {
-  background-color: var(--secondary);
-  transform: scale(1.1);
-  color: white;
-}
-
-.navbar {
-  display: flex;
-}
-
-.btn {
-  background: #0077cc;
-  color: white;
-  border: none;
-  padding: 0.4rem 1rem;
-  border-radius: 5px;
-  cursor: pointer;
-  text-decoration: none;
-}
-
 .btn:hover {
-  background: #005fa3;
+  background-color: var(--secondary);
+  box-shadow: 3px 3px 6px -1px #00000080;
+  transform: scale(1.1);
 }
 
-.page-title {
-  margin-top: 100px !important;
+.container {
+  display: flex;
+  overflow: hidden;
 }
 
 /* Base hidden state */
@@ -139,16 +112,7 @@ h1 {
    RESPONSIVITY SETTINGS
    ===================== */
 
-/*** DESKTOP SETTINGS ***/
-
-@media screen and (min-width: 1025px) {
-  
-}
-
-/*** RESPONSIVE SETTINGS ***/
-
-@media screen and (max-width: 1024px) {
-  
+@media screen and (max-width: 800px) {
 }
 
 
