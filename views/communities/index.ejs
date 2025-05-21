@@ -1,35 +1,39 @@
 <title><%= title %></title>
 <link rel="stylesheet" href="/css/communities.css" />
 
-<div class="page-title">
-  <h1>My Communities</h1>
-</div>
+<div class="communities-wrapper">
+  <div class="page-title">
+    <h1>My Communities</h1>
+  </div>
 
-<div class="community-list">
-  <% if (communities.length === 0) { %>
-    <p>You haven't joined any communities yet.</p>
-  <% } else { %>
-    <% communities.forEach(c => { %>
-      <div class="community-card">
-        <% if (c.coverImage) { %>
-          <img src="<%= c.coverImage %>" alt="<%= c.name %> cover image" class="community-cover">
-        <% } %>
-
-        <h2><%= c.name %></h2>
-        <p><strong>Members:</strong> <%= c.members.length %></p>
-        <p><%= c.description || 'No description yet.' %></p>
-
-        <div class="community-actions">
-          <a href="/communities/<%= c._id %>"><button>View</button></a>
-          <% if (c.owner._id == userId) { %>
-            <a href="/communities/<%= c._id %>/edit"><button>Edit</button></a>
+  <div class="community-list">
+    <% if (communities.length === 0) { %>
+      <p>You haven't joined any communities yet.</p>
+    <% } else { %>
+      <% communities.forEach(c => { %>
+        <div class="community-card">
+          <% if (c.coverImage) { %>
+            <img src="<%= c.coverImage %>" alt="<%= c.name %> cover image" class="community-cover">
           <% } %>
-        </div>
-      </div>
-    <% }) %>
-  <% } %>
-</div>
 
-<div class="page-actions">
-  <a href="/communities/new" class="button">➕ Create New Community</a>
+          <h2><%= c.name %></h2>
+          <p class="member-count"><strong>Members:</strong> <%= c.members.length %></p>
+          <p class="description"><%= c.description || 'No description yet.' %></p>
+
+          <div class="community-actions">
+            <a href="/communities/<%= c._id %>"><button class="view-btn">View</button></a>
+            <% if (c.owner._id == userId) { %>
+              <a href="/communities/<%= c._id %>/edit"><button class="edit-btn">Edit</button></a>
+            <% } %>
+          </div>
+        </div>
+      <% }) %>
+    <% } %>
+  </div>
+
+  <div class="page-actions">
+    <a href="/communities/new" class="create-button-link">
+      <button class="create-button">➕ Create New Community</button>
+    </a>
+  </div>
 </div>
