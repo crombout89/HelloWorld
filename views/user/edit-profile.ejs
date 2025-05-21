@@ -3,12 +3,15 @@
 <div class="profile-edit-container page-title" style="max-width: 600px; margin: auto; padding: 1rem;">
   <h2 style="margin-bottom: 1.5rem;">Update Your Profile</h2>
 
-  <!-- 🖼️ FORM: Upload Photo / Basic Info -->
+  
+
   <form action="/profile/update" method="POST" enctype="multipart/form-data" style="margin-bottom: 2rem;">
     <!-- Profile Picture -->
     <div style="margin-bottom: 1rem;">
       <label for="photo">Upload Profile Photo:</label><br>
-      <input type="file" name="photo" id="photo">
+      <input type="file" name="photo" id="photo" style ="display: none;">
+      <label for="photo" class="custom-file-button">Choose File</label>
+
     </div>
 
     <% if (user.profile?.profilePicture) { %>
@@ -18,7 +21,7 @@
     </div>
     <% } %>
 
-    <!-- First & Last Name -->
+    <!-- First Name & Last Name -->
     <div style="margin-bottom: 1rem;">
       <label for="firstName">First Name:</label><br>
       <input type="text" name="firstName" id="firstName" value="<%= user.profile?.firstName || '' %>" style="width: 100%;">
@@ -51,7 +54,7 @@
       <input type="text" name="pronouns" id="pronouns" value="<%= user.profile?.pronouns || '' %>" style="width: 100%;">
     </div>
 
-    <!-- Preferred Language -->
+    <!-- Preferred Language Dropdown -->
     <div style="margin-bottom: 1rem;">
       <label for="language">Preferred Language:</label>
       <select name="language" id="language" style="width: 100%;">
@@ -75,7 +78,7 @@
       </select>
     </div>
 
-    <!-- Bio -->
+    <!-- Bio Secrion -->
     <div style="margin-bottom: 1rem;">
       <label for="bio">Bio:</label><br>
       <textarea name="bio" id="bio" rows="4" style="width: 100%; resize: vertical;"><%= user.profile?.bio || '' %></textarea>
@@ -106,10 +109,10 @@
       <label><input type="checkbox" name="allowMessages" <%= user.profile?.preferences?.allowMessages ? 'checked' : '' %>> Allow messages from other users</label>
     </div>
 
-    <button type="submit" style="margin-top: 1rem;">Save Profile</button>
+    <button type="submit" class="custom-save-button">Save Profile</button>
   </form>
 
-  <!-- ❤️ Tagged Interests -->
+  <!--Tagged Interests -->
   <h2 style="margin-bottom: 1rem;">Your Interests</h2>
 
   <% if (user.profile?.tags?.length > 0) { %>
@@ -128,12 +131,13 @@
   <p>No interests added yet.</p>
   <% } %>
 
-  <!-- 📝 Tag Update Form -->
+  <!-- Tag Update Form. -->
   <form action="/profile/tags" method="POST">
     <label for="tags">Edit Interests</label>
     <textarea name="tags" id="tags" rows="5" placeholder="e.g., anime, hiking, devtools">
     <%= user.profile.tags.map(t => t.name).join(', ') %>
     </textarea>
-    <button type="submit">Update Interests</button>
+    <br/>
+    <button type="submit" class="custom-save-button">Update Interests</button>
   </form>
 </div>

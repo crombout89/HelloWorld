@@ -62,7 +62,7 @@ router.get("/profile", isLoggedIn, async (req, res) => {
 router.post("/profile/update", upload.single("photo"), async (req, res) => {
   if (!req.session.user) return res.redirect("/login");
 
-  const { firstName, lastName, bio, language } = req.body;
+  const { firstName, lastName, bio, language, age, gender, pronouns } = req.body;
   const userId = req.session.user._id;
 
   try {
@@ -72,7 +72,9 @@ router.post("/profile/update", upload.single("photo"), async (req, res) => {
       "profile.language": language?.trim(),
       "profile.bio": bio?.trim() || "",
       "profile.theme": req.body.theme || "default",
-
+      "profile.age": age ? parseInt(age) : undefined,
+      "profile.gender": gender?.trim() || "prefer_not_to_say",
+      "profile.pronouns": pronouns?.trim() || "",
     };
 
     if (req.file) {
