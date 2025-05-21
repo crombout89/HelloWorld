@@ -44,6 +44,9 @@ appSocket?.on("notification", (data) => {
   showToast(data.message);
   console.log("📩 Notification received!");
 
+  window.notifications = window.notifications || [];
+  window.notifications.push(data);
+
   unreadCount++;
   updateBadge();
 });
@@ -124,4 +127,6 @@ document.querySelectorAll(".open-invite-modal")?.forEach((button) => {
 });
 
 // ====== Draw Badge on Load ======
-updateBadge();
+document.addEventListener("DOMContentLoaded", () => {
+  updateBadge();
+});

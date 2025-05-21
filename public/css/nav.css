@@ -14,15 +14,12 @@
 }
 
 /* === Notifications === */
-#alerts {
-  background-color: var(--text);
-  border-radius: 12px;
-  transition: transform 0.3s ease;
-}
-
-#alerts:hover {
-  background-color: var(--secondary);
-  transform: scale(1.1);
+[class^="icon-"],
+[class*=" icon-"] {
+  width: 24px;
+  height: 24px;
+  fill: var(--text);
+  transition: fill 0.3s ease;
 }
 
 .badge {
@@ -45,7 +42,7 @@
   animation: wobble 1s;
 }
 
-.bell-wrapper {
+.icon-wrapper {
   position: relative;
   display: flex;
   align-items: center;

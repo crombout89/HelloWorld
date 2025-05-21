@@ -73,10 +73,29 @@ app.use(async (req, res, next) => {
   }
 
   // Notifications Middleware
-  app.use((req, res, next) => {
-    res.locals.user = req.session.user || null;
-    res.locals.unreadNotifications = req.session.unreadNotifications || 0;
-    next();
+  app.use(async (req, res, next) => {
+    try {
+      if (req.session?.userId) {
+        const user = await User.findById(req.session.userId).select(
+          "-password"
+        );
+        if (user) {
+          req.user = user;
+          res.locals.user = user;
+          res.locals.userId = user._id;
+        }
+      } else {
+        res.locals.user = null;
+        res.locals.userId = null;
+      }
+
+      await injectNotifications(req, res, next); // <-- inject right here
+    } catch (error) {
+      console.error("Session user lookup error:", error);
+      res.locals.user = null;
+      res.locals.userId = null;
+      next(); // <-- fallback
+    }
   });
 
   // ✅ Safe defaults for conditional scripts/styles
@@ -111,9 +130,6 @@ app.use((req, res, next) => {
 
   next();
 });
-
-const injectNotifications = require("./middleware/notifications");
-app.use(injectNotifications);
 
 // Set up API protection
 setupApiProtection(app);
