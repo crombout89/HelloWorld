@@ -91,5 +91,37 @@
   cursor: pointer;
 }
 
+/* Applies to all inputs and textareas in the profile form */
+.profile-edit-container input[type="text"],
+.profile-edit-container input[type="number"],
+.profile-edit-container textarea,
+.profile-edit-container select {
+  padding: 0.65rem;
+  border: 2px solid #ccc;
+  border-radius: 8px;
+  width: 100%;
+  font-size: 1rem;
+  transition: border-color 0.3s, box-shadow 0.3s;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* On focus, give a glow to indicate interactivity */
+.profile-edit-container input:focus,
+.profile-edit-container textarea:focus,
+.profile-edit-container select:focus {
+  border-color: #4CAF50; /* Your existing green */
+  box-shadow: 0 0 6px rgba(76, 175, 80, 0.4);
+  outline: none;
+}
+
+/* Optional: Make labels bold and aligned nicely */
+.profile-edit-container label {
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.4rem;
+  margin-top: 0.8rem;
+}
+
+
 
 
