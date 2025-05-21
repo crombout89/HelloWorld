@@ -1,4 +1,17 @@
+<!-- views/events/index.ejs -->
 <h2>Your Events</h2>
+
+<!-- ADD THIS BLOCK -->
+<div style="margin-bottom: 1rem;">
+  <a href="/events/new">
+    <button type="button">+ Create New Event</button>
+  </a>
+</div>
+<!-- /ADD THIS BLOCK -->
+
+<% if (createdEvents.length> 0) { %>
+  <!-- … rest of your list … -->
+
 
 <% if (createdEvents.length > 0) { %>
 <h3>🗓️ Created Events</h3>
