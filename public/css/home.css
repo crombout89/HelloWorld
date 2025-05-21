@@ -67,7 +67,7 @@ h1 {
   gap: 20px;
 }
 
-#register-form {
+#register-form, #login-form {
     display: flex;
     flex-direction: column;
     justify-content: center;
