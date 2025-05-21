@@ -105,11 +105,6 @@ app.use(async (req, res, next) => {
   next();
 });
 
-app.use((req, res, next) => {
-  res.locals.viewName = req.path === "/" ? "index" : ""; // or better: set actual view name in each route
-  next();
-});
-
 // 🗺️ Maps for global access
 app.use((req, res, next) => {
   res.locals.languageMap = {

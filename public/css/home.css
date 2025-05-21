@@ -1,69 +1,101 @@
-/* =================
-   JUMBOTRON STYLING
-   ================= */
+/* ========================
+   INDEX / LOGIN / REGISTER
+   ======================== */
 
 #cta-content {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: flex-start;
-    justify-content: space-evenly;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-evenly;
+  text-align: center;
+  gap: 24px;
+}
+
+form input:not([type="submit"]) {
+    padding: 10px;
+    border: 0;
+    border-radius: 5px;
     text-align: center;
-    gap: 24px;
+    font-family: 'brevia', sans-serif;
+    color: var(--text);
 }
 
 #home-cta {
-    display: flex;
-    flex-direction: row;
-    z-index: 10;
-    background-color: var(--background);
-    width: clamp(200px, 70vw, 600px);
-    padding: 40px;
-    border-radius: 32px;
-    gap: 20px;
+  display: flex;
+  flex-direction: row;
+  z-index: 10;
+  background-color: var(--background);
+  width: clamp(200px, 70vw, 600px);
+  padding: 40px;
+  border-radius: 32px;
+  gap: 20px;
 }
 
-#home-cta h1 {
-    font-size: clamp(44px, 7vw, 64px);
-    line-height: 1;
-    margin-bottom: -10px;
+h1 {
+  font-size: clamp(44px, 7vw, 64px);
+  line-height: 1;
+  margin-bottom: -10px;
 }
 
 #home-logo {
-    width: 200px;
-    aspect-ratio: 1;
+  width: 200px;
+  aspect-ratio: 1;
 }
 
 #homepage-jumbo-bg {
-    background-image: url('/assets/imgs/homepage.jpeg');
+  background-image: url("/assets/imgs/homepage.jpeg");
 }
 
 #homepage-jumbotron {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  position: fixed;
+}
+
+#register-cta {
+  display: flex;
+  flex-direction: row;
+  z-index: 10;
+  background-color: var(--background);
+  width: clamp(200px, 70vw, 400px);
+  padding: 40px;
+  border-radius: 32px;
+  gap: 20px;
+}
+
+#register-form {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
-    height: 100vh;
-    position: fixed;
+    width: clamp(200px, 40vw, 350px);
+    gap: 12px;
 }
+
+#register-jumbo-bg {
+    background-image: url("/assets/imgs/register-login.jpeg");
+  }
 
 /* =====================
    RESPONSIVITY SETTINGS
    ===================== */
 
 @media screen and (max-width: 800px) {
-    #cta-content {
-        gap: 16px;
-    }
+  #cta-content {
+    gap: 16px;
+  }
 
-    #home-cta {
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 20px
-    }
+  #home-cta, #register-cta {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
 
-    #home-cta .btn {
-        min-width: 250px;
-    }
+  #home-cta .btn {
+    min-width: 250px;
+  }
 }
