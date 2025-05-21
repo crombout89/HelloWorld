@@ -35,7 +35,6 @@ h1 {
   text-transform: uppercase;
   letter-spacing: 1px;
   font-weight: bold;
-  font-size: 18px;
   padding: 12px 28px;
   border-radius: 10px;
   box-shadow: 2px 2px 5px -1px #00000080;
@@ -141,11 +140,11 @@ h1 {
 @keyframes kenburns-mobile {
   0% {
     background-size: auto 130%;
-    background-position: left center;
+    background-position: right center;
   }
   100% {
     background-size: auto 130%;
-    background-position: right center;
+    background-position: left center;
   }
 }
 
@@ -153,17 +152,17 @@ h1 {
 @media screen and (max-width: 1025px) {
 
   .kenburns-bg {
-    animation: kenburns-mobile 40s linear infinite alternate;
+    animation: kenburns-mobile 60s linear infinite alternate;
   }
 
   @keyframes kenburns-mobile {
       0% {
         background-size: auto 180%;
-        background-position: left center;
+        background-position: right center;
       }
       100% {
         background-size: auto 180%;
-        background-position: right center;
+        background-position: left center;
       }
     }
 
