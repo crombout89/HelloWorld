@@ -1,109 +1,33 @@
-/* ==== Create‐Event Form & Layout ==== */
-#create-event {
-    margin-top: 100px;
-    max-width: 800px;
-    display: flex;
-    flex-direction: column;
-    min-height: 300vh;
-}
+/* public/css/themes/events.css */
 
-#create-event-form {
-    display: flex;
-    flex-direction: column;
-    padding-bottom: 100px;
-}
+/* ============================================
+   UTILITY CLASSES
+   ============================================ */
 
-#create-event-form * {
-    pointer-events: auto !important;
-    touch-action: manipulation;
-    -webkit-touch-callout: none;
-    -webkit-user-select: text;
-    user-select: text;
-}
-
-#create-event-info {
-    background-color: var(--background);
-    z-index: 3;
-}
-
-.img-preview {
-    max-width: 100%;
-    margin-top: 10px;
-    border-radius: 8px;
-}
-
-input,
-textarea,
-select {
-    -webkit-appearance: none;
-    appearance: none;
-    border: 1px solid #ccc;
-    padding: 10px;
-    margin: 5px 0;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-.is-invalid {
-    border-color: red;
-}
-
+/* Hide an element completely */
 .hidden {
-    display: none;
+    display: none !important;
 }
 
-/* Leaflet map styling */
-#map {
-    width: 100%;
-    height: 400px;
-    z-index: 1;
-    position: relative;
-}
+/* ============================================
+   MODAL POPUP STYLES
+   ============================================ */
 
-.map-container {
-    pointer-events: auto;
-}
-
-/* Create‐button styling */
-#create-event-btn {
-    align-self: flex-start;
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 1rem;
-    margin-bottom: 20px;
-}
-
-.create-event-cta {
-    display: flex;
-    margin-top: 1rem;
-}
-
-/*** RESPONSIVE TWEAKS ***/
-@media screen and (max-width: 1024px) {
-    #create-event {
-        margin-top: 0;
-    }
-}
-
-/* ==== Modal Popup Styles ==== */
 #create-modal {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    display: none;
+    display: flex;
+    /* base flex layout */
     align-items: center;
     justify-content: center;
     z-index: 999;
 }
 
 #create-modal.active {
-    display: flex;
+    /* When .active is added, modal shows (because .hidden removed by JS) */
 }
 
 #create-modal .backdrop {
@@ -130,7 +54,186 @@ select {
     top: 0.5rem;
     right: 0.5rem;
     font-size: 1.5rem;
-    cursor: pointer;
-    border: none;
     background: none;
+    border: none;
+    cursor: pointer;
+}
+
+/* ============================================
+   CREATE EVENT BUTTON & FORM STYLING
+   ============================================ */
+
+/* Container for the “+ Create Event” button */
+.create-event-cta {
+    display: flex;
+    margin-top: 1rem;
+}
+
+/* The “+ Create Event” button itself */
+#create-event-btn {
+    align-self: flex-start;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-bottom: 20px;
+}
+
+/* If you have a separate #create-event wrapper */
+#create-event {
+    margin-top: 100px;
+    max-width: 800px;
+    display: flex;
+    flex-direction: column;
+    min-height: 300vh;
+}
+
+/* If you have a #create-event-form element */
+#create-event-form {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 100px;
+}
+
+/* Ensure form inputs are interactive */
+#create-event-form * {
+    pointer-events: auto !important;
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    -webkit-user-select: text;
+    user-select: text;
+}
+
+/* Some background/info area */
+#create-event-info {
+    background-color: var(--background);
+    z-index: 3;
+}
+
+/* Previewed images in the form */
+.img-preview {
+    max-width: 100%;
+    margin-top: 10px;
+    border-radius: 8px;
+}
+
+/* ============================================
+   FORM CONTROLS
+   ============================================ */
+
+/* Inputs, textareas, selects */
+input,
+textarea,
+select {
+    -webkit-appearance: none;
+    appearance: none;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 5px 0;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* Invalid input highlighting */
+.is-invalid {
+    border-color: red;
+}
+
+/* ============================================
+   LEAFLET MAP STYLING
+   ============================================ */
+
+#map {
+    width: 100%;
+    height: 400px;
+    z-index: 1;
+    position: relative;
+}
+
+.map-container {
+    pointer-events: auto;
+}
+
+/* ============================================
+   RESPONSIVE TWEAKS
+   ============================================ */
+
+@media screen and (max-width: 1024px) {
+    #create-event {
+        margin-top: 0;
+    }
+}
+
+/* ============================================
+   EVENTS GRID & CARD (if used)
+   ============================================ */
+
+.events-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.event-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.event-card.attending {
+    opacity: 0.9;
+}
+
+.event-card h3 {
+    margin: 0 0 0.5rem;
+    color: #228822;
+    font-size: 1.25rem;
+}
+
+.event-card .meta {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.event-card .desc {
+    flex-grow: 1;
+    margin-bottom: 1rem;
+    color: #333;
+}
+
+.event-card .actions {
+    text-align: right;
+}
+
+.event-card .btn {
+    text-decoration: none;
+    display: inline-block;
+    padding: 0.4rem 0.8rem;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    margin-left: 0.5rem;
+}
+
+.event-card .btn.view {
+    background: #007bff;
+    color: #fff;
+}
+
+.event-card .btn.edit {
+    background: #28a745;
+    color: #fff;
+}
+
+.no-events {
+    grid-column: 1 / -1;
+    text-align: center;
+    color: #666;
+    font-style: italic;
 }
