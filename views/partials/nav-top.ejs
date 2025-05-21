@@ -3,28 +3,27 @@
 <header id="top-nav" class="top-nav">
   <div class="nav-left">
     <% if (user && user._id) { %>
-      <div id="menu-toggle" class="icon-wrapper" role="button" tabindex="0" aria-label="Menu">
-        <div class="icon-menu">
-          <%- include("icons/nav-menu") %>
-        </div>
-        <div class="icon-close" style="display: none;">
-          <%- include("icons/nav-close") %>
-        </div>
-      </div>
-    <% } else { %>
-      <a href="/login" aria-label="Login" class="icon-wrapper">
-        <%- include("icons/user-login") %>
-      </a>
-    <% } %>
-  </div>
-
-  <div class="nav-right">
-    <% if (user && user._id) { %>
     <a href="/notifications" id="alerts" class="icon-wrapper">
       <%- include("icons/notification") %>
       <span id="notification-badge" class="badge" style="display: none;">0</span>
     </a>
     <% } %>
   </div>
-</header>
 
+  <div class="nav-right">
+    <% if (user && user._id) { %>
+    <div id="menu-toggle" class="icon-wrapper" role="button" tabindex="0" aria-label="Menu">
+      <div class="icon-menu">
+        <%- include("icons/nav-menu") %>
+      </div>
+      <div class="icon-close" style="display: none;">
+        <%- include("icons/nav-close") %>
+      </div>
+    </div>
+    <% } else { %>
+    <a href="/login" id="login-btn" aria-label="Login" class="icon-wrapper">
+      <%- include("icons/user-login") %>
+    </a>
+    <% } %>
+  </div>
+</header>
