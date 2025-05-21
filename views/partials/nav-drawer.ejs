@@ -12,24 +12,20 @@
       <li>
         <details>
           <summary>🔍 Discover</summary>
-          <div id="discoveryGrid">
-            <div class="discovery-card" data-search-type="find-friends">Find Friends</div>
-            <div class="discovery-card" data-search-type="interests">By Interest</div>
-            <div class="discovery-card" data-search-type="near-me">Near Me</div>
-            <div class="discovery-card" data-search-type="communities">Communities</div>
-            <div class="discovery-card" data-search-type="events">Events</div>
-          </div>
+          <a href="/discover/friends" class="">Find Friends</a>
+          <a href="/discover/interests" class="">By Interest</a>
+          <a href="/discover/nearby" class="">Near Me</a>
+          <a href="/discover/communities" class="">Communities</a>
+          <a href="/discover/events" class="">Events</a>
         </details>
       </li>
-      <li><a href="/settings">⚙️ Account Settings</a></li>
+      <li><a href="/profile">⚙️ Account Settings</a></li>
       <li><a href="/about">📄 About</a></li>
       <li><a href="/help">❓ Help / FAQ</a></li>
     </ul>
   </nav>
 
   <footer>
-    <form action="/logout" method="POST">
-      <button type="submit">🚪 Logout</button>
-    </form>
+    <a href="/logout" class="button">Logout</a>
   </footer>
 </aside>
