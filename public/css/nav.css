@@ -11,15 +11,15 @@
   z-index: 9999;
 }
 
-#top-nav [class^="icon-"],
-#top-nav [class*=" icon-"] {
+[class^="icon-"],
+[class*=" icon-"] {
   width: 24px;
   height: 24px;
   fill: #fff;
   transition: fill 0.3s ease;
 }
 
-#top-nav .icon-wrapper {
+.icon-wrapper {
   background-color: var(--primary);
   padding: 10px;
   position: relative;
@@ -27,12 +27,12 @@
   align-items: center;
   justify-content: center;
   border-radius: 6px;
-  box-shadow: 2px 2px 4px -1px #000000;
+  box-shadow: 3px 3px 5px -1px #00000090;
 }
 
-#top-nav .icon-wrapper:hover {
+.icon-wrapper:hover {
   background-color: var(--secondary);
-  box-shadow: 1px 1px 2px -1px #000000;
+  box-shadow: 1px 1px 2px -1px #00000080;
 }
 
 #alerts {
@@ -84,52 +84,23 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
-  height: 56px;
-  background-color: #fff;
-  border-top: 1px solid #ddd;
   position: fixed;
-  bottom: 0;
+  bottom: 5px;
   left: 0;
   right: 0;
-  z-index: 9999;
-}
-
-[class^="icon-"],
-[class*=" icon-"] {
-  width: 24px;
-  height: 24px;
-  fill: var(--text);
-  transition: fill 0.3s ease;
-}
-
-#bottom-nav .icon-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.nav-item {
-  text-align: center;
-  font-size: 0.75rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  color: #333;
-  text-decoration: none;
+  z-index: 9997;
 }
 
 /* === Drawer Nav === */
 #drawer-nav {
   position: fixed;
   visibility: hidden;
-  top: 48px;
+  top: 0;
   right: -200px;
   width: 200px;
-  height: calc(100% - 48px);
-  background-color: #f9f9f9;
-  border-right: 1px solid #ccc;
-  padding: 1rem;
+  height: 100%;
+  background-color: var(--background);
+  padding: 50px 20px 20px;
   z-index: 9998;
   overflow-y: auto;
   transition: right 0.3s ease;
