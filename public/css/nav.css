@@ -5,23 +5,45 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem 1rem;
-  height: 48px;
-  background-color: #fff;
-  border-bottom: 1px solid #ddd;
+  height: 40px;
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: 9999;
 }
 
-/* === Notifications === */
-[class^="icon-"],
-[class*=" icon-"] {
+#top-nav [class^="icon-"],
+#top-nav [class*=" icon-"] {
   width: 24px;
   height: 24px;
-  fill: var(--text);
+  fill: #fff;
   transition: fill 0.3s ease;
 }
 
+#top-nav .icon-wrapper {
+  background-color: var(--primary);
+  padding: 10px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  box-shadow: 2px 2px 4px -1px #000000;
+}
+
+#top-nav .icon-wrapper:hover {
+  background-color: var(--secondary);
+  box-shadow: 1px 1px 2px -1px #000000;
+}
+
+#alerts {
+  left: 6px;
+}
+
+#login-btn, #menu-toggle {
+  right: 6px;
+}
+
+/* === Notifications === */
 .badge {
   position: absolute;
   top: -6px;
@@ -33,17 +55,6 @@
   padding: 2px 6px;
   border-radius: 50%;
   z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.bell-icon:hover {
-  animation: wobble 1s;
-}
-
-.icon-wrapper {
-  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -80,7 +91,22 @@
   bottom: 0;
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 9999;
+}
+
+[class^="icon-"],
+[class*=" icon-"] {
+  width: 24px;
+  height: 24px;
+  fill: var(--text);
+  transition: fill 0.3s ease;
+}
+
+#bottom-nav .icon-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .nav-item {
@@ -96,21 +122,23 @@
 /* === Drawer Nav === */
 #drawer-nav {
   position: fixed;
+  visibility: hidden;
   top: 48px;
-  left: calc(-1 * (250px + 20px));
-  width: 250px;
+  right: -200px;
+  width: 200px;
   height: calc(100% - 48px);
   background-color: #f9f9f9;
   border-right: 1px solid #ccc;
   padding: 1rem;
-  z-index: 999;
+  z-index: 9998;
   overflow-y: auto;
-  transition: left 0.3s ease;
+  transition: right 0.3s ease;
 }
 
 /* When active */
 #drawer-nav.visible {
-  left: 0;
+  right: 0;
+  visibility: visible;
 }
 
 #drawer-nav nav ul {
@@ -120,9 +148,4 @@
 
 #drawer-nav nav li {
   margin-bottom: 0.75rem;
-}
-
-/* Make drawer hidden by default */
-#drawer-nav[style*="display: none"] {
-  display: none !important;
 }

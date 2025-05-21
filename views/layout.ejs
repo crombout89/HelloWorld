@@ -25,7 +25,9 @@
   <%- include('partials/global') %>
 
   <!-- Bottom Navigation Buttons -->
+  <% if (user && user._id) { %>
   <%- include('partials/nav-bottom') %>
+  <% } %>
 
   <!-- Socket + modular client-side logic -->
   <script>
@@ -35,7 +37,7 @@
   </script>
 
   <!-- Client-Side JS Scripts -->
-  <!-- <%- include('partials/scripts') %> -->
+  <%- include('partials/scripts') %>
 
 </body>
 
