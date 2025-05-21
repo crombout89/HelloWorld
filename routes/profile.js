@@ -62,7 +62,7 @@ router.get("/profile", isLoggedIn, async (req, res) => {
 router.post("/profile/update", upload.single("photo"), async (req, res) => {
   if (!req.session.user) return res.redirect("/login");
 
-  const { firstName, lastName, bio, language, age,  } = req.body;
+  const { firstName, lastName, bio, language, age, gender } = req.body;
   const userId = req.session.user._id;
 
   try {
