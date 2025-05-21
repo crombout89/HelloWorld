@@ -1,29 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta name="viewport" content="width=device-width,
-  initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title><%= title %></title>
-  <link rel='stylesheet' href='/styles.css' />
-  <link rel='stylesheet' href='css/home.css' />
-  <link rel='stylesheet' href='css/effects.css' />
-  <link rel="stylesheet" href="https://use.typekit.net/yrl0zql.css">
-</head>
-<body>
-    <div id="homepage-jumbotron" class="kenburns-container">
-        <div id="homepage-jumbo-bg" class="kenburns-bg"></div>
+<link rel='stylesheet' href='css/home.css' />
 
-        <div id="welcome" class="container fade-in-group fade-in">
-            <img src="/logo.svg" class="logo" alt="App Logo">
-            <h1 class="fade-in">Hello World</h1>
-            <p class="fade-in">Lorem ipsum dolor sit amet consectetur adipisicing elit.</p>
-            <a href="/register" class="button fade-in">
-                <img src="assets/svg/register.svg" class="nav-icon" alt="Register Icon">Register your account!</a>
+<body>
+  <div id="homepage-jumbotron" class="kenburns-container">
+    <div id="homepage-jumbo-bg" class="kenburns-bg"></div>
+
+    <div id="home-cta" class="animate__animated animate__fadeInUp animate__delay-2s">
+        <img src="/logo.png" id="home-logo" class="">
+        <div id="cta-content" class="">
+            <h1>HelloWorld</h1>
+            <p>Find your people, wherever you are. Join communities, discover events, and connect in real time—with smart features that speak your language.</p>
+            <a href="/register">
+                <button class="btn animate__animated animate__fadeIn animate__delay-3s">Register</button>
+            </a>
+            <a href="/login">
+                <button class="btn animate__animated animate__fadeIn animate__delay-3s">Login</button>
+            </a>
         </div>
     </div>
 
-    <%- include('partials/navbar') %>
-
-    <script type="module" src="/js/index.js" defer></script>
-</body>
-</html>
+  </div>
+  <script type="module" src="/js/index.js" defer></script>
