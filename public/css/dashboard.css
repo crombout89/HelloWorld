@@ -1,103 +1,23 @@
-#current-location {
-    display: flex;
-    flex-direction: column;
-    justify-self: center;
+/* ===================
+   USER DASHBOARD HOME
+   =================== */
+.home-profile-bg {
+  width: 200px; /* or fixed like 200px */
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 8px; /* optional */
 }
 
-#dashboard {
-    width: 100%;
-    display: flex;
-    align-items: flex-start;
-    justify-content: flex-start;
-    flex-direction: column;
-    max-width: 800px;
-    gap: 20px;
-}
-
-#dashboard-header {
-    width: 100%;
-    flex-direction: column;
-    flex-wrap: wrap;
-    gap: 10px;
-    align-items: center;
-    justify-content: flex-start;
-    text-align: center;
-    margin-bottom: 24px;
-    padding-top: 20px;
-}
-
-.geoapify-autocomplete-items {
-    z-index: 9999;
-    background: white;
-    border: 1px solid #ccc;
-    max-height: 200px;
-    overflow-y: auto;
-    font-size: 0.9rem;
-  }
-
-nav {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-}
-
-#nearby-users-section {
-    padding-bottom: 80px;
-}
-
-#profile-img {
-    width: 100%;
-}
-
-#profile-info {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-#profile-overview {
-    width: 100%;
-    gap: 24px;
-    display: flex;
-    flex-direction: row;
-}
-
-#profile-photo {
-    background-color: var(--primary);
+#user-map {
+    height: 300px;
     width: 300px;
-    aspect-ratio: 1;
-    padding: 20px 20px 0 20px;
-    border-radius: 50px;
-    overflow: hidden;
 }
 
-/*** RESPONSIVE SETTINGS ***/
+/* =====================
+   RESPONSIVITY SETTINGS
+   ===================== */
 
-@media screen and (max-width: 1024px) {
-
-    #dashboard {
-        padding: 20px;
-    }
-
-    #dashboard-header {
-        margin-top: 0;
-        margin-bottom: 12px;
-    }
-
-    #profile-info {
-        width: 100%;
-    }
-
-    #profile-overview {
-        width: 100%;
-        flex-direction: column;
-        align-items: center;
-    }
-
-    #profile-photo {
-        width: 260px;
-        min-height: 260px;
-        border-radius: 20px;
-    }
-
+@media screen and (max-width: 800px) {
 }

@@ -1,0 +1,99 @@
+<link rel='stylesheet' href='css/dashboard.css' />
+
+<div id="dashboard">
+  <div id="dashboard-header">
+
+    <section id="current-location">
+      <h2>Your Current Location</h2>
+
+      <!-- 🌍 Location Input -->
+      <section class="location-section">
+        <p>Set your location</p>
+        <button id="use-current-location">📍 Use My Current Location</button>
+        <p id="location-status"></p>
+      </section>
+
+      <% if (user.profile?.location?.address?.latitude && user.profile?.location?.address?.longitude) { %>
+      <div id="user-map" style="height: 250px;"></div>
+
+    </section>
+
+    <nav>
+      <a href="/notifications" class="button">View Notifications</a>
+      <a href="/logout" class="button">Logout</a>
+    </nav>
+  </div>
+
+  <section id="profile-overview">
+
+    <img src="<%= user.profile.profilePicture || '/assets/svg/profile-placeholder.svg' %>" alt="Profile Picture" class="" style="width: 50%; max-width: 250px; max-height: auto;" />
+
+    <div id="profile-info" class="">
+      <h2>Welcome, <%= user.fullName || user.username %></h2>
+
+      <p>
+        <strong>Name:</strong>
+        <%= user.profile.firstName || 'First' %>
+        <%= user.profile.lastName || 'Last' %>
+      </p>
+
+      <% if (user.profile?.location?.address?.city) { %>
+      <p>📍 Location:
+        <%= user.profile.location.address.city %>,
+        <%= user.profile.location.address.country %>
+      </p>
+      <% } else { %>
+      <p>📍 No location set yet.</p>
+      <% } %>
+
+      <p><strong>Language:</strong> <%= languageMap[user.profile.language] || "Not specified" %></p>
+
+      <p><strong>Bio:</strong> <%= user.profile.bio || 'No bio yet.' %></p>
+
+      <p><strong>Interests:</strong>
+        <% if (user.profile.tags?.length) { %>
+        <%= user.profile.tags.map(tag => tag.name).join(', ') %>
+        <% } else { %>
+        None listed.
+        <% } %>
+      </p>
+
+      <a href="/profile" class="button">Edit Profile</a>
+    </div>
+  </section>
+
+  <div class="friends-summary">
+    <h2>Your Friends</h2>
+    <p><strong>Friends:</strong> <%= friendCount %></p>
+    <% if (friends.length === 0) { %>
+    <p>No friends yet.</p>
+    <% } else { %>
+    <ul>
+      <% friends.forEach(friend => { %>
+      <li>
+        <a href="/profile/<%= friend._id %>">
+          <%= friend.profile?.firstName || friend.username %>
+        </a>
+      </li>
+      <% }) %>
+    </ul>
+    <a href="/friends" class="button">View All Friends</a>
+    <a href="/invite" class="button">Invite a Friend</a>
+
+    <% } %>
+  </div>
+</div>
+
+<!-- Load scripts at the end of body -->
+<script src="/js/dashboard.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const map = L.map('user-map').setView([<%= user.profile.location.address.latitude %>, <%= user.profile.location.address.longitude %>], 13);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+    L.marker([<%= user.profile.location.address.latitude %>, <%= user.profile.location.address.longitude %>])
+      .addTo(map)
+      .bindPopup("You are here!")
+      .openPopup();
+  });
+</script>
+<% } %>
