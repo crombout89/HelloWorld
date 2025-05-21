@@ -1,4 +1,4 @@
-/* ==== your existing form styles ==== */
+/* ==== Create‐Event Form & Layout ==== */
 #create-event {
     margin-top: 100px;
     max-width: 800px;
@@ -52,7 +52,19 @@ select {
     display: none;
 }
 
-/* Create-button */
+/* Leaflet map styling */
+#map {
+    width: 100%;
+    height: 400px;
+    z-index: 1;
+    position: relative;
+}
+
+.map-container {
+    pointer-events: auto;
+}
+
+/* Create‐button styling */
 #create-event-btn {
     align-self: flex-start;
     background-color: #007bff;
@@ -70,19 +82,7 @@ select {
     margin-top: 1rem;
 }
 
-/* Leaflet map */
-#map {
-    width: 100%;
-    height: 400px;
-    z-index: 1;
-    position: relative;
-}
-
-.map-container {
-    pointer-events: auto;
-}
-
-/* Responsive tweaks */
+/*** RESPONSIVE TWEAKS ***/
 @media screen and (max-width: 1024px) {
     #create-event {
         margin-top: 0;

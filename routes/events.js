@@ -2,6 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const Event = require("../models/event");
+const Community = require("../models/community");           // ← added
 const WallPost = require("../models/post");
 const User = require("../models/user");
 const { isLoggedIn } = require("../middleware/auth");
@@ -14,6 +15,7 @@ const LocationIQ = require("../services/locationService");
 router.get("/events", isLoggedIn, async (req, res, next) => {
   try {
     const userId = req.session.userId;
+
     const createdEvents = await Event.find({ host: userId })
       .sort({ startTime: 1 })
       .lean();
@@ -25,10 +27,17 @@ router.get("/events", isLoggedIn, async (req, res, next) => {
       .sort({ startTime: 1 })
       .lean();
 
+    // fetch communities so we can render the <select> in the modal
+    const communities = await Community.find({ members: userId })
+      .sort({ name: 1 })
+      .lean();
+
     res.render("events/index", {
       title: "My Events",
       createdEvents,
       attendingEvents,
+      communities,
+      includeLeaflet: true,
     });
   } catch (err) {
     console.error("❌ Error loading events:", err);
@@ -36,19 +45,18 @@ router.get("/events", isLoggedIn, async (req, res, next) => {
   }
 });
 
-// GET: New Event Form
+// GET: New Event Form (standalone page)
 router.get("/events/new", isLoggedIn, async (req, res, next) => {
   try {
-    const Community = require("../models/community");
     const communities = await Community.find({
       members: req.session.userId,
-    }).lean();
+    })
+      .sort({ name: 1 })
+      .lean();
 
     res.render("events/new", {
       title: "Create New Event",
-      event: {
-        location: { name: "", address: "", latitude: "", longitude: "" },
-      },
+      event: { location: { name: "", address: "", latitude: "", longitude: "" } },
       communities,
       includeLeaflet: true,
     });
@@ -122,7 +130,8 @@ router.get("/events/:id", isLoggedIn, async (req, res, next) => {
     const isHost = rawEvent.host?._id?.toString() === userId;
     const canManage = isHost || isInvited || isAttending;
     const canPost = isHost || isAttending;
-    const isVisible = rawEvent.visibility === "public" || isInvited || isHost || isAttending;
+    const isVisible =
+      rawEvent.visibility === "public" || isInvited || isHost || isAttending;
     if (!isVisible) return res.status(403).render("403", { title: "Access Denied" });
 
     const wallPosts = await WallPost.find({ event: rawEvent._id }).lean();
@@ -132,10 +141,10 @@ router.get("/events/:id", isLoggedIn, async (req, res, next) => {
     const allUsers = await User.find({ _id: { $in: usersInRSVP } }).lean();
     const groupedAttendees = {};
     rawEvent.rsvp?.forEach(r => {
-      const user = allUsers.find(u => u._id.toString() === r.user.toString());
-      if (!user) return;
+      const u = allUsers.find(u => u._id.toString() === r.user.toString());
+      if (!u) return;
       groupedAttendees[r.status] = groupedAttendees[r.status] || [];
-      groupedAttendees[r.status].push(user);
+      groupedAttendees[r.status].push(u);
     });
 
     res.render("events/view", {
@@ -167,7 +176,8 @@ router.get("/events/:id/manage", isLoggedIn, async (req, res, next) => {
       .lean();
     if (!event) return res.status(404).render("404");
 
-    const isHost = event.hostType === "User" && event.host.toString() === req.session.userId;
+    const isHost =
+      event.hostType === "User" && event.host.toString() === req.session.userId;
     if (!isHost) return res.status(403).render("403", { title: "Access Denied" });
 
     const friends = await getFriendsForUser(req.session.userId);
@@ -193,7 +203,6 @@ router.post("/events/:id/rsvp", isLoggedIn, async (req, res, next) => {
     const event = await Event.findById(req.params.id);
     if (!event) return res.status(404).send("Event not found");
 
-    // Update RSVP & attendees
     event.rsvp = event.rsvp.filter(r => r.user.toString() !== userId);
     event.rsvp.push({ user: userId, status });
     if (status === "going" && !event.attendees.includes(userId)) {
@@ -201,17 +210,19 @@ router.post("/events/:id/rsvp", isLoggedIn, async (req, res, next) => {
     }
     await event.save();
 
-    // Notify host
     const user = await User.findById(userId);
     if (event.hostType === "User") {
       const hostUser = await User.findById(event.host);
       if (hostUser) {
-        await sendNotification({
-          userId: hostUser._id,
-          message: `${user.username} RSVP'd "${status}" to "${event.title}"`,
-          link: `/events/${event._id}`,
-          meta: { type: "event_rsvp", status, eventId: event._id, from: userId }
-        }, req.app.get("io"));
+        await sendNotification(
+          {
+            userId: hostUser._id,
+            message: `${user.username} RSVP'd "${status}" to "${event.title}"`,
+            link: `/events/${event._id}`,
+            meta: { type: "event_rsvp", status, eventId: event._id, from: userId },
+          },
+          req.app.get("io")
+        );
       }
     }
 
@@ -230,7 +241,8 @@ router.post("/events/:id/invite", isLoggedIn, async (req, res, next) => {
 
     const inviterId = req.session.userId;
     const inviteeId = req.body.userId;
-    const isHost = event.hostType === "User" && event.host.toString() === inviterId;
+    const isHost =
+      event.hostType === "User" && event.host.toString() === inviterId;
     if (!isHost) return res.status(403).send("Not authorized");
 
     const friends = await getFriendsForUser(inviterId);
@@ -243,12 +255,15 @@ router.post("/events/:id/invite", isLoggedIn, async (req, res, next) => {
       await event.save();
 
       const inviter = await User.findById(inviterId);
-      await sendNotification({
-        userId: inviteeId,
-        message: `${inviter.username} invited you to "${event.title}"`,
-        link: `/events/${event._id}`,
-        meta: { type: "event_invite", invitedBy: inviter._id, eventId: event._id }
-      }, req.app.get("io"));
+      await sendNotification(
+        {
+          userId: inviteeId,
+          message: `${inviter.username} invited you to "${event.title}"`,
+          link: `/events/${event._id}`,
+          meta: { type: "event_invite", invitedBy: inviter._id, eventId: event._id },
+        },
+        req.app.get("io")
+      );
     }
 
     res.redirect(`/events/${req.params.id}`);
