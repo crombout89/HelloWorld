@@ -59,7 +59,7 @@ router.post("/logout", (req, res) => {
   req.session.destroy((err) => {
     if (err) {
       console.error("Logout Error:", err);
-      return res.redirect("/dashboard");
+      return res.redirect("/");
     }
     res.clearCookie("connect.sid"); // optional: clear session cookie
     res.redirect("/login");
