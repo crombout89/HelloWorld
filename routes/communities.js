@@ -388,4 +388,24 @@ router.post("/:id/invite", isAuthenticated, async (req, res) => {
   }
 });
 
+// DELETE a community
+router.post("/:id/delete", isAuthenticated, async (req, res) => {
+  try {
+    const community = await Community.findById(req.params.id);
+
+    // Check if it exists and if the user is the owner
+    if (!community || community.owner.toString() !== req.session.userId) {
+      return res.status(403).send("Not allowed");
+    }
+
+    await Community.findByIdAndDelete(req.params.id);
+
+    res.redirect("/communities");
+  } catch (err) {
+    console.error("Error deleting community:", err);
+    res.status(500).send("Something went wrong");
+  }
+});
+
+
 module.exports = router;
