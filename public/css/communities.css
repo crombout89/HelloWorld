@@ -64,6 +64,125 @@
   .create-button a button:hover {
     background-color: #3a9e41;
   }
+  /* === EDIT COMMUNITY PAGE === */
+
+.edit-wrapper {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  font-family: 'Arial', sans-serif;
+}
+
+.edit-wrapper h1 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.edit-wrapper label {
+  display: block;
+  margin: 1rem 0 0.4rem;
+  font-weight: bold;
+  color: #444;
+}
+
+.edit-wrapper input[type="text"],
+.edit-wrapper input[type="file"],
+.edit-wrapper textarea {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+  box-sizing: border-box;
+}
+
+.edit-wrapper button {
+  background-color: #1e90ff;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.edit-wrapper button:hover {
+  background-color: #106fca;
+}
+
+/* Tag list with remove buttons */
+.edit-wrapper ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.edit-wrapper li {
+  margin-bottom: 0.5rem;
+}
+
+.edit-wrapper form[method="POST"] button {
+  background-color: #74c782;
+  margin-left: 0.5rem;
+}
+
+.edit-wrapper form[method="POST"] button:hover {
+  background-color: #7ab672;
+}
+
+/* Cancel link */
+.edit-wrapper p a {
+  display: inline-block;
+  margin-top: 1.5rem;
+  color: #555;
+  text-decoration: none;
+}
+
+.edit-wrapper p a:hover {
+  text-decoration: underline;
+}
+
+.form-buttons {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.form-buttons button {
+  background-color: #1e90ff;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.form-buttons button:hover {
+  background-color: #106fca;
+}
+
+.delete-button {
+  background-color: #fff;
+  border: 2px solid red;
+  color: red;
+  padding: 0.6rem 1.2rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  margin-top: 0.5rem;
+}
+
+.delete-button:hover {
+  background-color: #ffe5e5;
+}
+
+
+
+  
   
 
   

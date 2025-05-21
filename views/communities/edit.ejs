@@ -1,49 +1,48 @@
 <title><%= title %></title>
+<link rel="stylesheet" href="/css/communities.css" />
 
-<div class="page-title">
+<div class="edit-wrapper">
   <h1>Edit Community</h1>
-</div>
 
-<!-- ✅ Main edit form -->
-<form action="/communities/<%= community._id %>/edit" method="POST" enctype="multipart/form-data">
+  <!-- ✅ Main edit form -->
+  <form action="/communities/<%= community._id %>/edit" method="POST" enctype="multipart/form-data">
+    <label for="coverImage">Change Cover Image:</label>
+    <input type="file" name="coverImage" id="coverImage" accept="image/*" />
 
-  <label for="coverImage">Change Cover Image:</label>
-  <input type="file" name="coverImage" id="coverImage" accept="image/*" />
+    <label for="name">Community Name:</label>
+    <input type="text" id="name" name="name" value="<%= community.name %>" required>
 
-  <label for="name">Community Name:</label><br>
-  <input type="text" id="name" name="name" value="<%= community.name %>" required><br><br>
-
-  <!-- 🏷️ Tags Input -->
-  <div>
+    <!-- 🏷️ Tags Input -->
     <label for="tags">Tags (comma-separated)</label>
     <input type="text" name="tags" id="tags" value="<%= community?.tags?.map(t => t.name).join(', ') || '' %>" />
-  </div>
 
-  <label for="description">Description:</label><br>
-  <textarea id="description" name="description" rows="4" cols="50"><%= community.description %></textarea><br><br>
+    <label for="description">Description:</label>
+    <textarea id="description" name="description" rows="4"><%= community.description %></textarea>
 
-  <button type="submit">Save Changes</button>
-</form> <!-- ✅ CLOSE THIS FORM -->
+    <div class="form-buttons-row">
+      <button type="submit">Save Changes</button>
+  </form> <!-- ✅ this closes the edit form -->
 
-<!-- ✅ Current Tags with remove buttons -->
-<% if (community.tags?.length > 0) { %>
-<h4>Current Tags</h4>
-<ul>
-  <% community.tags.forEach(tag => { %>
-  <li>
-    <%= tag?.name || "Unnamed Tag" %>
-    <form action="/communities/<%= community._id %>/tags/remove" method="POST" style="display:inline;">
-      <input type="hidden" name="tagId" value="<%= tag._id %>" />
-      <button type="submit">❌</button>
-    </form>
-  </li>
-  <% }) %>
-</ul>
-<% } %>
+      <form action="/communities/<%= community._id %>/delete" method="POST" onsubmit="return confirm('Are you sure you want to delete this community?');">
+        <button type="submit" class="delete-button">Delete Community</button>
+      </form>
+    </div>
 
-<!-- ❌ Delete community form (separate) -->
-<form action="/communities/<%= community._id %>/delete" method="POST" onsubmit="return confirm('Are you sure you want to delete this community?');" style="margin-top: 1em;">
-  <button type="submit" style="color: red;">Delete Community</button>
-</form>
+  <!-- ✅ Current Tags with remove buttons -->
+  <% if (community.tags?.length > 0) { %>
+    <h4>Current Tags</h4>
+    <ul>
+      <% community.tags.forEach(tag => { %>
+        <li>
+          <%= tag?.name || "Unnamed Tag" %>
+          <form action="/communities/<%= community._id %>/tags/remove" method="POST" style="display:inline;">
+            <input type="hidden" name="tagId" value="<%= tag._id %>" />
+            <button type="submit">❌</button>
+          </form>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
 
-<p><a href="/communities/<%= community._id %>">← Cancel</a></p>
+  <p><a href="/communities/<%= community._id %>">← Cancel</a></p>
+</div>
