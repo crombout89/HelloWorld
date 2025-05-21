@@ -2,7 +2,7 @@
 const express = require("express");
 const router = express.Router();
 const Event = require("../models/event");
-const Community = require("../models/community");           // ← added
+const Community = require("../models/community");
 const WallPost = require("../models/post");
 const User = require("../models/user");
 const { isLoggedIn } = require("../middleware/auth");
@@ -38,6 +38,7 @@ router.get("/events", isLoggedIn, async (req, res, next) => {
       attendingEvents,
       communities,
       includeLeaflet: true,
+      currentUserId: userId
     });
   } catch (err) {
     console.error("❌ Error loading events:", err);
