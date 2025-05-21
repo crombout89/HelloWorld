@@ -4,16 +4,21 @@
 document.addEventListener("DOMContentLoaded", () => {
   const menuToggle = document.getElementById("menu-toggle");
   const drawerNav = document.getElementById("drawer-nav");
+  const iconMenu = document.querySelector(".icon-menu");
+  const iconClose = document.querySelector(".icon-close");
 
   function toggleDrawer() {
-    drawerNav.classList.toggle("visible");
+    const isOpen = drawerNav.classList.toggle("visible");
+
+    if (iconMenu && iconClose) {
+      iconMenu.style.display = isOpen ? "none" : "block";
+      iconClose.style.display = isOpen ? "block" : "none";
+    }
   }
 
   if (menuToggle && drawerNav) {
-    // Click toggle
     menuToggle.addEventListener("click", toggleDrawer);
 
-    // Keyboard toggle (Enter or Space)
     menuToggle.addEventListener("keydown", (e) => {
       if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
@@ -21,7 +26,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
 
-    // Click outside to close
     document.addEventListener("click", (e) => {
       if (
         drawerNav.classList.contains("visible") &&
@@ -29,13 +33,16 @@ document.addEventListener("DOMContentLoaded", () => {
         !menuToggle.contains(e.target)
       ) {
         drawerNav.classList.remove("visible");
+        iconMenu.style.display = "block";
+        iconClose.style.display = "none";
       }
     });
 
-    // ESC key to close
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape") {
         drawerNav.classList.remove("visible");
+        iconMenu.style.display = "block";
+        iconClose.style.display = "none";
       }
     });
   }

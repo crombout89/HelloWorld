@@ -3,9 +3,14 @@
 <header id="top-nav" class="top-nav">
   <div class="nav-left">
     <% if (user && user._id) { %>
-    <div id="menu-toggle" class="icon-wrapper" role="button" tabindex="0" aria-label="Menu">
-      <%- include("icons/nav-menu") %>
-    </div>
+      <div id="menu-toggle" class="icon-wrapper" role="button" tabindex="0" aria-label="Menu">
+        <div class="icon-menu">
+          <%- include("icons/nav-menu") %>
+        </div>
+        <div class="icon-close" style="display: none;">
+          <%- include("icons/nav-close") %>
+        </div>
+      </div>
     <% } else { %>
       <a href="/login" aria-label="Login" class="icon-wrapper">
         <%- include("icons/user-login") %>
