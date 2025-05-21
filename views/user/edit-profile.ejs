@@ -10,7 +10,9 @@
     <!-- Profile Picture -->
     <div style="margin-bottom: 1rem;">
       <label for="photo">Upload Profile Photo:</label><br>
-      <input type="file" name="photo" id="photo">
+      <input type="file" name="photo" id="photo" style ="display: none;">
+      <label for="photo" class="custom-file-button">Choose File</label>
+
     </div>
 
     <% if (user.profile?.profilePicture) { %>
