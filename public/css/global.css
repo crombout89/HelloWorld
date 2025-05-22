@@ -91,52 +91,6 @@ h1 {
   overflow: hidden;
 }
 
-/* Base hidden state */
-#global-modal.inactive {
-  opacity: 0;
-  pointer-events: none;
-}
-
-/* Active/visible modal state */
-#global-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 9999;
-  transition: opacity 0.3s ease;
-  opacity: 1;
-  pointer-events: all;
-}
-
-/* Inner content box */
-.modal-inner {
-  position: relative;
-  background: white;
-  padding: 2rem;
-  max-width: 600px;
-  width: 90%;
-  border-radius: 8px;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-  animation: slideUp 0.3s ease;
-}
-
-/* Close button */
-.modal-close {
-  position: absolute;
-  top: 1rem;
-  right: 1.5rem;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-}
-
 .tag-pill {
   display: inline-block;
   margin: 0 4px 4px 0;

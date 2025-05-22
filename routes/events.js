@@ -1,4 +1,4 @@
-// routes/events.js
+127/4441// routes/events.js
 const express = require("express");
 const router = express.Router();
 const Event = require("../models/event");
@@ -12,7 +12,7 @@ const { getFriendsForUser } = require("../services/friendService");
 const LocationIQ = require("../services/locationService");
 
 // GET: All events you're hosting or invited to
-router.get("/events", isLoggedIn, async (req, res, next) => {
+router.get("/", isLoggedIn, async (req, res, next) => {
   try {
     const userId = req.session.userId;
 
@@ -30,7 +30,7 @@ router.get("/events", isLoggedIn, async (req, res, next) => {
       .lean();
 
     // Communities for the modal dropdown
-    const communities = await Community.find({ members: userId })
+   const communities = await Community.find({ members: userId })
       .sort({ name: 1 })
       .lean();
 
@@ -41,6 +41,7 @@ router.get("/events", isLoggedIn, async (req, res, next) => {
       communities,
       includeLeaflet: true,
       currentUserId: userId,
+      layout: "layout",
     });
   } catch (err) {
     console.error("❌ Error loading events:", err);
@@ -49,7 +50,7 @@ router.get("/events", isLoggedIn, async (req, res, next) => {
 });
 
 // GET: New Event Form (standalone page)
-router.get("/events/new", isLoggedIn, async (req, res, next) => {
+router.get("/new", isLoggedIn, async (req, res, next) => {
   try {
     const communities = await Community.find({ members: req.session.userId })
       .sort({ name: 1 })
@@ -57,18 +58,21 @@ router.get("/events/new", isLoggedIn, async (req, res, next) => {
 
     res.render("events/new", {
       title: "Create New Event",
-      event: { location: { name: "", address: "", latitude: "", longitude: "" } },
+      event: {
+        location: { name: "", address: "", latitude: "", longitude: "" },
+      },
       communities,
       includeLeaflet: true,
+      layout: false,
     });
   } catch (err) {
     console.error("❌ Error showing new-event form:", err);
-    next(err);
+    res.status(500).send("Event modal failed to load.");
   }
 });
 
 // POST: Create a new event
-router.post("/events/create", isLoggedIn, async (req, res, next) => {
+router.post("/create", isLoggedIn, async (req, res, next) => {
   const {
     title,
     description,
@@ -116,7 +120,7 @@ router.post("/events/create", isLoggedIn, async (req, res, next) => {
 });
 
 // GET: Single Event View
-router.get("/events/:id", isLoggedIn, async (req, res, next) => {
+router.get("/:id", isLoggedIn, async (req, res, next) => {
   try {
     const userId = req.session.userId;
     const rawEvent = await Event.findById(req.params.id)
@@ -169,7 +173,7 @@ router.get("/events/:id", isLoggedIn, async (req, res, next) => {
 });
 
 // GET: Manage events
-router.get("/events/:id/manage", isLoggedIn, async (req, res, next) => {
+router.get("/:id/manage", isLoggedIn, async (req, res, next) => {
   try {
     const event = await Event.findById(req.params.id)
       .populate("invitees")
@@ -197,7 +201,7 @@ router.get("/events/:id/manage", isLoggedIn, async (req, res, next) => {
 });
 
 // POST: RSVP to an event
-router.post("/events/:id/rsvp", isLoggedIn, async (req, res, next) => {
+router.post("/:id/rsvp", isLoggedIn, async (req, res, next) => {
   try {
     const { status } = req.body;
     const userId = req.session.userId;
@@ -235,7 +239,7 @@ router.post("/events/:id/rsvp", isLoggedIn, async (req, res, next) => {
 });
 
 // POST: Invite a user to an event
-router.post("/events/:id/invite", isLoggedIn, async (req, res, next) => {
+router.post("/:id/invite", isLoggedIn, async (req, res, next) => {
   try {
     const event = await Event.findById(req.params.id);
     if (!event) return res.status(404).send("Event not found");
@@ -268,7 +272,7 @@ router.post("/events/:id/invite", isLoggedIn, async (req, res, next) => {
       );
     }
 
-    res.redirect(`/events/${req.params.id}`);
+    res.redirect(`/${req.params.id}`);
   } catch (err) {
     console.error("❌ Invite error:", err);
     next(err);
@@ -276,7 +280,7 @@ router.post("/events/:id/invite", isLoggedIn, async (req, res, next) => {
 });
 
 // POST: Remove invitee from event
-router.post("/events/:id/remove", isLoggedIn, async (req, res, next) => {
+router.post("/:id/remove", isLoggedIn, async (req, res, next) => {
   try {
     const { userId: removeId } = req.body;
     const event = await Event.findById(req.params.id);
@@ -295,7 +299,7 @@ router.post("/events/:id/remove", isLoggedIn, async (req, res, next) => {
 });
 
 // GET: Edit Event Form
-router.get("/events/:id/edit", isLoggedIn, async (req, res, next) => {
+router.get("/:id/edit", isLoggedIn, async (req, res, next) => {
   try {
     const event = await Event.findById(req.params.id).populate("tags").lean();
     if (!event) return res.status(404).render("404");
@@ -311,7 +315,7 @@ router.get("/events/:id/edit", isLoggedIn, async (req, res, next) => {
 });
 
 // POST: Update Event
-router.post("/events/:id/edit", isLoggedIn, async (req, res, next) => {
+router.post("/:id/edit", isLoggedIn, async (req, res, next) => {
   try {
     const {
       title,
@@ -353,7 +357,7 @@ router.post("/events/:id/edit", isLoggedIn, async (req, res, next) => {
 });
 
 // POST: Delete Event Tag
-router.post("/events/:id/tags/remove", isLoggedIn, async (req, res, next) => {
+router.post("/:id/tags/remove", isLoggedIn, async (req, res, next) => {
   try {
     const { tagId } = req.body;
     const event = await Event.findById(req.params.id);
@@ -370,7 +374,7 @@ router.post("/events/:id/tags/remove", isLoggedIn, async (req, res, next) => {
 });
 
 // POST: Delete Event
-router.post("/events/:id/delete", isLoggedIn, async (req, res, next) => {
+router.post("/:id/delete", isLoggedIn, async (req, res, next) => {
   try {
     await Event.findByIdAndDelete(req.params.id);
     res.redirect("/events");

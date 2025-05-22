@@ -213,7 +213,7 @@ app.use("/messages", messagesRoute);
 app.use("/", postRoutes);
 app.use('/api/translate', translateRoute);
 app.use('/communities', validateRouter(communitiesRouter, 'communitiesRouter'));
-app.use('/', eventRoutes);
+app.use('/events', eventRoutes);
 app.use('/home', dashboardRouter);
 app.use('/discover', validateRouter(discoverRoutes, 'discoverRoutes'));
 app.use("/friends", friendsRoute);

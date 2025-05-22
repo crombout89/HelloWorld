@@ -1,7 +1,7 @@
 // ===========================
-// Hamburger Menu Toggle Logic
+// Drawer Nav Toggle
 // ===========================
-document.addEventListener("DOMContentLoaded", () => {
+function initDrawerToggle() {
   const menuToggle = document.getElementById("menu-toggle");
   const drawerNav = document.getElementById("drawer-nav");
   const iconMenu = document.querySelector(".icon-menu");
@@ -46,4 +46,11 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
+}
+
+// ===========================
+// Init All on DOM Load
+// ===========================
+document.addEventListener("DOMContentLoaded", () => {
+  initDrawerToggle();
 });
