@@ -1,138 +1,96 @@
-<!DOCTYPE html>
-<html lang="en">
+<link rel="stylesheet" href="/css/events.css">
 
-<head>
-  <meta charset="utf-8">
-  <title>
-    <%= title %>
-  </title>
-  <link rel="stylesheet" href="/css/themes/events.css">
-</head>
+<h2>
+  <%= title %>
+</h2>
 
-<body>
-  <h2>
-    <%= title %>
-  </h2>
-
-  <div class="create-event-cta">
-    <button id="create-event-btn">+ Create Event</button>
-  </div>
-
-  <div class="events-grid">
-    <% createdEvents.forEach(event=> { %>
-      <div class="event-card">
-        <h3>
-          <%= event.title %>
-        </h3>
-        <p class="meta">Members: <%= event.attendees.length %>
-        </p>
-        <p class="desc">
-          <%= (event.description||'').substring(0,100) %>
-            <% if ((event.description||'').length>100) { %>…<% } %>
-        </p>
-        <div class="actions">
-          <a href="/events/<%= event._id %>" class="btn view">View</a>
-          <% if (event.host.toString()===currentUserId) { %>
-            <a href="/events/<%= event._id %>/edit" class="btn edit">Edit</a>
-            <% } %>
-        </div>
-      </div>
-      <% }) %>
-
-        <% attendingEvents.forEach(event=> { %>
-          <div class="event-card attending">
-            <h3>
-              <%= event.title %>
-            </h3>
-            <p class="meta">Members: <%= event.attendees.length %>
-            </p>
-            <p class="desc">
-              <%= (event.description||'').substring(0,100) %>
-                <% if ((event.description||'').length>100) { %>…<% } %>
-            </p>
-            <div class="actions">
-              <a href="/events/<%= event._id %>" class="btn view">View</a>
-            </div>
-          </div>
-          <% }) %>
-
-            <% if (!createdEvents.length && !attendingEvents.length) { %>
-              <p class="no-events">No events yet. Create one!</p>
-              <% } %>
-  </div>
-
-  <!-- Modal Popup -->
-  <div id="create-modal">
-    <div class="backdrop"></div>
-    <div class="modal-content">
-      <button class="close-btn">&times;</button>
-      <h2>Create a New Event</h2>
-      <form action="/events/create" method="POST">
-        <label>Title:</label>
-        <input type="text" name="title" required>
-
-        <label>Description:</label>
-        <textarea name="description"></textarea>
-
-        <label>Start Time:</label>
-        <input type="datetime-local" name="startTime" required>
-
-        <label>End Time:</label>
-        <input type="datetime-local" name="endTime">
-
-        <label>Community:</label>
-        <select name="communityId">
-          <option value="">— none —</option>
-          <% communities.forEach(c=> { %>
-            <option value="<%= c._id %>">
-              <%= c.name %>
-            </option>
-            <% }) %>
-        </select>
-
-        <label>Tags (comma-separated):</label>
-        <input name="tags">
-
-        <label>Location Name:</label>
-        <input name="locationName">
-
-        <label>Address:</label>
-        <input name="locationAddress">
-
-        <% if (includeLeaflet) { %>
-          <div id="map"></div>
-          <% } %>
-
-            <input type="hidden" name="lat" id="lat">
-            <input type="hidden" name="lon" id="lon">
-
-            <button type="submit">Create</button>
-      </form>
+<div class="events-grid">
+  <% createdEvents.forEach(event=> { %>
+  <div class="event-card">
+    <h3>
+      <%= event.title %>
+    </h3>
+    <p class="meta">Members: <%= event.attendees.length %>
+    </p>
+    <p class="desc">
+      <%= (event.description||'').substring(0,100) %>
+      <% if ((event.description||'').length>100) { %>…<% } %>
+    </p>
+    <div class="actions">
+      <a href="/events/<%= event._id %>" class="btn view">View</a>
+      <% if (event.host.toString()===currentUserId) { %>
+      <a href="/events/<%= event._id %>/edit" class="btn edit">Edit</a>
+      <% } %>
     </div>
   </div>
+  <% }) %>
 
-  <script src="/js/event-map.js"></script>
-  <script>
-    // Toggle modal
-    const modal = document.getElementById("create-modal");
-    document.getElementById("create-event-btn").addEventListener("click", e => {
-      e.preventDefault();
-      modal.classList.add("active");
-    });
-    modal.querySelector(".close-btn").addEventListener("click", () => {
-      modal.classList.remove("active");
-    });
-    modal.querySelector(".backdrop").addEventListener("click", () => {
-      modal.classList.remove("active");
-    });
+  <% attendingEvents.forEach(event=> { %>
+  <div class="event-card attending">
+    <h3>
+      <%= event.title %>
+    </h3>
+    <p class="meta">Members: <%= event.attendees.length %>
+    </p>
+    <p class="desc">
+      <%= (event.description||'').substring(0,100) %>
+      <% if ((event.description||'').length>100) { %>…<% } %>
+    </p>
+    <div class="actions">
+      <a href="/events/<%= event._id %>" class="btn view">View</a>
+    </div>
+  </div>
+  <% }) %>
 
-    // Initialize Leaflet picker inside modal
-    document.addEventListener("DOMContentLoaded", () => {
-      if (typeof initEventMap === "function") {
-        initEventMap("map", "lat", "lon");
-      }
-    });
-  </script>
-</body>
+  <% if (!createdEvents.length && !attendingEvents.length) { %>
+  <p class="no-events">No events yet. Create one!</p>
+  <% } %>
+</div>
 
-</html>
+<!-- MODAL HTML (in index.ejs) -->
+<div id="global-modal">
+  <div id="modal-body">
+    <button id="modal-close">✖</button>
+    <!-- Dynamic content container -->
+    <div id="modal-dynamic-content">Loading...</div>
+  </div>
+</div>
+
+<!-- Trigger Button -->
+<button id="create-event-btn">Create an Event</button>
+
+<!-- Inline JS for modal logic -->
+<script>
+  const modal = document.getElementById("global-modal");
+  const openBtn = document.getElementById("create-event-btn");
+
+  openBtn.addEventListener("click", async () => {
+    modal.style.display = "flex";
+
+    const contentDiv = document.getElementById("modal-dynamic-content");
+    contentDiv.innerHTML = "<p>Loading...</p>";
+
+    try {
+      const res = await fetch("/events/new");
+      const html = await res.text();
+      contentDiv.innerHTML = html;
+    } catch (err) {
+      contentDiv.innerHTML = "<p>❌ Failed to load form</p>";
+      console.error(err);
+    }
+  });
+
+  document.getElementById("modal-close").addEventListener("click", () => {
+    modal.style.display = "none";
+    modal.innerHTML = "";
+  });
+
+  document.addEventListener("keydown", function handleEsc(e) {
+    if (e.key === "Escape") {
+      modal.style.display = "none";
+      modal.innerHTML = "";
+    }
+  });
+</script>
+
+<script src="../js/event-map.js"></script>

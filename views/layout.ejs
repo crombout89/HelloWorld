@@ -18,8 +18,6 @@
   <!-- Main Content -->
   <%- body %>
 
-  <!-- Modal Popup Template -->
-  <%- include('partials/modal') %>
 
   <!-- Global App Settings -->
   <%- include('partials/global') %>
@@ -28,7 +26,6 @@
   <% if (user && user._id) { %>
   <%- include('partials/nav-bottom') %>
   <% } %>
-
   <!-- Socket + modular client-side logic -->
   <script>
     const notifications = <%- JSON.stringify(locals.notifications || []) %>;
