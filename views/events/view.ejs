@@ -1,19 +1,6 @@
-<style>
-  #event-view-map {
-    height: 300px;
-    min-height: 300px;
-    width: 100%;
-  }
-</style>
-
 <!-- 🔧 Manage Controls -->
 <% if (isHost) { %>
-<a href="/events/<%= event._id %>/edit">Edit Event</a>
-
-<button type="button" onclick="openModalFromURL('/events/<%= event._id %>/manage')">
-  Manage Event
-</button>
-
+<button id="open-edit-modal" style="margin-top: 60px;">✏️ Edit Event</button>
 <form action="/events/<%= event._id %>/delete" method="POST" style="margin-top: 1rem;">
   <button type="submit" onclick="return confirm('Are you sure you want to delete this event?')">
     🗑️ Delete Event
@@ -105,9 +92,9 @@
     }).addTo(map);
 
     L.marker([lat, lon])
-    .addTo(map)
-    .bindPopup(`<strong>${"<%= event.location.name || 'Event Location' %>"}</strong><br>${"<%= event.location.address || '' %>"}`)
-    .openPopup();
+      .addTo(map)
+      .bindPopup(`<strong>${"<%= event.location.name || 'Event Location' %>"}</strong><br>${"<%= event.location.address || '' %>"}`)
+      .openPopup();
   });
 </script>
 <% } %>
@@ -133,3 +120,42 @@
 <% } else { %>
 <p>No wall posts yet.</p>
 <% } %>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const modal = document.getElementById("global-modal");
+
+    function openModalFromURL(url) {
+      modal.style.display = "flex";
+      modal.innerHTML = `<div style="background:white;padding:2rem;border-radius:10px;">Loading...</div>`;
+
+      fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          modal.innerHTML = `
+            <div style="background:white;padding:2rem;border-radius:10px;max-width:600px;width:90%;position:relative;">
+              <button id="modal-close" style="position:absolute;top:1rem;right:1rem;">✖</button>
+              ${html}
+            </div>
+          `;
+          document.getElementById("modal-close").addEventListener("click", () => {
+            modal.style.display = "none";
+            modal.innerHTML = "";
+          });
+        })
+        .catch(err => {
+          modal.innerHTML = "<p>❌ Failed to load modal</p>";
+          console.error("Modal load error:", err);
+        });
+    }
+
+    // Wire up buttons
+    document.getElementById("open-edit-modal")?.addEventListener("click", () => {
+      openModalFromURL(`/events/<%= event._id %>/edit`);
+    });
+
+    document.getElementById("open-manage-modal")?.addEventListener("click", () => {
+      openModalFromURL(`/events/<%= event._id %>/manage`);
+    });
+  });
+</script>

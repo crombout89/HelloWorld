@@ -181,9 +181,15 @@ router.get("/:id/manage", isLoggedIn, async (req, res, next) => {
       .lean();
     if (!event) return res.status(404).render("404");
 
+    const hostId = typeof event.host === "object" ? event.host._id : event.host;
     const isHost =
-      event.hostType === "User" && event.host.toString() === req.session.userId;
-    if (!isHost) return res.status(403).render("403", { title: "Access Denied" });
+      event.hostType?.toLowerCase() === "user" &&
+      hostId?.toString?.() === req.session.userId;
+    if (!isHost) return res
+      .status(403)
+      .send(
+        "<h2>403 Forbidden</h2><p>You don't have permission to manage this event.</p>"
+      );
 
     const friends = await getFriendsForUser(req.session.userId);
     res.render("events/manage", {
@@ -307,6 +313,7 @@ router.get("/:id/edit", isLoggedIn, async (req, res, next) => {
       event,
       title: `Edit: ${event.title}`,
       includeLeaflet: true,
+      layout: false,
     });
   } catch (err) {
     console.error("❌ Error showing edit form:", err);
