@@ -1,27 +1,27 @@
 <title><%= title %></title>
+<link rel="stylesheet" href="/css/communities.css" />
 
-<div class="page-title">
+<div class="edit-wrapper">
   <h1>Create a New Community</h1>
-</div>
 
-<form action="/communities/create" method="POST" enctype="multipart/form-data">
+  <form action="/communities/create" method="POST" enctype="multipart/form-data">
+    <label for="coverImage">Cover Image:</label>
+    <input type="file" name="coverImage" id="coverImage" accept="image/*">
 
-  <label for="coverImage">Cover Image:</label>
-  <input type="file" name="coverImage" id="coverImage" accept="image/*">
+    <label for="name">Community Name:</label>
+    <input type="text" id="name" name="name" required>
 
-  <label for="name">Community Name:</label><br>
-  <input type="text" id="name" name="name" required><br><br>
-  
-  <!-- 🏷️ Tags Input -->
-  <div>
+    <!-- 🏷️ Tags Input -->
     <label for="tags">Tags (comma-separated)</label>
     <input type="text" name="tags" id="tags" value="<%= community?.tags?.map(t => t.name).join(', ') || '' %>" />
-  </div>
 
-  <label for="description">Description:</label><br>
-  <textarea id="description" name="description" rows="4" cols="50"></textarea><br><br>
+    <label for="description">Description:</label>
+    <textarea id="description" name="description" rows="4" cols="50"></textarea>
 
-  <button type="submit">Create</button>
-</form>
+    <div class="form-buttons-row">
+      <button type="submit">Create</button>
+    </div>
+  </form>
 
-<p><a href="/communities">← Back to My Communities</a></p>
+  <p><a href="/communities">← Back to My Communities</a></p>
+</div>

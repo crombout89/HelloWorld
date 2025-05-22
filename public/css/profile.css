@@ -82,7 +82,7 @@
 }
 
 .custom-save-button {
-  background-color: #5bbb5e;
+  background-color: hsl(122, 34%, 45%);
   color: white;
   font-weight: bold;
   padding: 0.6rem 1.2rem;
