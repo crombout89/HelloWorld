@@ -120,6 +120,12 @@ h1 {
   position: relative;
 }
 
+#modal-close {
+  position: absolute;
+  top: 20px; 
+  right: 20px;
+}
+
 /* =====================
    RESPONSIVITY SETTINGS
    ===================== */
