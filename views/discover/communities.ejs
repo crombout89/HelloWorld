@@ -13,11 +13,11 @@
     <% } %>
     <h2><%= c.name %></h2>
     <p><%= c.description %></p>
-    <% if (community.tags?.length) { %>
+    <% if (c.tags?.length) { %>
     <div class="community-tags">
       <strong>Tags:</strong>
-      <% community.tags.forEach(tag => { %>
-      <span class="tag-pill"><%= tag.name %></span>
+      <% c.tags.forEach(tag => { %>
+      <span><%= tag.name %></span>
       <% }) %>
     </div>
     <% } %>

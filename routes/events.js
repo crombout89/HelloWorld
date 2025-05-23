@@ -132,7 +132,10 @@ router.get("/:id", isLoggedIn, async (req, res, next) => {
 
     const isInvited = rawEvent.invitees.some(id => id.toString() === userId);
     const isAttending = rawEvent.attendees.some(id => id.toString() === userId);
-    const isHost = rawEvent.host._id.toString() === userId;
+    const isHost =
+      rawEvent.hostType === "User" &&
+      typeof rawEvent.host === "object" &&
+      rawEvent.host._id?.toString() === userId;
     const canManage = isHost || isInvited || isAttending;
     const canPost = isHost || isAttending;
     const isVisible =
@@ -182,7 +185,9 @@ router.get("/:id/manage", isLoggedIn, async (req, res, next) => {
     if (!event) return res.status(404).render("404");
 
     const isHost =
-      event.hostType === "User" && event.host.toString() === req.session.userId;
+      rawEvent.hostType === "User" &&
+      typeof rawEvent.host === "object" &&
+      rawEvent.host._id?.toString() === userId;
     if (!isHost) return res.status(403).render("403", { title: "Access Denied" });
 
     const friends = await getFriendsForUser(req.session.userId);

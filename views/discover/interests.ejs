@@ -5,8 +5,8 @@
 <ul>
   <% matchedEvents.forEach(event => { %>
   <li>
-    <a href="/events/<%= event._id %>"><%= event.title %></a>
-    (Match Score: <%= event.score %>)
+    <a href="/events/<%= event._id %>"><strong><%= event.title %></strong></a>
+    — Match Score: <%= event.score %>
   </li>
   <% }) %>
 </ul>
@@ -19,8 +19,14 @@
 <ul>
   <% matchedCommunities.forEach(c => { %>
   <li>
-    <a href="/communities/<%= c._id %>"><%= c.name %></a>
-    (Match Score: <%= c.score %>)
+    <% if (c && c._id) { %>
+    <a href="/communities/<%= c._id.toString() %>">
+      <strong><%= c.name %></strong>
+    </a>
+    — Match Score: <%= c.score %>
+    <% } else { %>
+    <em>Invalid community entry</em>
+    <% } %>
   </li>
   <% }) %>
 </ul>
