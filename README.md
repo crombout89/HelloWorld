@@ -1,6 +1,4 @@
 # HelloWorld.app 🌍
-
-
 **HelloWorld.app – A Social Platform for Events and Communities**
 
 ---
